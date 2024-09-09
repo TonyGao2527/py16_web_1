@@ -1,0 +1,676 @@
+把老师的前端代码完整版本从百度云盘下载到本地；
+	cmd切换到项目根目录py16_web_project
+	输入命令 cnpm install
+	会自动按照package.json文档中的依赖进行更新
+	没有cnpm就使用npm，虽然会非常的慢也凑合用
+	启动： npm run serve
+
+今日内容：
+	测试场景
+	测试计划
+	测试环境
+	顶部标签栏
+
+报错：接口管理 - 切换 项目接口 外部接口
+	uncaught runtime errors:
+	resizeObserver loop completed width undelivered notification.
+	调整 观察者 循环已完成，但有未送达的通知。
+	大意：一直循环绘制大小 超过了限制。
+	是因为 项目接口 外部接口 设置table表格的时候没有指定高度，导致它会始终重复自适应设置大小，导致报错。
+	InterFace.vue - <el-table> - 添加属性 height="500"
+	这里试一试加不加px的区别
+	当超过500的时间会展示滚动条
+	预览  - 接口管理 - 切换 项目接口、外部接口 - 不报错 
+
+报错：左侧菜单 接口管理 切换到 接口测试
+  实际是 请求信息 各个tab 切换报错
+	Uncaught NetworkError: Failed to execute 'importScripts' on 'WorkerGlobalScope':
+	原因：在线域名过期了，无法加载 CodeEdit.vue - script - import 'https://cdn.hsdelivr.net/
+  解决：
+    CodeEdit.vue - script - expect default - computed - editOption - return - useWorker由true改成false。就不会向远程请求地址，不会上传云端校验格式，不会有格式化提示；
+    预览 - 切换 接口测试 - 切换 请求信息 各个tab - 不报错
+
+请求体body 分3种
+  application/json  json数据
+  x-www-form-urlencode  表单数据
+  form-data  表单数据 
+	前端页面输入有可能是json，也有可能是form表单，大部分是form表单
+	x-www-form... 实际是一个表单数据
+	x-www-form... 也设计成json对象输入，可以通过js对象进行转换非常方便，所以这里不用form-data输入框的形式;
+  x-www-form... 和form-data 区别 前者只能文本，后者还可以文件形式。
+CaseEdit.vue
+进入一个组件，首先看expect default设置的属性
+
+解决bug：在选择切换用例的时候没有把用例信息显示在右侧组件模板中；
+  1 当页面选择用力的时候，InterFaceTest.vue - method - selectCase - 用例赋值给this.editCase；
+    this.editCase在<CaseEdit :edit-case='editCase'>标签中绑定，传递给子组建 ；
+  2 CaseEdit.vue
+    接收到 editCase，
+    created 页面渲染时执行
+      判断editCase不为空则调用this.getCaseDesc()获取用例详情数据，
+      然后if同级调用this.getAllFile() （一会儿讲）；
+    watch监听，
+      只要editCase数据有改动(只要切换了左侧用例)
+      则调用this.getCaseDesc()获取用例详情数据;
+    methods 方法
+      async this.getCaseDesc({})异步方法
+        通过用例对象id，获取用例详情，赋值给 this.caseInfo 用来展示右侧用例完整信息；
+        然后调用封装的this.initEditData()，
+          该方法里面实际做的是赋值，复制给data-return中定义的属性，
+          this.caseInfo是包含用例的完整信息，三点解包展开复制给 datas定义的变量；
+          this.caseInfo用力对象是页面项目详情-接口测试-点击左侧用例-F12的响应信息，
+          请求方法、url在interFace中
+          this.name 是用例名称 caseInfo.title
+          this.headers 需要转换成字符串，
+            因为页面是在输入框中输入的json字符串数据，
+            接口取出的是json对象，所以要转化成json字符串；
+            （自己理解字符串就是去掉了key冒号只留{}val部分）
+            JSON.stringify(datas.header || {}, null, 2) 表示将datas.header对象转换为格式化的JSON字符串，
+              第一个参数 `datas.header || {}` 的含义是：
+                如果 `datas` 中的 `header` 属性存在且非空，
+                  则返回 `datas.header` 的值；
+                如果 `datas` 中的 `header` 属性不存在或为空，
+                  则返回一个空对象 `{}`。
+              第二个参数 null 表示没有使用任何替代器或过滤函数。
+              第三个参数 2 表示每个层级都使用两个空格缩进。
+          this.params 需要转换；
+            就是页面查询参数(params) 输入的部分 
+            也就是url问号?后面接的参数；
+          this.jsonParams 需要转换；
+          this.DataParams 需要转换；
+          this.setup_script  this.teardown_scriptu前置、后置脚本
+            本来就是字符串，所以不需要转换
+
+          data.file.forEach() 查看是否有文件进行判断，后面再看；
+
+项目详情-接口测试-右侧-请求信息-请求体(body)如何实现：
+CaseEdit.vue - <el-divider>请求信息
+  里面包含<el-tab-pane>分别是 请求头(headers)、查询参数(params)、请求体(body)
+  <el-tab-pane>请求体 - <el-radio-group>单选组标签
+    属性v-model="bodyType"  在data-return中bodyType定义请求体属性，默认json；
+    子标签<el-radio>单选后会将label的值传给父标签中的bodyType，el官方文档写的；
+    子组件标签<CodeEdit>绑定bodyType，v-if判断===jsom、form、file进行判断
+      就是页面选择的json或x-www或form-data，展示对应输入框内容v-model绑定的数据、lang文本类型，
+    如果判断不是jsom、form，选择的是file也就是form-data，
+      则展示 <div v-else class="file_box">
+      里面又是一行row两列col :span16:8；
+      
+    左侧列里面又分为1行row和4列col :span7:4:7:6；
+      第一行row循环遍历 editFiles文件上传的参数, 
+      editFiles来自 initEditData(){} - datas.file.forEach - 
+        判断item[1]长度=3 则识别file文件，否则识别为text文本，
+        this.editFiles是文件上传的参数的数组，里面又嵌套数组，每个子数组就是一个文件，
+      左侧第一列el-col 添加el-input标签 参数名
+        input标签v-model绑定item[0]是参数名、placeholder="参数名" ；
+      左侧第二列el-col 添加el-select标签 选项
+        el-select标签双向绑定v-model="item[1]"
+        el-select里嵌套el-option 单选 text或file；
+      左侧第三列el-col 添加v-if
+        判断item[1]为file
+        展示el-select单选框，v-model绑定 tiem[2]，
+          <el-option>选项添加v-for循环所有已上传文件fileList，:lable="f.info[0]" :value="f.info"
+        created 添加 this.getfileList() 在页面渲染前获取所有测试文件，
+        method中定义 async getfileList() 调用接口获取后端响应数据返回给this.fileList，
+        预览 - 页面弹窗就会有选项值；
+      左侧第三列el-col 添加v-else
+        判断item[1]为text展示el-input 输入框，v-model绑定 tiem[2]；
+      左侧第四列el-col 添加 el-button删除按钮，
+        将editFiles数组条目index删掉；
+        editFiles.splice(index, 1)
+          删除editFiles中当前索引index
+          从index开始，删除1个元素
+    
+      第二行按钮，点击通过editFiles.push(['', 'text', ''])，默认text
+
+
+    右侧列
+      <el-upload>弹出系统弹窗选择文件 上传文件；
+      前置：
+      api/index.js - uploadFile并不是封装的接口，
+        构造完整URL；
+        构造请求头headers，设置完整JWT token信息，
+          上传文件必须要请求头。 
+        uploadFile:{
+          url: base_url + "/upload/file/",
+          headers:{
+            Authorization:'JWT'+window.sessionStorage.getItem('token')
+          }
+        }
+      <el-upload> 上传文件标签 设置属性  
+          el+ - Upload 上传 - API
+          class="upload-demo"
+          :action 请求url
+          :headers 设置请求头
+          method 请求方法
+          name 用于指定要上传的文件在后端接收时的参数名
+          :on-success="" 文件上传成功时的钩子
+    <el-upload>添加按键插槽<el-button>点击按钮触发事件文件上传操作；
+      method - 添加uploadSucceaa() 
+        // 文件上传成功之后执行的方法
+        uploadSuccess() {
+          // 获取后台所有的文件
+          this.getAllFile
+          // 提示上传成功
+          ElMessage({
+            message: '文件上传成功',
+            type: 'success'
+          })
+    <el-upload>下方并列添加<el-table>文件列表，
+      <el-table>要添加高度属性height，否则容易报错；
+    <el-table>绑定数据 :data="fileList"，
+      里面分成两列<el-table-colum>`已有文件`和`类型`；
+      <el-table-colum>添加默认插槽<template>
+      template添加属性#default="scope"
+      插槽的属性值可通过scope获取，通过文档查看能获取哪些值
+      el+ - Table 表格 - Table-column 插槽 -/default，这里复制scope，它包含三个属性 row,column,$index；
+      <el-table-column> 会循环遍历<el-table>中的:data="fileList"
+        也就是项目详情-接口测试 - F12 - 网络 - 响应信息file遍历的每一行数组就是row
+        scope.row.info[0] 就是每行/每个数组 info中 文件名称
+        scope.row.info[2] 就是文件类型
+
+
+前置、后置
+前置 
+前置标签 <el-tab-pane> - 添加行<el-row> - 
+  添加列<el-col> 左列输入框、右列模板选项；
+  method - add_setup_script - 判断type类型，展示脚本文案；
+
+后置
+  method - addTearDownCodeMod(tp){} 里面用了 Switch() 和case，而不是 if判断，不明白为什么。
+  chatGPT: switch 和 case 适用于多个条件的情况，而 if 条件判断更适合处理少量条件的情况且有else判断。
+  后面会讲 这个功能怎么用
+
+
+CaseEdit.vue
+
+  删除用例 按钮 绑定事件 
+    标签`删除</el-button>`
+    method - deleteCase(){}
+      先弹窗提示是否删除，
+      确认在调用删除api，
+      获取响应信息，
+      判断响应状态吗，
+      为204则再提示删除成功，
+      再重新获取所有项目内外接口信息 store中定义的；
+
+  转换数据格式 方法 
+  // 运行、复制、保存 的前置条件，需调用该方法
+    method - resetEditData() {}
+      // let声明常量还能修改
+      // const声明常量不能修改
+      // 拆包 当前获取的用例对象详细信息 赋值给 let caseData
+      let caseData = { ...this.caseInfo };
+      再将 data - return中用例详细信息分别赋值给 caseData
+        其中一些信息要JSON.parse() JSON格式的字符串转换为JavaScript对象
+      还有file文件根据this.bodyType判断赋值
+      最后 返回对象 return caseData
+
+  保存用例 按钮 绑定事件
+    标签`保存</el-button>`
+    method - async saveCase()
+    先调用this.resetEditData() 获取编辑后的用例数据 
+    const params 接收
+    调用修改接口await this$api.updateTeststep(传参用例id, 编辑后的用力数据)
+    获取后端修改接口响应信息
+    判断status=200，则ElMessage提示保存成功；
+    再获取项目内外所有接口信息；
+    
+    预览 - 修改 - 保存 - 显示提示信息 - 切换用例再切换回来 显示修改后的数据；
+
+  复制用例 按钮 绑定事件 </el-button>
+    method - async copyCase(){} 
+      先调用方法 // 获取编辑/转化后的用例数据；先创建变量存储
+        const params = this.resetEditData();
+        它是 initEditData()反向的过程;
+        initEditData() 是点击左侧用力选项的时候，
+          将取出的信息赋值展示在右侧组件页面上，
+          将后端的数据填充到前端
+        this.resetEditData() 是反向操作，
+          将initEditData()的展示及用户输入的信息再收集起来
+          再向后端发起请求；
+      复制的用例 重命名；
+      params.title = params.title + '_copy';
+      调后端接口-发送请求；
+      const response = await this.$api.createTeststep(params);
+      判断接口响应；
+      if (response.status === 201){}
+        弹出 复制成果提示信息；
+        ElMessage({});
+        再次调用 获取该项目所有内外部接口；
+        this.getAllInterFaces();
+    预览 - 接口测试 - 选择用例 - 点复制按钮 - 成功
+ 
+  运行按钮：
+    标签 <el-col>运行用例列 - <el-button> 
+      - 绑定点击事件@click="runCase"
+    method - 添加方法 async runCase(){}
+      收集用例数据const runData = this.resetEditData()
+      url、method对runData赋值
+      const params 设置参数，必须传两个参数
+        第一个参数data: runData
+        第二个参数env: this.envId 当前参数所在环境的id
+          环境id配置页面：项目详情 - 测试环境 - 服务器域名 配置的；
+          项目详情 - 接口测试 -右侧 Api url只有路径没有设置Base Url 
+            - 页面右上角可选择环境，自行拼接；
+          所以参数中要传值env: this.envId 当前参数所在环境的id
+            在store/index.js/state中配置，再...mapState映射进来
+          runData是运行参数，至于具体运行内容是什么，后面讲后端框架时会讲；
+      再调用后端 运行 接口 $api.runTest(params)，
+        获取响应数据，判断响应状态码，
+        如果为200，响应数据赋值给this.runResult用例的运行结果，
+        ElMessage提示执行完毕
+      后端运行接口$api.runTest(params)在src/api/index.js定义
+      必选项：环境 envId 是必传，接口文档也要有写；
+
+测试组件：
+  输入数据进行测试的时候，
+  不建议使用后端接口 131.4.107.148:18899/docs/ 进行测试；
+  用该测试平台的后端测试该测试平台，相当于自己测试自己，
+  并且这个后端还有些之前遗留的bug没有解决，
+  这个后端接口也有些难理解，后端还没学到，不知道怎么用；
+
+  那自己写的组件如何进行测试呢？
+    有两种途径：
+    1 使用 httpbin.org 浏览器输入；
+      有全局的httpbin专门做接口测试的，
+      但是因为在国外所以很慢。
+      可以自己使用云服务器进行部署，
+      将 $ docker run -p 80:80 kennethreitz/httpbin 
+        中左侧的80端口改成1024以上的端口放在云服务器中用，
+        也可以通过docker进行部署，还要记得加 -p，
+        否则终端一退出会一并退出
+    2 使用老师部署好的 ，没必要自己再去创建了。
+      地址：47.112.233.130:8844 不好用了
+      部署进行配置：项目详情 - 测试环境 - 创建环境/(老师的环境名称选择线上httpbin环境) - 服务器名称 47.112.233.130:8844
+
+  进入地址下滑有很多类型接口 
+    测试那种接口就选哪个：
+    比如测试 生成具有给定状态代码的响应，就选择 Status codes 
+      - get - Try it out - 输入200 - 再点击Execute  
+      - Responses就可以看到返回的数据 ，
+      需要404就输入404。
+    比如测试 返回传递给请求的任何内容，就选择 Angthing - POST(其他的也行) - Try it out - Execute。
+
+  如何使用：
+    1、先创建一个项目(keyou-demo)
+      然后创建环境 项目详情- 测试环境 
+      - 创建测试环境 - 修改环境名、服务器域名 (https://httpbin.org 或者自己搭建的地址)
+      - 基本配置(全局请求头、数据库配置)、全局变量(全局变量、调试运行变量) ，
+      右侧 自定义全局工具函数 测试的时候会调用 - 保存编辑。
+    2、添加接口：
+      项目详情 - 接口管理 - 添加接口 -
+        接口名称：demo
+        URL地址：
+          进入httpbin 47.112.233.130:8844/#/ 
+          - Request inspection(可以用任意一个，先选这个：返回请求者的IP地址。) 
+          - 选第二个GET - /ip - 点开 - 点击 Try it out 
+          - Execute - Curl - curl -X GET "https://httpbin.org/ip" -H "accept: application/json"
+          - 只复制url中的路径，不复制IP地址和端口 
+          - 如这里是`/ip` 
+          - 粘贴在页面弹窗 URL地址中
+        请求方法：与httpbin保持一致 GET
+        接口类型：选 项目接口
+        点确认 按钮 - 项目接口 页面展示添加的新接口
+    3、添加用例：
+      项目详情 - 接口测试 - 项目接口 - 展开刚刚添加的接口demo 
+      - 点击 添加用例按钮 
+      - 输入用例名称 `获取IP地址` 
+      - 点确定
+      点击 刚刚添加的用例 
+      - Api信息中的`GET`和`/ip`自动带进来 
+      - 然后可以设置请求信息，
+        比如查询参数(params) 设置成 {"p1": true, "p2": "liming"} 
+        点击格式化 - 再点击保存 
+      - 选择右上角的环境 - 再点击运行
+      - 页面下滑底部 - 展示响应信息模块
+        (包含：响应体、响应头、请求信息、日志、Assert:成功、Status:200、Time:0.0682s )
+      
+      进入CaseEdit.vue - async runCase() {}
+        - const this.runResult = response.data 
+        在这里获取的响应信息，
+        是调用后端接口运行的，不是页面运行的。
+        一会儿看 响应信息 如何实现的
+
+      页面点击运行run - 查看F12 - 响应信息 - runTest接口
+        响应信息赋值给 runResult
+      CaseEdit.vue - data - return - runResult 初始值是 null
+      也就是在点运行按钮之前为空，点击后有值；
+      所以判断 <div class="result_test" v-if="runResult">
+        点击前为空，不展示响应信息模块 组件，
+        点击后不为空则展示，并且将 runResult 传给<CaseResult>组件，
+        响应信息 独立设置组件，是因为在其他模块还会用到
+
+
+查看<CaseResult>组件内部，
+  定义了props属性 
+    result默认空,
+    showbtn展示按钮；
+  computed - 映射
+    pro 当前选择的项目，
+    interfaces 当前项目的所有接口信息；
+  components 组件注册
+  data - return 设置数据
+  
+  最外层添加 Tabs 标签页/选项卡
+    <el-tabs>标签 就是响应数据外选框；
+    model-value="rb"是单向绑定 不是双向绑定；
+    
+    <el-tab-pane>响应信息默认展示 "响应体"选项，
+      是由父标签model-value="rb"控制的；
+      v-if 判断 
+      .search是搜索['Content-Type']中是否包含('application/json')，
+        search不能换成等于，
+        因为application/json左右可能拼接了其他类型数据， 
+        != -1 说明包含；
+        包含则展示<Editor>组件，也就是CodeEdit.vue， 
+          展示 响应信息-响应体数据，json格式，页面还有json格式化按钮
+      v-else 不包含'application/json' 
+        <Editor>组件 则修改属性，以html信息展示
+    
+    <el-tab-pane>"响应头" - 
+      里面div属性v-if="result.response_header"判断响应头是否存在，
+      再嵌套div进行v-for循环响应头的value、key，
+      使用el-tag标签报告每条key、value
+        key使用<b>标签加粗，
+        value使用<span>标签展示；
+
+    <el-tab-pane label="请求信息"  
+      嵌套div判断v-if 请求体信息是否存在
+        嵌套Collapse 折叠面板, 可以进行展开折叠收起
+        绑定v-model="activeName"
+          嵌套子标签<el-collapse-item
+          分别展示 General,Request Headers, Request Payload部分； 
+      
+      data - return - activeName值是['1', 2, 3]
+        123分别对应展示子标签<el-collapse-item>
+      <template #title>是匿名插槽 显示模块标题
+      
+      General 展示 method、URL
+        Request Headers 展示 key value展示请求头
+        Request Payload 直接全部展示
+
+    <el-tab-pane>日志，
+      先添加滚动<el-scrollbar> - 
+      再嵌套 div 循环
+        v-for (item,index)循环日志信息 result.log-data，
+      div嵌套<el-tag>
+        v-if分别判断item[0]日志类型
+        分别展示 DEBUG、WARNING、EROR、INFO、其他，
+        进行不同type颜色设置 ，
+        分别展示对应的item[1]
+
+    <el-tab-pane disable>断言Assert信息 
+      添加属性 disable是禁用，点击不会进行切换tab；
+      添加命名插槽<template #label> 就是tab的标题；
+      添加3个<span>标签，分别判断 成功、失败、其他 分别展示断言Assert结果
+
+    <el-tab-pane disable> 判断响应状态吗
+      添加属性 disable是禁用，点击不会进行切换tab；
+      添加命名插槽<template #label> 就是tab的标题；
+      v-if="result.statuscode"
+        判<=300展示一个颜色，以及码值
+      否则另一个颜色，以及码值；
+    <el-tab-pane disable> 展示响应时间 
+      result.run_time， 时间格式已经在后端转换好了；
+
+  <div>提交bug按钮 v-if 判断 是失败 且 showbtn=true，
+    则展示提交bug按钮；
+    props - showbtn 默认为true
+    预览 - 选择一个案例 - 运行结果= 失败 - 展示提交bug按钮；
+      运行结果 404 不属于失败，不展示 提交bug按钮；
+      可以添加后置脚本断言HTML状态码，修改成300错误的；
+
+提交bug如何实现：
+  当点击el-button 提交bug按钮的时候，
+    会将修改属性addBugDlg=true，然后展示<el-dialog>标签弹窗，
+    弹窗嵌套<el-from>表单再绑定data - bugForm对象 
+      默认是空对象，保存bug相关信息；
+    <el-from>嵌套<el-form-item
+    <el-form-item嵌套<el-select>选择器 绑定所属接口
+      <el-select>嵌套<el-option>选项
+      <el-option>v-for遍历所有接口，展示选项框，
+      :label 拼接接口名称+接口路径， 
+      :value="iter.id"这个是提交后赋值 
+        <el-option>的:value会传给父节点<el-select>的v-model
+        <el-select>的v-model传给
+          data - bugForm.interface接口的id；
+    下方<el-form-item>嵌套<el-input 展示描述信息，
+      v-model双向绑定bug描述 bugForm.desc，
+      类型type="textarea"文本输入框；
+    下方添加插槽<template> 展示弹窗底部取消、确定按钮
+      取消按钮 将addBugDlg设置为false
+      去定按钮 调用saveBug()方法 提交bug
+
+  methods - async saveBug(){} 新增bug弹窗点保存按钮
+    赋值项目id this.pro.id 给 this.bugFrom.project；
+    赋值当前执行结果 this.result给 this.bugFrom.info；
+    调用封装的后端接口this.$api.createBugs(this.bugFrom)创建bug；
+    判断响应状态码为201弹窗提示条成功；
+      最后将弹窗关闭 this.addBugDlg=false;
+  
+  预览 - 提交bug成功 - 在 bug管理 - 未处理bug - 新增一条数据
+    该数据 可 查看、修改、删除
+    点 查看 页面右侧展开抽屉
+    抽屉底部展示用例执行结果组件，也就是caseResult.vue，
+      所以这块设置成公共组件；
+    bug管理代码写完后可操作，可先用老师版本查看；
+
+
+TestScent.vue
+测试场景 模块
+  左侧的每一个场景，对应右侧的多条接口步骤；
+  F12 - 进入页面，获取所以测试场景，默认场景的步骤两个接口;
+  TestScent.vue - export default
+  - components 注册两个子组件 
+    EditCase 用例编辑,  
+    caseResult 用例结果
+  - data
+    active 判断当前激活选中的是哪个测试场景id
+  - computed映射
+    inter1内部接口，inter2外部接口
+  - methods
+    映射两个异步方法
+      getAllScent 获取所有测试场景
+      getAllInterFace 获取当前项目下的所有接口信息
+    store/index.js
+    - axtions 
+      async getAllScent()
+        取出当前项目的id 传参给api后端接口getTestScent() 
+        获取当前选择项目的所有测试场景
+        判断响应200，调用updateTestScents
+        updateTestScents方法内state.testScents
+          实际存储当前项目的所有测试场景；
+  - async created(){} 
+  点击进入页面时自动执行，
+    获取所有的测试场景 this.getAllScent
+      映射的 testScents 就有数据了
+    if判断testScents测试场景数量长度>0 也就是不为空，
+      this.active = this.testScents[0].id.toString();
+        this.testScents[0]第一个场景 页面自动选择第一个场景
+        .id取到的是int类型
+        .toString()再转换成字符串
+        赋值给this.active 也就是当前选择的哪个测试场景的id
+        标签 <el-menu>场景列表 :default-active="active"
+          默认激活场景列表中第一个测试场景
+      this.scentInfo = { ...this.testScents[0]}
+        场景列表中第一个场景对象 解包赋值给this.scentInfo 
+			await this.getScentData(this.scentInfo);
+        // 传参选择的场景， 调用 获取该场景下的所有测试步骤      
+			this.initSort();        
+			  // 初始化可拖动表格（拖动套件中的用例顺序）
+
+  - methods
+		// 获取测试场景下的所有测试步骤
+		async getScentData(scent) {
+			// this.scentInfo = { ...scent };  // 老师说这一步不用也行
+			const response = await this.$api.getScentDatas(scent.id);
+			if (response.status === 200) {
+				// 测试场景中的测试步骤列表 赋值
+				this.steps = response.data;
+			}
+		},
+
+		// 拖动套件中的用例顺序
+		initSort() {
+			// 选择表格
+			// .querySelector()这是一个选择器，参数是选择的css的类名和body
+			const tbody = document.querySelector('.scent-data-box .el-table__body-wrapper tbody');
+			const _this = this;
+			Sortable.create(tbody, {
+				onEnd(evt) {
+					// 从数组中根据原来的位置的索引将数据删除
+					const currRow = _this.steps.splice(evt.oldIndex, 1)[0];
+					// 将数据放入到新索引的位置
+					_this.steps.splice(evt.newIndex, 0, currRow);
+					// 修改后端用例数据的顺序，暂时不用管这个函数
+					_this.updateScentOrder();
+				}
+			});
+		},
+
+
+F12 - 查看测试场景响应数据 
+  所有场景接口 /testscent/?project=1
+  场景信息接口接口/scentdata/?scent=1 查看数据结构
+    data.step 就是测试步骤id
+TestScent.vue
+  标签 - 
+  整个页面是一行
+    分左右两列 4比20  也就是1比5
+      第一列 左列是测试场景
+      第二列 右列是场景信息 （每个场景的用例步骤接口）
+
+  第一列 左列是测试场景
+    标题 测试场景
+    按钮 添加测试场景，点击绑定addScent
+      addScent(){}方法， 
+        设置参数params包含name名称、project项目id，
+        调用创建测试场景接口$api.createTestScent(传参)，
+        判断响应信息201，message提示添加成功，
+        再获取所有场景信息this.getAllScent();
+    再下方是个<el-menu>列表，
+      默认绑定场景id页面默认选择测试场景active；
+      添加子标签<el-menu-item>，
+        添加for循环testScents当前项目所有测试场景 
+        item每一个测试场景的对象；
+        绑定点击事件 测试场景将item传入getScentData()方法中；
+    
+    getScentData()中
+      this.scentInfo当前选中的测试场景对象 拆包赋值；
+      向后端发起请求$api.getScentDatas()，
+      判断响应200，
+        获取响应信息 当前选择场景的所有测试步骤列表，
+        赋值给this.steps，
+        测试场景千变万化所以不放在store中，
+    到目前 
+      当前选中测试场景id actice、
+      当前选中测试场景对象scentInfo、
+      测试场景中的测试步骤列表  
+      都有了。
+
+
+  第二列 右列是场景信息、用例编辑列 
+    最外层<el-scrollbar>滚动
+    滚动嵌套div ，判断 steps
+    div嵌套<el-divider>分割线
+    <el-divider>嵌套<b>显示标题 场景信息，
+    <el-divider> 下方添加行<el-row>，
+      添加两列<el-col> :span 12:12
+      左列<el-col>嵌套input标签 
+        <el-input v-model双向绑定 scentInfo.name当前选中测试场景名称，
+          嵌套输入框左侧插槽 显示"场景名称"，
+          嵌套输入框右侧插槽 
+            里面嵌套<el-button>保存按钮，
+              点击调用方法 saveScent ，
+              async asveScent方法内部调用
+                $api.updataTestScent()接口，
+                传参
+                  场景id this.scentInfo.id、
+                  场景信息this.scentInfo，
+                判断状态吗200，
+                提示message保存成功，
+                最后再调用获取所有测试场景this.getAllScent;
+      右列<el-col>嵌套两个<el-button>按钮 运行、删除
+        第一个 <el-button> 运行按钮
+          绑定点击事件 runScent 
+          async runScent 运行测试场景
+            与接口测试中运行单条用例类似，
+            要有const params={
+              env:this.envId 环境id, 
+              scent:this.scentInfo.id 场景id}，
+            然后调用$api.runTest()传参params，
+            判断响应状态吗200，
+              this.runScentResult 接收运行结果对象，
+              然后this.ResultDlg 改为true 
+              
+标签<el-drawer> 显示运行结果 页面右侧显示抽屉
+  嵌套div，
+  div再嵌套<el-descriptions> 执行结果，
+    <el-descriptions>再嵌套4个 <el-descriptions-item> 
+    4个标签分别展示 总数、通过、失败、错误
+  下方添加<div>嵌套<b>展示标题 执行详情
+  下方添加滚动<el-scrollbar> 滚动条，
+  <el-scrollbar>嵌套<el-table>
+  <el-table>绑定:data="runScentResult.cases"用例对象信息，
+  <el-table>嵌套多个<el-table-column>，
+  第一个<el-table-column> 可折叠列
+    添加属性type="expand"决定是否能折叠，
+    里面添加插槽<template #default="props">，
+      插槽嵌套子组建<caseResult> 
+        绑定的:result="props.row 就是每一行的用例信息，
+        展示运行后的响应信息模块
+          包含响应体 响应头 请求信息 日志 执行结果 状态 执行时间；
+  其他<el-table-column> 分别显示 用例名 请求方法 响应状态码 执行结果
+    属性prop取的值都是从父标签<el-table>
+      的属性:data="tunScentResult.cases"中取的；
+  最后一个<el-table-column> 执行结果 添加插槽，
+    插槽中嵌两个<span> v-if判断执行结果
+
+
+    第二个<el-divider>嵌套<b>显示标题 执行步骤 模块
+    下方添加<el-scrollbar>滚动条 
+      展示 执行步骤 标题、测试步骤列表
+      项目详情 - 测试场景 - 点击场景 - 右侧点击新增步骤
+      - 右边弹出步骤抽屉 - 抽体重分项目接口、外部接口 
+      - 展示所有接口，及接口包含的用例，可复选
+    滚动嵌套<el-table>绑定:data="steps"测试场景中测试步骤列表
+    <el-table>包含两个<el-table-column> 
+      分别是 步骤名称、按钮(明细、删除)
+    第一列 左列<el-table-column> 
+      嵌套添加命名插槽 属性#default="scope"
+      嵌套两个<span>，
+        第一个span `步骤`+ 索引 + `:`，
+        第二个<span>显示标题，
+          scope.row是父标签steps中的一个对象，
+          stepInfo.title是用例名称
+    第二列 右列<el-table-column> 
+      嵌套添加命名插槽 属性#default="scope"
+      嵌套两个<el-button>标签，
+        分别是编辑、删除
+      编辑 按钮点击右侧展示抽屉，<el-drawer v-model="editStepDlg"
+        展示接口测试-用例编辑组件。 CaseEdit.vue
+        绑定点击事件clickEditStep()
+          传参测试步骤/用例信息scpoe.row.stepInfo；
+        clickEditStep方法内
+          将this.editStepDlg改为true显示弹窗标签<el-drawer> 
+          如何将抽屉设置宽度？
+            可以设置<el-drawer>属性size="65%"
+          <el-drawer>嵌套子组件<EditCase>
+            属性传值 :editCase="editCase" 待编辑的用例
+      删除 按钮
+    </el-table>并列添加<el-button>新增步骤 按钮
+      绑定点击属性addStepDlg修改为true
+        展示<el-drawer>添加测试步骤窗口抽屉，
+        嵌套插槽<template>
+        插槽嵌套<el-tabs>上面 和 <el-affix>底部，
+        <el-tabs> 展示内部接口、外部接口        
+        <el-affix> 悬浮 嵌套两个按钮 确认添加、关闭窗口；
+          关闭窗口是修改addStepDlg为false
+
+
+
+python
+  一个星号*拆元组top
+  两个星号**拆字典dict
+js
+  三个点...拆对象，再一一赋值

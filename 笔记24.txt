@@ -1,0 +1,429 @@
+
+今日内容
+
+1 项目首页
+2  接口测试(最难的)
+	项目接口
+	外部接口
+
+通过cmd 启动项目 - 项目根路径 - npm run serve
+
+ProjectIndex.vue
+刷新页面 报错 null 'id'
+问题：刷新页面store会清空报错：
+	Cannot read properties of null (reading 'id')
+	解决方案：
+	在刷新操作之前，先将store保存会话存储区域
+	在页面加载显示之前，可以从浏览器会话存储区域取出store，然后进行解析，覆盖store对象；
+		项目详情页是一个单页面，是从main.js绑定了根div，app.mount('#app')是在这里面进行渲染页面的；
+		如果在 ProjectIndex.vue设置，则仅对当前组件页面有效
+		要在最初组建App.vue中设置，对所有页面有效；
+	点击浏览器刷新按钮，根组件会重新渲染，所以在跟组建钩子中操作
+	App.vue - script - export default - created(){}钩子 - 、
+	// 钩子函数，通常组件是页面渲染前操作，这里根组件APP创建之后；
+	created() {
+		// 步骤1 存 
+		// 在刷新页面之前，先将store保存回话存储区域
+		// 刷新页面将vue保存在sessionStoragee中
+		// 第一个参数 'beforeunload' 在刷新之前；
+		// 第二个参数是匿名函数，在匿名函数中实现存储；
+		window.addEventListener('beforeunload', () => {
+		// 不是store所有都保存 只保存store.state
+		// state是对象 要转化成JSON字符串
+		// 本地、浏览器会话存储，只能接受字符串传参
+		sessionStorage.setItem('messageStore', JSON.stringify(this.$store.state));
+		});
+
+		// 步骤2  取
+		// 变量接收。 在页面加载显示之前，可以从浏览器会话存储区域取出store
+		const storeData = sessionStorage.getItem('messageStore');
+
+		// 步骤3 判断解析 再 覆盖store对象
+		// 判断如果不为空
+		// 点了刷新storeData才会有值，从登录一步步操作的则无值；
+		if (storeData) {
+		// store不能直接通过=等号赋值修改，所以用以下方式修改替换；
+		// $store.replaceState 是 Vuex 中的一个方法，用于替换整个 Vuex store 的状态。
+		this.$store.replaceState(
+			// Object.assign(目标，源) 是一个 JavaScript 方法，用于将一个或多个源对象的属性复制到目标对象中。
+				//它将源对象的属性合并到目标对象中，并返回目标对象。
+			// JSON.parse(storeData) 将 JSON 字符串解析为 JavaScript 对象；
+			Object.assign(this.$store.state, JSON.parse(storeData))
+		);
+		}
+	}
+
+
+ProjectIndex.vue
+项目详情页-项目首页-【基础信息】-仪表盘形进度条
+	2.2.2 信息图形展示（仪表进度条 一行六列 ）
+		el官网- Layout 布局 - 使用<el-row>标签展示一行多列
+		查看api - 添加并绑定:gutter 栅格间隔（每一列间距）
+			添加属性 :gutter="20"
+			属性向上边距 style="margin-top: 30px;"
+		添加列
+			<el-col>一个标签就是一列，也可以一个标签布局6列
+			API查看span 是栅格，默认24，展示几列就除以几
+			el-row是一大行 el-col一个大列分成6个小列
+		<el-row :gutter="20" style="margin-top: 30px;">
+			<el-col :span="4"></el-col>
+		</el-row>
+
+	el-col 属性:span="4"。列是按宽度分的，只有在多列的时候才会起作用。
+	el-col 标签添加 div class="pre"
+	<!-- 
+		<el-col>一个标签就是一列，也可以一个标签布局6列
+			API查看span 是栅格，默认24，每个el-col的span值=展示几列就除以几；				
+		查看接口文档 - projects - read - 搜索id=1 - 看返回值
+			info每个列的文本包含不同的name、value、单位。
+			使用for循环，在<el-col>添加，不添加就是一整列。v-for="item in projectInfo.info"
+		span="4" 添加后6个仪表板右竖排变横排；
+	-->
+	<el-col span="4" v-for="item in projectInfo.info">
+		<div class="pre">
+			<!-- 
+				el+官网 - Progress 进度条 - 自定义内容 - 源码 - 复制全的el-progress
+				type="dashboard" API可查看属性值；
+					circle 从90°开始 圆圈样式 
+					dashboard 从225°开始 仪表盘样式
+				:percentage 是进度条进度百分比
+					在<el-progress>指定了，在<template>和<span>中可以调用，不用可以不写。
+				status="success" 颜色这个不用 删掉
+				-->
+			<el-progress type="dashboard" :percentage="100">
+				<!-- #default不添加不展示仪表盘中的值
+						{ percentage }不写没有变化
+				-->
+				<template #default="{ percentage }">
+					<!-- 展示value -->
+					<!-- v-if 判断单位为 条的 -->
+					<span class="percentage-value"  v-if="item.name === '执行记录'">
+						<!-- 父标签span做判断，子标签span展示值、单位 -->
+						<span style="color: #6fc79e;">{{ item.value }}</span>
+						<span>条</span>
+					</span>
+					<!-- v-else 判断单位为 个的 -->
+					<span class="percentage-value" v-else>
+						<span style="color: aquamarine;">{{ item.value }}</span>
+						<span>个</span>
+					</span>
+					<!-- 展示name -->
+					<span class="percentage-label">{{ item.name }}</span>
+				</template>
+			</el-progress>
+		</div>
+	</el-col>
+
+	预览 - 显示表格 、进度条，仪表盘进度条内 name、value没换行
+		粘贴el中的样式后，实现换行
+
+
+ProjectIndex.vue
+项目详情页-项目首页-【bug统计】
+	页面下方的【bug统计】模块与上面【基础信息】同理，直接复制从b标签开始。
+	修改b标签 文本为 bug统计
+	el-description-item 其他删掉，只保留一个v-for循环的。
+		循环属性 info改成bugs
+	<el-col 中循环也info改bugs
+		bug列表中单位都一样是个，不需要v-if判断，删掉一组嵌套的span；
+		保存-预览 - 显示数据
+ 		el-col 修改属性 :span="6"列间距
+			这里用6还是1没有区别
+
+
+
+执行记录
+只添加一个b标签。条形图、table自己完成
+
+
+添加样式
+	style 添加 scoped
+	项目名称 .pro_name {}
+	每一列中房图形的盒子 .pre{}
+
+
+基础信息-创建时间-格式化
+	创建文件专门处理事件 src/assets/js/dateHander.js
+		使用正则方式做匹配
+		直接拷贝老师代码，网上也很多。
+		export default{} 默认导出对象
+		rTime(date) 参数接收需要格式化的字符串
+		dateFtt()，第一个参数是传递要格式化的字符串，
+	
+	定义成公共的函数 vue全局属性	
+		main.js
+		// 导入日期处理对象
+		import dataH from './assets/js/dateHander.js'
+		// 定义全局属性
+		app.config.globalProperties.$date = dataH
+	使用
+		ProjectIndex.vue  - <el-descriptions-item> {{ $date.rTime(时间字符串对象) }}
+	预览-刷新报错-重新选择项目进入-时间显示正确
+
+
+
+
+项目详情-接口管理页
+	el+官网 - Tabs 标签页 - 带有边框的卡片风格 - 源码复制el-tabs标签
+	InterFace.vue - template - 粘贴
+	el-tabs
+		属性 type="border-card" 有背景颜色
+	el-tabs 标签内 顶部添加 "添加接口"按钮
+		el-button 添加属性 
+			size="small"大小 
+			type="success"颜色类型 
+			plain默认false是纯粹按钮 
+			icon="Plus"
+				el+官网 - Button 按钮 - 图标按钮 - 源码 - :icon=""就是指定图标
+				按钮左侧添加图标
+				固定定图标不加冒号：，不是固定的要添加。
+				el+官网 - Icon 图标
+	el-tab-pane 分别修改 label="项目接口" label="外部接口"
+		// 添加接口 按钮
+		<el-button size="small" type="success" plain icon="Plus">
+			添加接口
+		</el-button>
+		<!-- 项目接口tab -->
+		<el-tab-pane label="项目接口">
+			<el-table></el-table>
+		</el-tab-pane>
+		<el-tab-pane label="外部接口">
+		</el-tab-pane>
+
+项目接口
+	添加table  el+官网 - Table 表格 - 基础表格 - 源码 - 拷贝<el-table>
+	粘贴在 el-table-pane 项目接口中
+	属性 :data 是要绑定的数据，接口数据
+
+
+列表添加数据 
+获取 项目详情-项目管理-项目接口数据：
+	方式1：只在单个组建获取数据
+		定义api/index.js，在使用组件 script发起接口请求，获取数据。
+	方式2：多个组件数据共享(如接口管理、接口测试都用该接口数据)，都需要获取同一个接口数据。
+		使用vuex store 在 action:{}中定义接口请求，数据保存在state中，再获取使用。
+
+	设置api
+		src/api/index.js - 新增 获取项目接口信息
+		// 获取项目接口信息
+		// 所有接口列表 http://42.192.110.51:18899/docs/#interface-list 
+		//    （这里应该佣的是这个，应为请求路径显示?key=val /interface/?project=2&type=2）
+		// 查看项目接口文档 - Interface - list - Interact - type=1(1项目2外部) - send request
+		// 单个接口用例查询 http://42.192.110.51:18899/docs/#interface-read	
+		//     (/interface/10/?project=1)
+		// 查看项目接口文档 - Interface - read - id=steps外层id
+		// 路径参数就是当前的项目id
+		getInterFaces(parameters) {
+			return httpDev.get('/interface', {
+				// Axios接口文档：github.com/axios/axios - Request Config 
+				//     - params说明，实际就是查询对象，在URL后面加问号的参数
+				// `params` are the URL parameters to be sent with the request
+				// Must be a plain object or a URLSearchParams object
+				// params的值parameters必须是一个纯粹对象 或 URLsessiom
+				//     params: {
+				//         ID: 12345
+				//     },
+				// Axios接口文档：github.com/axios/axios - Example
+				// get('/user?ID=12345')
+				// get('/user', {params:{ID:12345}})
+				// 这两种等价
+				params: parameters
+			})
+		}
+	
+	
+	index.js | src/store 
+	保存 获取项目接口信息 Interfaces: []
+		- state - 添加Interfaces
+			// 保存当前选择项目的接口信息到数组；
+			Interfaces: [], 
+
+		修改 Interfaces
+		 - mutations -  添加saveInterface(){}
+			// 修改 Interfaces
+			// 保存当前项目的接口信息到Interfaces数组的方法
+			// value 是新的接口信息
+			saveInterface(state, value) {
+				state.interfaces = value;
+			},
+
+		调用 接口请求 的方法
+		 - actions全局异步请求
+		actions: {
+			// 项目详情-接口管理-(项目接口、外部接口)信息
+			// 定义全局的异步方法，如果有后端接口请求，放在此处定义；
+			// 第一个参数comtent实际是一个store对象，不是state；
+			async getAllInterFaces(content) {
+
+				// 获取项目下的所以接口信息
+				// 获取api信息，这里不是组件不能用$美元符号，需要先导入
+				//     import api from '../api/index.js'
+				// Axios接口文档：github.com/axios/axios - Request Config 
+				//     搜索 params：参数必须是纯粹的对象{key: val}，不是只传一个值。
+				//     Must be a plain object or a URLSearchParams object
+				// 使用变量接收 response
+				const response = await api.getInterFaces({
+					// 这里是params，必须传对象 要有花括号{}
+					// 项目接口文档 Interface-read-Interact-project输入1查询，
+					//     接口路径问号右侧显示 ?project=1，那key就是project，值就是1是项目id
+
+					project: content.state.pro.id
+				})
+
+				// 调用 保存信息 方法
+				// 判断响应值为200 则为成功
+				if (response.status === 200) {
+					// 将项目接口数据保存
+					// 错误 方式 不能直接等于
+					// content.state.interfaces = response.data
+					// 正确 方式
+					content.commit('saveInterface', response.data)
+				}
+			},
+		},
+	
+		// 接口信息存入到变量中，没有区分类型type，type为1是内部接口，type为2是外部接口
+		store-index.js-state
+			interfaces:[] 可以拆成内外两个，
+			// 项目详情-接口管理-项目接口(type=1) 数据
+			interfacesForPro: [],
+			// 项目详情-接口管理-外部接口(type=2) 数据
+			interfacesForThird: [],
+
+		也可以放在store - index.js - getters:{}计算属性中
+		getters: {
+			// 项目详情-接口管理-项目接口
+			Inter1(state) {
+				// filter设置匿名函数，如果为真则取出数据
+				// item是遍历的每一个项目信息小数组
+				return state.interfaces.filter((item) => {
+					return item.type === '1'
+				})
+			},
+			// 项目详情-接口管理-外部接口
+			Inter2(state) {
+				return state.interfaces.filter((item) => {
+					return item.type === '2'
+				})
+			},
+		},
+
+	先调用获取接口数据-再调用过滤数据
+	
+	Interface.vue 
+	导入
+		import { mapGetters, mapActions } from 'vuex'
+	映射
+		computed: {
+			...mapGetters(['inters1', 'inters2']),
+			...mapState(['interfacesForPro', 'interfacesForThird'])
+		},
+		methods:{
+			...mapActions(['getAllInterFaces'])
+		}，
+		
+		// 添加钩子 页面渲染加载前执行
+		created() {
+			console.log("日志 this.inters1：", this.inters1);
+			// 调用store - actions 方法
+			// 获取 项目详情-接口管理-数据
+			this.getAllInterFaces();
+			// 调用该方法后interfaces就有数据了， inters1和2自动更新就有数据了
+		},
+	
+	展示数据
+		项目详情-接口管理-项目接口
+		Interface.vue - template - el-tabs - el-button - el-tab-pane项目接口 
+			- el-tab - :date绑定"inters1"
+			el-table-column 绑定属性
+				prop="name" label="接口名称"
+				prop="method" label="请求方法"
+				prop="url" label="接口地址"
+				宽度去掉 默认100%
+
+		项目详情-接口管理-外部接口
+			再复制一个 el-table-column 做"操作"列，包含编辑、删除 按钮
+			prop不用删掉，label="操作"
+			修改成闭合标签，添加插槽添加按钮
+			el+官网 - table表格 - Table-column 插槽 - 横线"-"/default是默认插槽
+			<!-- 
+			el+官网 - table表格 - Table-column 插槽
+				- 横线"-"/default是默认插槽
+				这里的scope可以任意命名，它取到的是接口文档中的row、column、$index
+				plain 是否为朴素按钮
+			-->
+			<template #default="scope">
+				<el-button size="small" type="success" plain icon="Edit">编辑</el-button>
+				<el-button size="small" type="success" plain icon="Delete">删除</el-button>
+			</template>
+
+	预览
+		Network Error
+		坑能是跨域问题，属于后端问题，在后端Django的配置文件加个配置就可以了；
+		也可能是 api请求地址不对，结尾缺少斜杠“/”
+
+	用假数据替代(临时解决方案)：
+		复制接口文档响应信息，默认data格式，选择Row格式复制
+			http://42.192.110.51:18899/docs/#interface-list
+			- Interact - Raw - Send Request - 复制[]数据
+		index.js | src/store - getAllInterFaces()
+			内容全部注释掉
+			新增 
+			const data = 粘贴数据，最外层方括号。
+			content.commit('saveInterface', data)
+		
+	预览 显示 项目接口内容
+
+
+获取 项目详情-项目管理-外部接口数据：
+	InterFace.vue 
+	复制 内部接口 el-table标签
+	粘贴 外部借口 el-tab-pane 中
+	:data="inters2"
+	其他数据不变
+	
+	预览 - 报错 循环...(自己写的时候没遇到报错)
+
+
+
+
+项目详情 - 接口测试 页面
+InterFaceTest.vue
+template
+	el-row 页面整体看做一个大行，里面分成左右两列，左右el-col列默认上下分，通过样式改成左右分。
+	span是区域比例 左列 :span="4" 右列:span="20" ，右列宽度是左侧5倍。设置后预览由上下变成了左右。
+左列<el-col :span="4">
+	添加div class="list_box"
+	添加 Tabs 标签页
+		el官网 - Tabs 标签页 - 自定义标签页的内容 - 复制源码<el-tabs> - 粘贴
+	里面包含template的el-tab-pane 删掉，只保留2个
+	<el-tabs>和<el-tab-pane>标签 中间添加按钮  下添加按钮 "接口管理"
+	<el-tabs> 添加属性 stretch 便签宽度自动撑开
+		预览 - 两个tab自动撑满整个左列
+	2个el-tab-pane 标签- label 休改成"项目接口"、"外部接口"
+		<el-tabs type="border-card" class="demo-tabs" stretch>
+			<!-- width:100% 占满整个左侧列宽度 -->
+			<el-button size="small" type="success" style="width:100%" icon="Link">
+				接口管理
+			</el-button>
+			<el-tab-pane label="项目接口">Role</el-tab-pane>
+			<el-tab-pane label="外部接口">Task</el-tab-pane>
+		</el-tabs>
+	
+		预览 - 由于名称长，左侧列宽度不够了，自动展示左右切换按钮。后面会通过样式再修改。
+
+右列 <el-col :span="20">
+	添加<div>右侧区域<div>
+
+添加样式
+	style - 添加 scoped
+	<style scoped>
+		.list_box {
+			/* 高度*/
+			height: calc(100vh - 68px);
+			/* 添加阴影 */
+			box-shadow: 0 0 5px #00aa7f;
+			/* 上面两个都添加才有效果，单拿一个都没有效果 */
+		}
+
+上午结束

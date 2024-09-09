@@ -1,0 +1,852 @@
+hx27
+
+新增步骤：
+  测试场景-点击场景-点击新增步骤-右侧弹出抽屉-显示接口用例步骤选项
+  标签 新增步骤 <el-button @click="addStepDlg = true">
+    绑定事件，修改true，
+    下方抽屉标签<el-drawer v-model="addStepDlg">弹出来
+  <el-drawer> 嵌套 插槽<template>
+  <template>插槽嵌套<el-tabs>、<el-affix>
+  <el-tabs>嵌套两个<el-tab-pane>分内部接口、外部接口；
+
+  内部接口
+    <el-tab-pane> 嵌套<el-tree>树
+      el+ - Tree 树形控件
+    <el-tree>属性
+      :props="addTreeProps"就是树结构；
+      :data=inters1 绑定的 项目接口列表 store-getters-inters1；
+    <el-tree>嵌套默认插槽<template>，
+      默认插槽接收两个属性#default="{node, data}"
+      data 是inters1遍历的结果，是每一个接口对象
+    <template>默认插槽嵌套<span>；
+    <span>嵌套两个<div>，分别展示接口名称、用例标题；
+
+    接口名称：div添加判断v-if="data.nme"不为空则展示，
+      嵌套<b>标签 添加样式-颜色
+      <b>标签嵌套:
+        el-icon>使用<Paperclip>左侧展示图标
+        并列嵌套<span> 展示{{ data.name }}右侧展示接口名称
+
+    用例标题：<div>添加判断v-if="data.title"，嵌套<b>标签，<b>添加颜色样式，
+    <b>嵌套：
+      1 <el-icon>使用<Link />
+      2 并列嵌套<span> 文案`用例`
+      <b>并列添加<span> 展示{{ data.title }}
+
+  外部接口：同 内部接口，只是inters1替换inters2
+
+  内外接口父<el-tabs>标签，并列添加<el-affix>；(固定悬浮底部的按钮)
+    <el-affix> 嵌套<div>
+    <div>嵌套两个按钮<el-button>：确认添加、关闭窗口；
+    <el-button>外层包裹标签<el-tooltip>是鼠标悬浮在按钮上时展示的提示信息；
+
+    按钮<el-button>关闭窗口，
+      绑定@click="addStepDlg=false" 实现窗口关闭效果，
+      整个<el-drawer v-model="addStepDlg">弹窗消失；
+    按钮<el-button>确认添加，
+      绑定@click+"addToScent('add')"，
+        点击后往测试场景中添加用例数据的方法；
+
+  进入 async addToScent() | TestScent.vue/methods
+    1 先调用this.getcheckedCase()获取树形控件中被选中的用例，用例数组；
+    2 let order_s = this.steps.length
+      this.steps是当前测试场景已经添加的测试用例所在的数组，
+        勾选后显示步骤1步骤2步骤3的数据；
+        测试场景 - 点击场景 - 右侧场景信息 的步骤集合
+      .length获取长度，就是获取索引，目的是为了给测试步骤添加排列顺序序号；
+    3 (let value of this.checkedCase) 是nodeJs中的for循环
+    3.1 ...value遍历出一个测试步骤的信息复制给 let item
+    3.2 order_s += 1 测试步骤序号+1
+    3.3 调用后端接口$api.addScentData，
+      传参({})数组，包含:
+        测试步骤id step: item.id、
+        当前所在场景id scent: this.scentInfo.id、
+        传新增序号sort: order_s。可通过接口文档查看传参；
+    3.4 判断if响应201 创建成功，else创建失败，
+      都有ElNotification({})提示；
+    4 再次调用 获取场景下所以测试步骤 
+      this.getSentData(this.scentInfo)
+      方法内赋值this.step就是新的测试步骤的数据
+    5 再获取所有接口信息 this.getAllInterFace()
+    一个一个遍历，最终添加所有的。
+    预览 - 测试场景 - 选择场景 - 点 新增步骤 - 右侧弹窗 勾选用例 - 确认添加 - 有添加成功提示信息、执行步骤有新增 strps有被修改 有新增序号；
+
+
+
+进入 getcheckedCase(){} | TestScent.vue
+  1 this.$refs.treeM1.getCheckedNodes();
+    treeM1、treeM2分别是标签<el-tree 的属性ref="treeM1"绑定数据，
+    一个标签添加了ref代表当前组建的引用
+      名称为treeM1、treeM2分别代表内外部接口标签<el-tree>组件的引用名称，
+    $refs.treeM1代表获取<el-tree>整个组件
+    .getCheckedNodes()作用：
+      进入官网 el+ - Tree 树形控件 - 搜getCheckedNodes
+        - 会返回当前节点选中的数组
+          (也就是内部接口选中的用例会返回成一个数组)
+  Nodes1内部接口选择的用例，
+  Nodes2外部接口选择的用例，
+  [...Nodes1, ...Nodes2 ]分别拆包放到大的数组Nodes里面，
+    也就是包含了当前选择的所有用例
+  Nodes.filter(function(item, index))过滤
+    取出用例名称return item.title，再return result返回；
+  这就是getcheckedCase()作用。
+  测试场景 - 新增步骤 - 右侧弹窗 - 选择的用例
+
+getcheckedCase() 和 this.steps啥区别，不明白？
+  getcheckedCase()选中计划添加的
+  this.steps已经添加好了的
+
+测试场景 - 场景 - 执行步骤 list - 
+  编辑 按钮点击就是弹出用例编辑的弹窗，
+    绑定 @click="clickEditStop(scope.row.stepInfo)"方法；
+  删除 按钮 
+    绑定 @click="clickDelete(scope.row.id)"
+    传参row是测试步骤对象，然后取id，
+      方法内调用后端接口$api.delScentData(id)，
+      然后$message提示删除成功，
+      再重新获取测试步骤信息this.getScentData(this.scentInfo)
+
+
+
+
+
+TestPlan.vue
+测试计划 菜单 模块
+  每个测试计划 添加多个不同的测试场景
+    下单场景
+    新增场景
+    修改场景
+    冒烟计划
+    回归计划
+<template> 嵌套一行<el-row>
+  <el-row> 分三列<el-col>，
+    第一列左列`测试计划`列表，
+    第二列中间`计划编辑：基本信息、测试场景
+    第三列右侧`通过率趋势图`，:span比例 4:10:10
+  下面是抽屉弹窗<el-drawer>
+
+expect default - data - return - 是测试数据，
+  与测试场景TestScent.vue类似  
+  // 选中激活的测试计划id
+  active: '1',
+  // 测试计划列表
+  planList: [],
+  // 当前选中的测试计划信息, 当前选中测试计划对象
+  planInfo: null,
+  // 测试计划中所有测试场景
+  scents: [],
+  // 测试计划中所有运行记录
+  records: [],
+  // 是否展示 添加测试场景的弹窗
+  drawer: false,
+  // 存储勾选要添加到测试计划中的测试场景
+  addScentList: [],
+
+expect default - computed 
+  ...mapState(['pro当前选择的项目', 'envId当前选择环境id', 'testScents当前已经选择项目下的所有测试场景])
+  chartData: function(){}构造折线图的数据
+
+expect default - method
+  不同的计划方法：
+  // 获取所有测试计划
+  async getAllPlan(){}
+    调用后端接口$api.getTestPlan(this.pro.id)传参项目id 
+      获取当前项目所有测试计划，
+    判断响应===200，
+      this.planList=response.data
+        数据存放在this.planList测试计划列表中 
+        没有放在store中 因为不是多个页面共用 所以不用放，
+      判断this.planList测试计划列表是否>0
+      并且&&当前选中的测试计划有的值，
+        this.active =取列表[0]
+          第一个测试计划id转化为字符串类型,
+        调用方法this.getPlanData()获取计划下所以测试场景 
+          默认传参this.planList[0] 
+          (也就是默认选中第一个测试计划)；
+
+  // 获取测试计划下所有测试场景：
+  async getPlanData(plan){}
+    { ...plan } 拆包-
+    plan是传入列表中的某个测试计划this.planList[n]
+    - 赋值给this.planInfo当前选中的测试计划信息，
+      （传参this.planList[0]也就是默认选中第一个计划）；
+    调用后端接口await this.$api.getTestScent()
+      传参测试计划id {testplan: plan.id}；
+    断response.statues == 200 
+      将响应结果response.data放在this.scent当前计划的所有测试场景信息；
+    最后在判断外获取测试执记录数据this.getAllRecord()
+
+  // 获取测试计划所有执行记录
+  async getAllRecord()
+    调用后端接口awat this.$api.getTestRecord()
+      传参测试计划id{plan: this.planInfo.id}；
+    判断响应码status == 200，
+      则响应data也就是执行记录赋值给this.records。
+
+目前为止 当加载页面后，已确定内容：
+  active 默认选择第一个 测试计划
+  planList 测试计划列表
+  planInfo 默认选择第一个测试计划对象
+  scents 测试计划下的所有测试场景
+  records 该测试计划的历史执行记录，是数组
+
+添加测试计划
+async addPlan()
+保存修改的测试计划名，
+async savePlan()
+运行测试计划
+async runPlan()
+删除测试计划
+delPlan()
+selectTable(val)
+添加选中的测试场景到测试计划中
+async addScentToPlan()
+删除测试计划中的测试场景
+async delPlanInPlan(index)
+
+expect default - created() 钩子 页面渲染前执行 
+  this.getAllPlan(); 获取所有的测试计划
+
+expect default - watch:{}
+  添加 records(){}执行记录数组
+  最开始是空的，后面可能不为空
+  if(val)判断不为空，
+    调用通过率趋势图进行渲染this.$chat.chat3()，
+    $chart
+      在src/assers/js/chart.js 创建
+      在src/main.js中定义全局属性
+  
+
+  src/main.js
+  // 将定义echarts图表对象绑定为全局属性
+    import chart from './assets/js/chart.js'
+    app.config.globalProperties.$chart = chart
+
+  src/assers/js/chart.js
+  // 图标对象
+    默认返回4个函数 chart1 chart2 chart3 chart4
+    也就是$chart对象包含这4个函数
+
+    chart1(ele, data, dataLabel) 横向列表
+      ele 柱状图是个div的容器
+      data 数据数组
+      dataLabel 柱状图名称
+      只了解这三个参数即可，下面如何实现无需掌握直接copy
+
+    chart2(ele, datas) 饼图
+      ele: 展示图表的元素对象
+      data: 嵌套对象{}的数组[]
+        对象包含 value和name
+
+    chart3(ele, value, label) 折线图
+      ele 元素对象
+      value 数据 在哪里显示图表
+      label 每条数据的名称 x 时间点
+
+    chart4(ele, datas, data_label)
+      ele
+      datas
+      data_label
+
+回到TestPlan.vue - expect default 
+- watch:{} 
+  records(val)，使用chart3()是折线图
+    3个参数(
+      this.$refs.chatTable, 
+        所在位置<el-divider> 
+          - 通过率趋势图<div ref="chartTable">
+      this.chartData.value数据, this.chartData.label名称，
+        是在计算属性 computed - chartdata 定义的值；
+- computed - chartdata ：
+  let runData 存放执行时间的数据
+  let pass'Rare 存放通过率的
+  this.records是执行历史记录，
+    computed作用：一进入页面就会自动执行，并且会用缓存优于watch
+  for循环this.records，
+    item就是每个记录的对象，
+    item.create_time取出执行时间，
+      $date.rTime格式化时间，
+      push存入到let runDate中；
+    item.pass_rate通过率.toFixed(2)转化两位小数，
+      parseFloat内置函数解析Float类型，
+      push存入到let passRate中；
+    再定义label数据名称、value数据，
+      return返回对象通过reverse()，
+        .reverse()反转数组的顺序，
+        使最近的日期及对应的数据显示在图标最左侧
+
+
+
+TestPlan.vue 页面布局
+从上向下
+第一列<el-col> 和测试场景一样 TestScent.vue
+  嵌套<div class=list_box>
+    再嵌套<div class="title"> 标题：测试计划
+      <el-button> 添加测试计划 按钮
+        添加width:100% 是将整个按钮宽度填充满
+        调用@click="addPlan" 添加测试计划
+      <el-menu> 场景列表
+        <el-menu-item> v-for循环planList
+          嵌套<el-icon>   
+          嵌套<span>item.name
+ 
+  // 添加测试计划 方法  
+  async addPlan(){}
+    name: 'New Plan' 新命名 添加新计划
+    调用后端接口 创建测试计划，传参params对象；
+    判断响应===201
+      提示成功
+      在调用this.getAllPlan(); 获取所有测试计划
+
+  // 获取所有的测试计划
+  async getAllPlan(){} 
+  调用后端接口this.$api.getTestPlan()
+  判断响应码===200
+    响应data赋值给this.planList，测试计划列表就有更新值了；
+    // 设置默认激活的测试计划，并获取数据；
+    判断(this.planList.length > 0 && this.planInfo == null)
+      计划列表不为空 && 当前选中的测试计划信息 为空
+      为什么要添加 this.planInfo == null
+      // 不加this.planInfo == null，每次调用时（比如页面刷新或其他情况），
+      //   都会强制重置 this.active 为 planList 中的第一个计划，
+      //   并且重新获取这个计划的数据。
+      this.acrive当前展示的测试计划赋值 = this.planList[0]
+        测试计划列表第一个.toString()转换成字符串;
+      // 调用方法 获取该测试计下所有的测试场景
+      this.getPlanData(this.planList[0])
+
+  // 获取测试计划下所有的测试场景
+  // plan this.planList遍历的item测试计划对象 ，默认显示this.planList[0]
+  async getPlanData(plan) {
+    // if (!plan || !plan.id) return;
+    // 测试计划对象拆包
+    this.planInfo = { ...plan }
+    console.log("this.planInfo::", this.planInfo)
+    // 获取测试计划下所有的测试场景。调用后端接口
+    const response = await this.$api.getTestScent({
+      testplan: plan.id
+    });
+    if (response.status === 200) {
+      // 赋值(选择的计划的)测试场景
+      this.scents = response.data;
+    }
+    // 获取测试计划所有的执行记录
+    this.getAllRecord();
+  },
+
+  // 获取测试计划所有的执行记录
+  async getAllRecord() {
+    // 调用后端接口
+    const response2 = await this.$api.getTestRecord({
+      // 传参 当前选中测试计划id
+      plan: this.planInfo.id
+    });
+    if (response2.status === 200) {
+      // 赋值 测试计划中所有运行记录
+      this.records = response2.data;
+    }
+  },
+
+到此，也就是点击了页面的 添加测试计划 按钮，标签调用addPlan
+  再依次嵌套调用 active, planList, planInfo, scents, records 都会有值
+
+<el-button>添加测试计划按钮下方 添加 <el-menu>测试计划列表
+<el-menu> :default-active="active"> 嵌套 <el-menu-item>
+  <el-menu-item>
+    v-for 循环 planList测试计划列表
+    :index="item.id.toString()"绑定每个测试计划id 转字符串.toString()
+    @click="getPlanData(item)" 点击选择某一个测试计划后，
+      父标签 :default-active的值"active"就会改变，
+      active指向的是:index="item.id.toString()"当前选择的计划，但planList测试计划列表是没有改变的，planInfo scents records跟随更新改变，item是测试计划列表的一个对象 item.name就是测试计划名称；
+
+标签第二列<el-col>  用例编辑
+  最外层 <el-col> v-if判断 planInfo 当前选中测试计划是否不为空，
+    则展示第二列信息
+    <el-divider>分割线 基本信息
+    并列<el-row> 一行 二列 :span 16:8
+      <el-col :span="16">第一列
+        <el-input> 输入框 v-model="planInfo.name"绑定测试计划名称
+          <template #prepend> 左侧添加插槽，显示 场景名称
+          <template #append> 右侧添加插槽，嵌套<el-button> @click="savePlan" 保存 测试计划 按钮
+      <el-col :span="8"> 第二列
+        <el-button> 运行按钮 绑定@click="runPlan"
+        <el-button> 删除按钮 绑定@click="runPlan"
+
+
+
+  // 运行测试计划
+  async runPlan() {
+    if (this.envId) {  // 判断当前选则的环境Id
+      const params = {  // 创建组装对象参数c
+        env: this.envId,
+        // 如果以测试计划运行就是测试计划id；
+        // 如果以测试场景运行就是测试场景id；
+        // 如果是以单条用例运行就是单条用例id；
+        plan: this.planInfo.id
+      };
+      this.$message({  // 提示开始运行; 
+        type: 'success',
+        message: '开始运行！',
+        duration: 1000,
+      });
+      // 调用后端接口
+      const response = await this.$api.runTest(params);
+      if (response.status === 200){
+        ElNotification({  // el - Notification 通知 - 右侧展示通知
+          title: '提示',
+          message: response.data.status,
+          duration: 1000
+        });
+        // 再次 获取测试计划所有的执行记录
+        this.getAllRecord();
+      }
+      console.log("测试计划点运行 且成功 response.data", response.data);
+    } else{
+      this.$message({
+        type: 'warning',
+        message: '当前未选中测试环境！',
+        duration: 1000,
+      });
+    }
+  },
+
+  // 删除测试计划
+  delPlan() {
+    // 点击后先弹出提示窗
+    // el- Message Box 消息弹出框
+    ElMessageBox.confirm(
+      '确定要删除吗？',  // 提示信息
+      '提示',  // 弹框左上角 标题
+      {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning',
+      }
+    )
+      // 点`确定`按钮执行这里
+      .then(async () => {
+        const response = await this.$api.delTestPlan(this.planInfo.id);
+        if (response.status === 204) {
+          ElMessage({
+            type: 'success',
+            message: '删除成功',
+            duration: 1000,
+          })
+          // 再次 获取所有测试计划
+          this.getAllPlan();
+        }
+      })
+      // 点`取消`按钮执行这里
+      .catch(() => {
+        ElMessage({
+          type: 'info',
+          message: '已取消删除',
+          duration: 1000,
+        })
+      })
+  }
+
+
+  页面预览-点 运行按钮  
+    弹出提示
+    通过率趋势图新增一条数据。
+    并且`执行记录`应新增一条 在右侧测试报告可以查看 后面讲
+
+    如果该计划一条测试场景都没有，
+      应该有个运行提示，
+      判断该计划下所有场景scents是否为空：
+      点击删除提示有定时任务在执行，还不能删除；
+
+
+// 测试场景列表
+  <el-divider>分割线 测试场景 
+  <el-button>添加 按钮
+    属性：绑定@click="drawer=true"展示抽屉，
+    <el-drawer v-model="drawer">抽屉标签展示
+  <el-table>
+
+<el-drawer v-model="drawer"抽屉标签
+  <template #header> 添加插槽显示标题 添加测试流程；
+  添加 第一个<div class="select_content">
+  <div>嵌套<el-table ref="addRef">
+    <el-table ref="addRef">绑定数据 :data="Scents2"；
+
+// 可以添加到任务中的套件
+		Scents2: function () {
+			// 获取计划中没有添加的所有测试场景
+			// 项目中所有的测试场景
+			// .filter() 返回一个新数组，其中包含原数组中所有使提供的函数返回 true 的元素。
+			let newSuites = this.testScents.filter((item, index) => {
+				// this.scents（选择的/某个）测试计划下所有测试场景
+				// .find遍历数组，并返回第一个使提供的函数返回 true 的元素的值。如果没找到则返回 undefined。
+				// 叹号是取反 目的是已经添加的测试场景不能再次选择
+				return !this.scents.find(item2 => {
+					return item2.id == item.id
+				});
+			});
+			return newSuites
+		}
+
+<el-table ref="addRef">
+  绑定事件@selection-change="selectTable"
+    // 将选中的测试场景id保存到 addScentList 中
+    // Vue.js 的事件系统自动处理参数传递。将新的选择列表（一个包含被选中行的对象数组）作为参数 val 传递给 selectTable 函数。
+    selectTable(val) {
+      // 这一行代码清空了 this.addScentList 数组，
+      //     确保每次调用 selectTable 函数时，
+      //     都会从一个空数组开始填充数据。
+      this.addScentList = []
+      // forEach 是一个数组方法，用于遍历数组中的每个元素。
+      val.forEach(item => {
+        this.addScentList.push(item.id);
+      });
+    },
+
+  嵌套<el-table-column type="selection"> 
+    type 如果设置了selection则显示多选框
+  嵌套<el-table-column prop="name">
+    name就是Scwnrs2对象中的name场景名称
+
+<el-drawer v-model="drawer" 添加 第二个<div>
+  <div>
+    <el-tooltip>提示 嵌套<el-button>确认添加 按钮 
+      <el-button>绑定事件@click="addScentToPlan"
+
+    <el-tooltip>提示 嵌套<el-button>清除选中 按钮
+      <el-button>绑定事件@click="$refs.addRef.clearSelection()"
+        $refs.addRef代表标签<el-table ref="addRef">，
+        .clearSelection()清空表格中的所有选项；
+        
+    <el-tooltip>提示 嵌套<el-button>关闭窗口 按钮
+      <el-button>绑定事件@click="drawer = false"
+
+    // 确认添加 按钮，
+    // 添加选中的测试场景到测试计划中
+		async addScentToPlan() {
+			let params = { ...this.planInfo };
+			// 勾选的选项addScentList push添加到 params.scent中
+			params.scent.push(...this.addScentList);
+			// 发送请求
+			const response = await this.$api.updateTestPlan(params.id, params);
+			if (response.status === 200) {
+				this.$message({
+					type: 'success',
+					message: '添加成功',
+					duration: 1000
+				});
+				// 更新页面数据
+				// 当前选中的测试计划信息。当前选中测试计划对象
+				this.planInfo = response.data;
+				// 获取测试计划下所有的测试场景
+				this.getPlanData(this.planInfo)
+			}
+			// 清空选中的选项
+			this.$refs.addRef.clearSelection();
+		},
+
+删除按钮 (测试计划中的测试场景)
+<el-table :data="scents"中实现
+  绑定scents选中计划下的所有测试场景
+    <el-table-column>
+      第一列 测试场景、测试名称
+    <el-table-column>
+      第二列 删除按钮 绑定删除方法传参索引
+
+  // 删除测试计划中的测试场景
+    从测试计划this.planInfo中的scent中移出掉当前场景
+    再调后端接口更新数据
+    async delPlanInScent(index) {
+      let params = { ...this.planInfo }
+      // let params = cloneDeep(this.planInfo) // 深拷贝 不影响之前的数据
+      console.log('params.scent.splice(index, 1)删除前的数据this.planInfo', this.planInfo)
+      // splice() 方法：可以通过索引删除数组中的元素，也可添加，或者同时进行删除和添加。
+      // array.splice(startIndex, deleteCount, item1, item2, ...)
+      //     startIndex：表示从数组的哪个位置开始操作。它是一个索引值。
+      //     deleteCount：表示要删除多少个元素。
+      //     item1, item2, ...：表示要插入的新元素（可选）。
+      params.scent.splice(index, 1);
+      console.log('this.planInfo删除前的数据', this.planInfo)
+      const response = await this.$api.updateTestPlan(params.id, params);
+      if (response.status === 200) {
+        this.$message({
+          type: 'success',
+          message: '删除成功',
+          duration: 1000,
+        });
+        // 更新页面中当前测试假花的测试场景
+        // 当前选中的测试计划信息。当前选中测试计划对象
+        this.planInfo = response.data;
+        console.log('this.planInfo删除后的数据', this.planInfo)
+        console.log('response.data删除后的数据', response.data)
+        // 获取测试计划下所有的测试场景
+        this.getPlanData(this.planInfo);
+      }
+    }
+
+
+
+一行第三列<el-col>
+  <el-divider> 通过率趋势图
+  <div ref="chartTable" 
+
+  <el-divider> 执行记录
+  <el-table> 绑定records 当前执行记录列表
+    第一列 执行时间 格式化{{ $date.rTime() }}
+    第二列 测试环境 prop="env_name" 是从：data="record"中取的
+    第三列 总用例，添加插槽<template> <span> v-if 判断!=='执行中' 才显示；
+    第四列 通过率，添加插槽，v-if判断 !=='执行中' 才显示
+    最后列 测试报告，判断==='执行中'，则显示status + ... ，
+      否则显示报告按钮 $router.push路由切换，
+      传参测试记录id，进入查看报告页面；
+      
+
+
+
+
+
+
+
+测试报告
+Report.vue
+一行两列
+第一行
+  测试报告 标题
+  执行信息
+  左右两个图表
+  测试场景统计
+  未通过场景
+  通过场景
+第二列 （通过场景）
+  过滤场景tab：所有 成功 失败 错误
+  每个 测试场 用例抽屉显示执行记录
+该页面进入后调用接口：测试报告、测试记录
+
+data return ：有三个属性
+
+async created(){} 钩子 页面渲染时调用
+ 路径参数获取id 页面地址上的id router/index.js - path: '/repory/:id/'
+ 调用 获取报告 方法 getReportInfo(id)
+ 调用 获取测试记录 方法   getRecordInfo(id)
+
+method 
+//  获取报告 方法
+async getReportInfo(id){}
+调后端接口 传参id
+取出报告对象
+....report.results拆包 赋值黑this.测试场景数据
+ 接口响应中有执行记录历史日志log_data
+// 获取测试记录 方法   
+async getRecordInfo(id)
+接口响应中没有执行记录历史日志
+
+updated(){}数据有更新的时候调用的钩子
+ 更新this.chart1()，页面横向柱状图
+ 更新this.chart2()，条形右侧环形饼图
+
+标签布局：
+整个div先判断是否有 record 执行记录
+一个大行，左右两列：
+ el-row 再判断是否有report 测试报告
+
+第一列 左列整个可浮动el-scrollbar
+  1 执行信息el-card
+  2 图表 el-card
+3 测试场景统计 el-card
+4 未通过场景 card
+5 通过场景 card
+
+1执行信息
+ 执行任务 就是 计划名称
+2  图标
+ chart1 横向柱状图
+ chart2 饼图
+updated(){} 中判断不为空，则调用
+methods:{} 
+定义chart1 
+定义chart2 datas数据是嵌套的数组
+3 card 测试场景统计信息
+场景总数 results中一个对象代表一个场景；
+ 成功 失败 错误 场景 都是在computed:{}计算属性 中定义的方法，通过filter进行过滤，
+4 card 未通过场景
+添加两个el-button按钮，
+ 一个v-for循环error场景
+ 一个v-for循环fail场景
+分别绑定@click="showScentDatas= [su]"为了点击后页面右侧展示该场景的每个用例，相当于过滤，同右侧上面的场景tab类似，该方法后面讲
+5 card 通过场景
+同 4 未通过场景同理
+
+第二列 右侧
+<div> - <div> - <el-button>4个按钮
+ 点击@click方法showScentData   
+所有场景 {...report.results}拆包复制给
+展示场景数据   
+<div> - <div> - <el-scrollbar>可滚动区域标签
+ <el-card> v-for 循环 showScentData
+  里面3个div分别v-if判断 scent.state分别是 success, fail, 错误，拼接场景name + 是否通过，标签颜色区分
+
+判断的<div>下方 展示每个场景信息
+<el-table> 绑定场景用例信息
+ <el-table-column> 展示每一列的数据
+ 第一列 type="expand"左侧显示，添加折叠效果，再添加插槽<template> 嵌套<caseRes>显示测试结果
+ 其他列分别显示 用例名称，请求方法，状态码，断言结果
+ 断言结果添加插槽<template> - 嵌套3个<span> 判断 成功、失败、错误，颜色不同
+
+showScentData: null 属性默认为空，右侧就不显示
+
+右侧：所有 成功 失败 错误场景
+已进入页面有默认场景
+method - async getReportInfo(id)
+该方法内部有赋值 this.showScentDatas = { ...this.report.results}
+
+
+
+
+
+左侧菜单测试报告
+Record.vue
+所有测试报告的列表，不是具体某个爆改
+查看F12 - 网络
+调接口/record/?project=682 这是报告列表信息，不是报告信息，可以复制响应信息对象中的一个
+
+页面标签结果：
+曲线图表<div ref="chart1">
+表格<el-table>
+分页<el-pagination> 后端接口没做分页，这里的分页是假的
+data(){} - return{}
+ recordList:[], 执行记录数据数组的列表
+ count:900, 最多900页
+page:1, 第1页
+size:10, 每一页10条数据
+在后端学dif框架的时候会学到如何进行分页操作；
+
+created 页面刷新时调用的钩子
+ 一进入页面就获取项目信息；
+
+method
+获取当前项目下所有record执行记录信息
+async getProjectrecords()
+// 获取项目ID，没有用映射，直接$store也是可以的，this.$store.state.pro.id ；
+赋值给this.recirdList 就不为空了，测试记录数据就是这里的每一个对象；
+mounted(){
+ this.showChart();
+}  
+挂载结束后，会显示图标，这块不理解？？
+
+watch:{} 监听 recordList(value)有数据了就显示图标
+
+method 添加方法showChart(){调用chart1 和chart2}
+
+computed计算属性定义chartData()从this.recordList中for循环取出lable创建事件和value通过率
+
+<el-table>绑定 :data="recordList"
+
+以后做测试平台在Github上拿来直接用，框架丰富，效果好看，自己搭建费时费力海一时半会儿做不到。
+
+<el-table>最后一列是<el-button>跳转到name:report页面，params:{}传参id；
+
+项目页左侧菜单：测试环境
+TestEnv.vue
+进入页面调用接口/testenvs/project=682
+布局
+最外层一整行
+里面3列：左中右
+注册CodeEdit.vue组件为Editor
+data
+actice 当前选择的索引
+EnvInfo 当前选择的环境对象
+进入页面先created() 调用获取所有测试环境，方法是从store中定义的再映射进来，调用后端接口，然后state中testEnvs就有了所有测试环境的数据；
+mounted控制默认选择环境列表中第一个环境对象。不裂解要研究一下。
+
+标签第一列：添加测试环境，<el-button>按钮 click绑定addEnv方法，查看method中async addEnv()构造
+按钮下面是<el-menu>环境列表，循环，绑定点击，传值item，展示icon和name，查看点击方法构造selectInfo(env)，要转换成字符串然后战士在输入框中才好编辑，可以试一试不转换是什么样子，全局请求头、db全局数据库配置、调试运行变量、全局变量。
+
+标签第二列：判断不为空则显示，环境名称、服务器域名、基本配置、全局变量：
+基本配置、全局变量使用了全局子组件<Editor>
+全局变量下展示3个按钮不保存、复制、删除
+保存按钮async saveEnv()构造，拆包赋值，字符串转换成对象，再调用后端接口更新，再获取所有环境；
+复制按钮async copyEnv()构造，与保存相同，就是多了一个重命名
+删除按钮async delEnv()构造，弹窗判断，点确认后掉后端接口，弹窗提示成功，再次获取所有环境信息列表，再次复制默认展示选项和详情；
+
+第三列<el-col> 双向绑定接口返回的全局函数，调用编辑框<Editor>，该全局函数可在 接口测试菜单页前后置中用，也可以在代码中调用
+CodeEdit.vue中lang决定是否展示格式化JSON按钮，绑定的点击事件方法是取到数据先转化JSON对象再转化字符串；
+
+定时任务
+CronTab.vue
+添加定时任务按钮：展示弹窗选项，包含标题、名称、测试环境 执行计划 是否开启 定时规则 规则说明 配置案例 取消 确认按钮；
+定时任务规则 和Linux中cron是一样的，跟jmeter也是一样的
+
+标签布局
+<el-button>
+<el-table>
+<el-dialog>
+
+data() 定时任务列表，语法规则状态
+computed 映射属性 当前项目、当前项目的测试环境、当前项目的测试计划，在页面添加定时任务弹窗选项中需要用到
+created 页面渲染调用方法，获取所有定时任务列表
+method：
+// 获取所有定时任务列表
+async getAllCron 传项目id调后端接口，判断响应，data属性复赋值；
+
+<el-button>点击事件绑定dialogCrom控制展示对话框，设置更新属性updateBtn默认false就是默认是添加不是编辑，
+<el-dialog> - 标题<span> 判断是否有updateBtn，有就显示 修改定时任务，不是创建，修改创建共用弹窗
+表单<el-form> 双向绑定cronTabData添加定时任务信息的对象；
+表单子选项v-model分别绑定 
+名称 .name
+环境 .env，v-for循环出testEnvs所有测试环境做下拉选项，绑定name ， value值向后端传id不用传整个对象；
+测试计划 .plan 循环testPlans
+是否开启 .rule
+定时规则 .rule  五个* 规则就是Jenkins和Linux那一套，嵌套5个<div>分别对5个*解释；
+配置案例 5个<div>分别是5个*的示例说明
+<div>按钮区：取消、提交修改、创建，调用不同接口，不同方法；
+
+定时任务就算开启也不会执行，因为后端关闭了，后面自己搭建后端记得打开试一试；
+
+BUG菜单页
+BugManage.vue
+页面：页面两行
+第一行左边条形图，右侧饼图
+第二行 tab列表
+
+created 页面渲染执行
+
+async getAllBug()
+获取所有bug  赋值this.bugs列表
+async showTable
+chart1Box显示水平柱状图
+chart2Box显示 饼图 有嵌套对重的数组
+
+computed 计算属性分别定义bug1 2 3 4()
+
+标签<el-card> 展示bug列表
+ 先第一行<el-row> 展示个5个bug类型按钮
+ <el-table> 展示列表数据，最后一列展示3个按钮 查看、编辑、删除
+ 编辑bug按钮点击事件绑定两个方法：一个修改状态、一个传递数据
+  查看bug调用方法 showBugInfo，赋值，调用方法获取执行记录，修改属性状态关闭弹窗；
+
+TopTags.vue
+左侧
+标签栏 添加了滚动 映射tags 循环，添加点击、关闭按钮；
+
+右侧 选择环境
+按钮 关闭所有标签，方法内部，循环判断≠当前标签就删除
+选择环境 循环当前项目所有环境列表，双向绑定env，在计算属性中定义，不切换环境调用get()，切换环境调用set()在store中定义；
+查看环境信息 调用async clickShowEnv()方法，调用后端接口，展示弹窗标签<el-dialog v-model="showEnv">
+弹窗内部： 循环debug、global，编辑、关闭按钮，点击编辑跳转到 测试环境 菜单页；
+
+index.js src/api
+响应拦截器
+判断 200 201 204则正常返回
+如果401 移出token，再push 调转到登录页
+再判断400
+if是登录页显示参数有误non_field_errors，else其他for循环一次展示错误信息。
+
+页面输入错误用户名登录 提示"无法使用提供的认证信息登录"
+原因是框架没有捕获登录异常 Login.vue中async loginRequest  里面只处理200没有处理非200status，所以才会有系统弹窗；
+
+如何找开源框架
+github.com
+搜索 vue3 element 星级高的，进入后搜索"线上地址"、"Link"，进入预览体验，是否有自己想要的
+下载后使用cnpm instore
+
+下节学Django
+项目中先用学的这个平台

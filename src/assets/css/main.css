@@ -1,0 +1,56 @@
+/* /deep/ .el-input__wrapper { */
+/* 振林教的 deep是其他组件的样式可引入本组件中 */
+
+/* 登录页面输入框的样式修改 */
+.login_box .el-input__wrapper {
+    /* 去除默认的背景和边框 */
+    background: none;
+    box-shadow: none;
+    /* 去除边框的圆角 */
+    border-radius: 0px;
+    /* 设置下边框的样式，线类型solid，宽度1px，颜色*/
+    border-bottom: solid 1px #006b9d;
+    /* 设置字体大小 */
+    font-size: 20px;
+}
+
+/* 修改登录页面输入框和开关文字的颜色 */
+.login_box .el-input__inner,
+/* 其他地方用的，登录页面没效果 */
+.login_bos .el-form-item__label {
+    color: #fff;
+}
+
+
+
+/* 登录表单校验失败时的样式 */
+
+
+
+
+/* 设置body元素的外边距为0 */
+body {
+    margin: 0;
+}
+
+/* 接口测试页面的标签页样式修改 
+    移除了内容区域的内边距
+*/
+.list_box .el-tabs--border-card .el-tabs__content{
+    padding: 0;
+}
+
+/* 接口测试页面 element-menu菜单组件的菜单项 
+修改高度 */
+.list_box .el-sub-menu__title,
+.list_box .el-sub-menu .el-menu-item{
+    height: 35px;
+    line-height: 35px;
+}
+
+
+/* 数据列表样式设置 */
+
+
+
+/* 其他页面侧边列表数据样式 */

@@ -1,0 +1,415 @@
+如果包安装错误
+	安装第三方依赖出问题了，抛异常
+	重新安装
+	还不行，把项目目录 node_modules所有外部依赖文件夹删掉，再安装。
+	如果不想一个一个安装 ，拷贝老师的package.json，打开终端，项目根目录，npm install，会将里面的依赖批量安装，
+		启动项目 npm run serve
+
+cmd 启动项目
+	前端不是很难，chatGPT大部分问题能解决，会增加信心，前端稍微简单，后端会更难一些。
+
+
+实现：列表卡片 删除项目
+	点击删除按钮 绑定一个点击事件
+		只需要传一个ID就可以了，接口决定的
+		AllProject.vue-删除标签-绑定点击事件@click="delPro(item.id)"  父标签有v-for遍历item
+		method-定义删除项目	
+			// 1 弹窗提示窗 用户是否删除项目
+			// elt+官网-搜索Message Box消息弹出框-确认消息-点击查看样式 有取消、确认按钮-查看源码
+			复制粘贴 import {ElMessageBox} from 'element-plus'
+			复制ElMassageBox.confirm()
+				粘贴AllProject.vue-method-delPro(id){}
+			点击 OK 确认， 点击执行.then()
+			点击 Cancle 取消， 点击执行.catch()
+			第一行字符串是弹窗提示信息，修改成'确认要删除该项目吗？'
+			第二行字符串弹窗提示 'warning' 改成'提示'
+			'OK' 改成 '确定'
+			'Cancel' 改成 取消
+			type:'warning', 为警告类型提示
+			.then() 里面执行第2、3步骤
+				// 2 如果用户点确定，开始删除项目
+				index.js|src/api - export default 
+					封装项目 deleteProject(id){}
+				const response = await this.$api.deleteProject(id);
+				
+					匿名(箭头)函数左侧添加 async 变成异步函数
+					传入id删除该对象
+					因为ElMassageBox.config()是promise对象，所以也可以使用 await 设置成异步等待。
+						否则将该方法delPor(id) 左侧添async变成异步；
+					返回response接收。
+				判断是否删除成功
+					if (response === 204){
+					//提示删除成功
+					ElMassage({
+						type 类型 
+						massage: '删除成功'
+						duration: 1000 提示时间
+					});
+					
+					// 3 更新项目数据，重新请求项目数据。vue只有单页面
+					// 数据更新了，页面同时更新，vue是响应式。
+					this.getAllProject();
+					}
+
+			// 4 点击取消 操作执行.catch()消，不删除项目
+			.catch(() => {
+				ElMessage({
+					type: 'info', // 样式
+					message: '已取消操作', // 提示信息
+					duration: 1000,  // 停留时间
+				})
+			})
+			
+
+	预览：
+		点击最后一个卡片-创建-成功
+		点删除按钮，点确认删除成功，点取消弹窗消失不删除。
+
+未解决
+问题：
+	点右上角添加按钮，项目名称、负责人显示上次添加时输入的，会自动记录。
+	再点击最后一个卡片添加项目，不自动记录上次添加的。
+	未解决
+
+编辑 会自动带出项目名称、负责人
+	AllProject.vue-data-添加属性
+		editdlg:false,  // 为true展示弹窗，false不展示
+		// 要编辑的信息
+			editForm: {
+				name: '', // 项目名称
+				leader: '' // 项目负责人
+			}
+		复制 创建项目弹窗<el-dialog标签代码 - 粘贴在最下边 - 修改成 更新项目弹窗
+		修改注释 <!-- 编辑/更新项目按钮 点击弹窗 -->
+		标签中所有的属性值 addForm改成editDialog
+		标签中所有的属性值 addForm改成editForm
+		确认按钮el-button属性修改@click="editPro"
+		method-复制 async cliskAddPro-粘贴在下方-修改成async editFrom更新项目
+			修改接口this.$api.creatProject为this.$api.updateProject(this.editForm.id, this.editForm)
+			// 接口定义 要传两个参数
+			关闭弹窗，this.addDlg改成this.editDialog
+			3 编辑后重新获取项目信息代码逻辑不变；
+		预览-点击编辑按钮没弹窗
+			编辑按钮el-tag添加属性@click="editDlg"
+		预览-点编辑-有弹窗-但是没有数据
+		新增一个方法，点击编辑的时候，将输入框的空值替换；
+			因为编辑标签在el-card标签中，所以能获取到v-for="item"属性
+			method下面添加点击编辑的方法-
+				clickEdit(item) {
+					// 1.将当前待更新的项目赋值给editForm
+					// this.editForm = item  // 这样不能复制，因为item包含id及更多属性是对不上的，
+					// 所以要对item进行拆包 花括号、三个点
+					this.editForm = {
+						...item
+					};
+					// 等价于下面3行代码
+					// this.editForm.id = item.id;
+					// this.editForm.name = item.name;
+					// this.editForm.leader = item.leader;
+					// 赋值完成，显示编辑弹窗
+					this.editDialog = true;
+				}
+		编辑按钮el-tag属性
+			由 @click="editDialog = true" 直接弹窗
+			改成 @click="clickEdit(item)" 通过方法赋值后再弹窗
+		 @click="edtDlg"改成@click="clickEdit(item)"，通过函数转换，先赋值，再显示弹窗。
+		取消按钮，仅仅@click="editDlg=false"将弹窗关闭
+
+	预览-点击修改，弹窗输入框显示数据，且修改成功
+
+
+实现 退出登录 按钮。思考有几个步骤
+	1 已保存在会话存储的信息清空，本地会话无需清空用户下次登录用
+	2 通过编程导航到 登录 页面
+	AllProject.vue - method - 添加 注销登录方法 logout(){}
+		复制delPro()删除方法内容粘贴在注销方法中；
+		修改confirm第一个、第二个字符串提示参数 
+			'确认要退出登录吗?',
+			'提示',
+		// 当用户点击确定
+		.then()中
+		async删掉，因为没有向后端发请求
+		// 1 删除浏览器会话中的用户信息、token
+		window.sessionStorage.removeItem('token');
+		window.sessionStorage.removeItem('username');
+		// 2 编程式导航到登录页面
+		this.$router.push({
+			name: 'login'
+		})
+
+		// 如果用户点击取消 代码不变
+		.catch(()=>
+		)
+
+	退出登录标签绑定该事件 @click="logout" 有参数加括号，没参数不加也行
+	预览点击 退出登录按钮 弹窗点取消、退出。功能正常
+
+
+项目详情页
+	新建组件 src/views/Project.vue
+	定义路由 index.js | src/router
+		{
+			path: '/Project',
+			name: 'Project',
+			component: () => import('../views/Project.vue'),
+			chidren: [
+				// 项目首页
+				{
+					path: '/Project/index',
+					name: 'index',
+					component: () => import('../views/ProjectIndex.vue')
+				}
+			]
+		},
+
+
+实现点击项目卡片 进入项目页面
+	卡片页面 除了编辑、删除按钮这一行以外点击其他区域均可跳转到项目页面
+	AllProject.vue - <el-card> - 下面添加div 
+		- 将项目图标、项目名称、项目负责人标签放在里面
+	div 添加属性 鼠标悬浮显示手型  style="cursor: pointer;" 
+	div 添加属性 编程式跳转 @click="$router.push({ name: 'project'})"
+		这种方式相当于定义一个方法，然后在里面跳转
+		但是不能用<router-link 跳转，相当于a标签，a标签里面不能添加其他标签。只能用编程式跳转。
+
+
+index.js | src/router
+路由导航守卫
+	问题：退出登录，项目详情页 没有token授权依然能访问依然能访问。
+	解法：路由拦截：使用路由导航守卫。类似请求响应拦截器。
+    如果包含token 不是登录页面也允许访问。
+	// 设置路由导航守卫
+	// beforeEach方法 是在点击之后，页面跳转之前执行
+	// to 待访问的路由页面
+	// from 从哪个路由对象跳转过来
+	// next 房型3函数，也类似if可加条件
+	//     a 必须调用否则路由无法访问
+	//     b 调用时可以传参数，参数为要访问的路由对象
+	router.beforeEach((to, from, next) => {
+		// 判断当前用户是否登录
+		// 1 如果登录了（有token），那么允许访问页面
+		// 2 如果没有登录（没有token），那么重定向到登录页面
+		const token = window.sessionStorage.getItem('token');
+		// 1.只要有token就允许访问
+		if (token) {
+			next()
+		}
+		// 2.如没token，并且仿问的是登录页面，那么允许访问；
+		else if (to.name === 'login') {
+			next()
+		}
+		// 3.如没token，并且访问的不是登录页面，那么重定向到登录页面；
+		else {
+			next({
+				name: 'login'
+			})
+		}
+	})
+	
+	预览：
+		1 没有登录没token 访问项目页面会重定向到登录页面
+		2 登录页面 登录进入项目列表页面
+		3 项目列表有token可进入到项目详情页
+
+
+
+项目详情页
+	需求
+		页面左侧 菜单 一个组件 父路由
+		页面右侧上面 标签页 一个组件 父路由
+		页面右侧下面 内容 使用<router-view> 子路由
+
+Project.vue
+添加整个页面 div class="home"
+	一 添加左侧菜单 div class="left_box"
+		
+		添加左侧菜单组件 新建LeftMenu.vue | src/components - template	
+				
+			LeftMenu.vue组件要注册到 Project.vue-script下面.
+			为什么 AllProject.vue等业务组件没有注册？
+				因为 它们是通过路由机制跳转，路由也是进行组件注册的过程，
+					左侧菜单组件不是一个要单独的展示的页面，
+					一个页面不能通过一个url只展示菜单部分，其他模块信息都不需要，
+				所以 不需要定义路由进行跳转，而是用注册子组件的方式展示。
+			Project.vue - script 
+				- script - import 引入 LeftMenu.vue
+				- script - export default {} - components:{} - LeftMenu注册
+				- template - div class="left_box" 使用展示 <LeftMenu /> 或 <LeftMenu></LeftMenu>
+			
+			1 显示用户信息 添加 div class="user_box"
+				logo图片
+					<img src="../assets/image/logo2.png" alt="logo" width="45" />
+					
+				用户信息 添加 div class="info"
+					图标
+						el+官网 - Icon 图标 - 搜索User - 点击复制 - 粘贴
+					span 标签 文本 替换成用户名	
+					悬浮显示 下拉菜单
+						el+官网 - DropDown 下拉菜单 - 基础用法- Dropdown List - 复制源码<el-dropdown>部分 - 粘贴
+						
+						选项el-dropdown-item 
+							改成：选择项目、注销登录，其他删掉
+							选择项目 标签 添加属性：点击跳转项目列表页
+								@click="$router.push({ name: 'allProject'})"
+							注销登录 标签 添加属性：点击退出登录
+								@click="logout"
+								logout跨组件了，不能共用
+							复制 Allproject.vue - method - logout方法
+							粘贴 LeftMenu.vue - method粘贴。import {ElMessage}也要粘过来
+					预览 - 悬浮 - 验证两个按钮 - 功能正常
+						
+			2 菜单列表 添加
+				复制 el+官网 - Menu 菜单 - 侧栏 - 使用 Custom colors - 复制<el-menu标签 - 
+				粘贴 div class="user_bos" 并列下方
+					default-active = "2"  默认激活index=2的菜单，在页面加载时；
+					不需要子菜单 <el-sub-menu index="1"> 全部	删掉
+					<el-sub-menu 属性
+						index 唯一标志，通过index展示标签span内容，进行切换的。
+							index的值修改成路由条目地址
+								一般使用 路径绑定（即便修改路径也只在这里直接修改）
+								没必要使用 对象绑定（同一个菜单选项 通常不会根据不同情况跳转不同页面）
+						span标签 修改成菜单文本：项目首页、接口管理、接口测试、测试场景、测试计划、测试环境、定时任务、bug管理、测试报告、测试报表
+						disabled 属性不需要 删掉
+						el-icon 左侧图标自行替换
+						
+					<el-menu 属性 router
+						不加 router 默认 router=false
+						加了 router 默认 router=true。这里选加。
+						router 实现点击菜单选项，进行路由导航切换，自动导航到index路径
+							使 <el-menu-item index="/project/index">
+							类似于 $router.push({ path: '/project/index'}) 跳转效果
+						修改属性 :default-active = "$route.path"
+							加 r router 是指 ruter/index.js - export default 导出的整个路由实例
+							没加 r route 是指 当前访问页面的路由对象。这里选不加。
+							.path 当前路由对象的路径
+							: 添加绑定，因为 $route.path 是动态的  
+						文本颜色text-color="#fff"
+						文本激活颜色 active-text-color="#ffd04b"
+						背景颜色 background-color="#00aa7f"
+						删掉 @open @close 展开、收起折叠菜单
+						
+					<el-icon 替换所有项目 icon
+					
+			3 CSS样式
+				<style 添加属性 scoped 只对当前有效
+				.user_box {
+					height: 62px;
+					底部边框
+					border-bottom: solid 1px #fff;
+					
+					弹性布局：元素从左到右排列
+					display: flex;
+					上下居中对齐
+					align-items: center;
+				}
+				.user_box img {
+					填充上、下、左、右的像素
+					padding: 10px 40px 10px 10px;
+				}
+				.info {
+					flex: 1;
+					line-height: 62px;
+					color: #fff;
+				}
+				.user_box .el-dropdown-link {
+					cursor: pointer;
+					color: #fff;
+					line-height: 62px;
+				}	
+					
+		预览 - Project - 展示 logo图片
+
+  
+	二 添加右侧页面 div class="right_box"
+		新建 右侧顶部标签组件 TopTags.vue | src/components - template
+			组件内增加标签栏 div class="tags"
+
+		添加右侧顶部标签 div class="top_box"
+			Project.vue
+				- script - import 引入 TopTags.vue
+				- script - export default {} - components:{} - TopTag注册
+				- template - div class="top_box" 使用展示 <TopTag></TopTag>
+		
+		添加右侧下方 主题内容展示区 div class="main_box"
+			添加子路由
+			<router-view></router-view>
+			
+			idnex.js | src/router
+			添加路由配置：
+				添加父路由：项目页 Project
+					再添加子路由 children:[]
+					// 项目首页
+					{
+						path: '/Project/index',
+						name: 'index',
+						component: () => import('../views/ProjectIndex.vue')
+					}
+					
+					创建文件 ProjectIndex.vue | src/views
+						template 添加标签 <h1>项目首页</h1>
+					
+					所有 子路由 补充
+					所有 子路由 创建.vue文件
+					所有 LeftMenu.vue中 <el-menu-item index值修改成子路由path值
+	
+	预览 - 项目页 - 点左侧菜单，路由、url对应显示跳转，
+		这是LeftMenu.vue - <el-menu标签添加的 router导致的 会把index当做路径进行跳转		
+
+上午结束	
+		
+		
+		
+ATP监控 (数据大屏)
+报表管理
+	模块报表
+	CICD报表
+	产品线报表
+接口自动化
+	项目列表
+	模块管理
+	用例管理
+	配置管理
+	测试套件
+	定时任务
+	CICD计划
+	报告管理
+	自定义函数
+	接口信息
+	运行环境
+	调试记录
+	服务管理
+	接口异常校验
+	接口diff
+UI自动化
+	页面管理
+	用例管理
+	公共步骤
+	套件管理
+	报告管理
+	配置管理
+	节点管理
+	自定义函数(UI)
+性能测试
+	用例管理
+	资源管理
+	报告管理
+	任务管理
+	测试桩管理
+数据测试
+	项目管理
+	用例管理
+	套件管理
+	测试报告
+	定时任务
+	自定义函数
+系统设置
+	后台日志
+	文件管理
+	用户组管理
+	
+
+
+
+
+
+

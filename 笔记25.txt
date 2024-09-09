@@ -1,0 +1,455 @@
+
+登录-项目列表-项目详情-接口测试-项目接口-内容
+	左侧列表可上下滚动
+	选项折叠
+	最后的折叠选项底部有 添加用例 按钮
+	每个子选项用例底部有 添加用例 按钮
+<el-tab-pane label="项目接口"> - 
+	添加 可滚动组建
+	滚动里面包含菜单组建
+		菜单里包含一级菜单 接口名称
+			一级菜单包含二级菜单 接口用例
+			添加用例 按钮
+
+
+
+接口测试-项目接口：
+el+官网 - Scrollbar 滚动条 - 基础用法 - 复制 <el-scrollbar>
+	height="calc(100vh视口高度-142px滚动上边到顶部高度)"
+	里面的p标签删掉
+	滚动里添加菜单组建
+		el+官网 - Menu 菜单 -侧栏 Default colors - 拷贝el-menu - 取这类One这一块
+			属性 @open@close删掉
+		
+		InterFace.vue - 复制 export default 
+		InterFaceText.vue - export default 粘贴 
+		
+		<el-sub-menu> 一级菜单-接口，只留一个
+			添加循环 v-for="iter in inters1" 遍历该项目的所有 项目接口
+			:index添加绑定 接口名称+索引 :index="iter.name + iter.id"
+			template #title 在标题中设置接口名称
+			el-icon 添加曲别针图标 Paperclip
+			span 添加要显示的接口名称 {{ iter.name }}
+			
+			<el-menu-item>二级菜单 显示接口下的用例
+			api接口文档-登录-InterFace-list-project=1 - steps里面是所以用例
+			属性 添加循环遍历用例  v-for="step in iter.steps" 
+			绑定索引 添加冒号: :index="step.id.toString()"
+			el-icon 图标使用Link
+			span显示用例名称{{ step.title }}
+
+			用例下面并列添加`添加用例`按钮
+			复制粘贴 el-menu-item
+			属性删掉 不需要index、循环
+			添加span 添加属性 style="color:#ffaa0p"
+				将el-icon和span文案放在<span>里面
+			el-icon使用CirclePlus
+
+			预览-展示按钮了，展示用例
+			
+			index.js src/store
+			 - state - interfaces无数据的取消注释
+			 - action - async getAllInterFace - 使用假数据 const data 和 content.commit （也可以用实施接口数据）
+			InterFace.vue - created - 取消注释this.getAllInterFace
+			清空Cookie
+			重新登录-项目列表-项目-接口管理- 内部接口/外部接口 - 展示数据。
+			报错：在内外接口切换时，后面处理
+
+			注意： 这里的异步请求出现了后端 跨域 问题， 
+				视频中老师的后端地址有问题，试一试非课堂提供的。
+				再看一下是不是api地址问题 结尾没加斜杠/
+
+调整左侧接口列宽度
+InterFaceTest.vue
+	左侧接口管理列 el-col :span="5"
+	右侧接口编辑 el-col :span="18"
+	预览 - 左侧 项目接口、外部接口tab展示全了。
+
+外部接口
+	复制内部接口代码，从可滚动的标签<el-scrollbar>开始复制
+	修改标签循环属性 el-sub-menu  inters1改成inters2
+	预览-切换内外接口-外部接口显示数据
+
+实现点 击接口管理按钮 跳转到接口管理页面
+	InterFaceTest.vue - el-button接口管理 添加点击属性 @click="$router.push({ name: 'interface' })"
+	预览 - 点击按钮可切换页面
+
+内外接口tab切换
+	接口测试页面 没问题，
+	接口管理页面 报错，
+	老师怀疑是复制的时候 InterFace.vue 中少了标签什么，暂时先不管;
+
+接口测试 - 右侧区域
+InterFaceTest.vue - el-col右侧区域
+	1 是左右可滚动 
+	2 滚动里面是可接口编辑的组件
+	3 接口编辑页面很多地方会用到，所以单独做一个公共的组建
+	添加高度属性 height="calc(100vh - 68px)"，calc(视口高度-顶部tab标签高度)
+	el-scrollbar标签里添加一个新建的组件 components - CaseEdit.vue
+		该页面进入后默认展示框架信息，当点击左侧具体某个用例的时候，信息值传给右侧展示组建，用例信息的值填充在上面。
+		默认展示是像postman一样填写再run页面；
+		点击用例后显示删除、复制、保存按钮；
+
+	实现点击用例，展示用例信息，展示删除、复制、保存按钮：
+		1 保存当前用例信息
+		InterFaceTest.vue - export default - data - return 
+			添加容器 editCase: null,
+		InterFaceTest.vue - export default - methods 
+		添加方法，将左侧点击的用例信息，复制给右侧区域
+			selectCase(onCase){
+				this.editase = onCase
+			}
+		标签绑定点击效果
+			标签 - 二级菜单 用例 - el-menu-item - 添加点击事件
+			@click="selectCase(step)"传值循环遍历出的step（用例id,title）
+			script 导入子组建 import CaseEdit from '../components/CaseEdit.vue'
+			注册子组建 export default - 
+				components: {
+					CaseEdit
+				},
+			使用：右侧区域标签 el-col - el-scrollbar - 添加标签 <CaseEdit></CaseEdit>
+			父组建往子组建传值 传入点击的用例信息
+				<CaseEdit>添加属性 :edit-case='editCase'
+				子组件CaseEdit.vue添加props
+				export default - 
+					// 指定接收父组件传递过来的值
+					// editCase为当前用户选择的用力对象 steps:[id:"",title:""]
+					props: ['editCase'],
+
+CaseEdit.vue
+子组建中要编辑的内容：
+	请求方法 url 用户名称 请求头(实际就是JSON字符串) 查询参数 请求体 前置脚本 后置脚本，依次子组件中进行定义
+	CaseEdit.vue
+	export default - data(){} - return{}
+		// 当前获取的用例对象
+		caseInfo: null,
+		// 接口地址
+		url: '',
+		// 接口请求方法 默认get
+		method: 'get',
+		// 接口名称
+		name: '',
+		// 请求头
+		headers: '{}',
+		// 查询参数
+		params: '{}',
+		// 前置脚本
+		setup_script: '',
+		// 后置脚本
+		teardown_script: '',
+
+	InterFaceTest.vue - editCase获取的只有接口的 id和title，其他name等信息没有获取到，要通过封装接口请求
+	index.js | src/api
+		// 获取测试用例详细信息
+		// 项目详情-接口测试-点击左侧用例
+		// http://42.192.110.51:18899/docs/#teststep-read
+		getCaseInfo(id){
+			return httpDev.get(`/teststep/${id}/`)
+		}
+	CaseEdit.vue 添加异步方法
+		methods: {
+			// 获取测试用例详细信息
+			// 项目详情-接口测试-点击左侧用例
+			// http://42.192.110.51:18899/docs/#teststep-read
+
+			async getCaseDesc() {
+				const response = await this.$api.getCaseInfo(this.editCase.id);
+				// 判断相应信息 如果响应200则赋值
+				if (response === 200) {
+					this.caseInfo = response.data
+					// console.log('用例详情信息response.data：', response.data)
+				}
+			}
+		},
+	
+	// 钩子函数，进入页面就执行
+	// 问题 页面渲染前只能给一次，后面再切换用例的时候不会获取用例信息
+	created(){
+		if(this.editCase){
+			this.getCaseDesc();
+		}
+	},
+	
+	// 添加监听 当this.editCase改变的时候则进行调用获取this.getCaseDesc
+	// 解决 页面渲染前只能给一次，后面再切换用例的时候不会获取用例信息
+	watch:{
+		editCase(val){
+			if(this.editCase){
+				this.getCaseDesc();
+			}
+		}
+	},
+	// 预览F12，切换用例会获取用例数据
+	
+当进行页面标签进行编辑再同步的时候，还需要进行监听。
+当this.editCase改变的时候则进行调用获取this.getCaseDesc
+
+子组件页面结构(最难的组件)
+div最外层 包裹下面三块
+	1 api信息
+	2 用例信息
+	3 请求信息
+	
+	1 api信息 添加水平线
+		el+ - Divider 分割线 - 设置文案 - 源码 - 复制 el-divider
+		属性content-position显示文本位置：左中右
+		添加子标签<b>加粗
+	三个模块标题都设置
+	预览 - 接口测试
+		f12 - 刷新 -  - vue - App - RouterView - Project - RouterView - InterFaceTest - 右侧 data - editCase 选择用例后这里有值，但Object里面还没有信息，先不管
+
+	api信息模块下是 1行2列
+		添加<el-row> 3比1
+		第1列 el-col :span="18"
+		第2列 el-col :span="6"
+		
+		第一列 左侧 添加子标签输入框
+		双向绑定url
+			<el-input placeholder="请输入接口地址" v-model="url">
+		输入框左侧展示下拉框，也就是添加左侧显示的插槽
+			<template #prepend>
+		插槽标签中添加下拉框
+			el+ - Select 选择器 - 基础用法 - el-select - 大小选择中间的 - 复制粘贴
+		el-select 属性
+			v-mode="method" 绑定请求方法
+			class不需要可以去掉
+			style="width：115px;" 设置样式-宽度 不能太宽；
+			子标签el-option 可通过for循环枚举，也可以写固定的
+			固定方式：
+			<el-option label="GET" value="get" />
+			<el-option label="POST" value="post" />
+			<el-option label="DELETE" value="delete" />
+			<el-option label="PUT" value="put" />
+			<el-option label="PATCH" value="patch" />
+			<el-option label="OPTION" value="option" />
+	
+		第二列 右侧 el-col ：span="6" 
+			添加属性 文本右对齐 style="text-align: right;"
+			添加子标签 <el-button
+			属性添加图标小飞机：el+ - Icon图标 - Position
+			<el-button type="success" icon="Position">
+				Run
+			</el-button>
+
+	2 用例信息模块
+		复制1api信息模块中的<el-row>
+		两列宽度相同el-col :span="12"
+		第一列<el-input  属性
+			placeholder="请输入接口名称"
+			v-mode="name"
+			<el-select。删掉，改成文案 用例名称
+		
+		第二列<el-col>
+			添加三个按钮，el-button 复制三份，
+			分别修改icon，删除用type="danger"，其他两个用type="success"，
+			
+			预览 - 接口测试 - 展示用例信息 输入框 和 按钮 
+
+	3 请求信息 模块
+		最外层是个tabs，有5个面板
+		el+ - tabs 标签页 - 带有边框的卡片风格 - 源码 - 复制<el-tabs> - 粘贴在 第3个模块 <el-divider> 下方 
+		<el-tabs> 添加属性 
+			style="min-height: 350px;" 设置最小高度
+			<el-tab-pane>复制5个
+			分别修改label字段标题：请求头、查询参数、请求体、前置脚本、后置脚本
+			代码编辑区，也需要设置成一个组件
+
+		创建子组件-代码编辑区 CodeEdit.vue | components;
+			引入 CaseEdit.vue - script  引入 CodeEdit.vue
+			注册 export default - component 注册
+			使用 
+		
+		<el-tab-pane请求头- 添加子组件<CodeEdit>
+			<CodeEdit 添加属性
+				height="280px" 默认高度
+				v-mode="headers" 绑定请求头
+				lang="json" 指定编辑类型 语言是json
+		el-tab-pane查询参数 添加CodeEdit v-mode绑定params
+		el-tab-pane请求体 添加CodeEdit 不是json 也不是Python 先保留不做；
+		el-tab-pane前置脚本 添加CodeEdit v-mode绑定setup_script，lang绑定Python；
+		el-tab-pane后置脚本 添加CodeEdit v-mode绑定_script，lang绑定Python；
+
+		前置脚本 分成左右两列；
+			左列代码编辑，右列模板选择，两列宽度3比1
+			添加行<el-row>
+			行中添加两列<el-col>宽度属性:span分别是18和6
+			第一列el-col标签放<CodeEdit>
+			
+			第二列el-col
+				列属性span不添加冒号:不生效左右分裂
+			顶部有分割线，复制模块分割线<el-divider>，
+			修改属性
+				content-position="center"
+				加粗<b>标签中修改成 脚本模板
+			分割线标题 下方要添加几个按钮，按钮要统一修改样式 所以按钮外要添加div class=add_script_box
+				添加按钮 el-button type="success" 添加plain属性
+				复制4个，分别是：预设全局变量、预设局部变量、调用全局函数、执行sql查询
+				后3个按钮添加样式 style="margin：10px;"设置按钮的间距；
+				预览 - 接口测试-用例-前置脚本-右侧显示按钮，只是标题大小没设置好，换行了，或者修改两个列的比例
+
+设置代码编辑器 子组件
+CodeEdit.vue
+	百度搜索vue3-ace-editor
+	安装：HX启动终端 - 项目根目录 - 输入命令
+	cnpm install vue3-ace-editor@2.2.2
+	安装完成查看package.json - dependencies 显示安装完成
+	谷歌搜索 vue3-ace-editor github
+	github.com/CarterLi/vue3-ace-editor - README.md 查看安装步骤
+	
+	CodeEdit.vue 复制老师现成代码粘贴
+	VAceEditor 是内置潜入的子组建
+	<v-ace-editor标签属性
+		:readOnly='readOnly' 是否只读模式，不允许编辑
+		:options="editOption" 给编辑器进行内置的配置，绑定编辑选项
+		v-model:value="dataEdit" 双向绑定数据
+		:lang="lang" 当前支持的语言	
+	<el-button>是格式化json按钮属性添加了判断 v-if="lang==='json'才显示该按钮；
+		
+	- props：
+		- lang 指定代码编辑器支持的语言，默认是json，那么在CaseEdit.vue - <CodeEdit> 中lang="json"可以不用写
+			这里的Props使用的是{}花括号对象的方式
+			CaseEditor.vue中Prop使用的是[]方括号数组的方式
+			对象、数组 都是一样的
+		- modelValue 是vue内置的字段，不能写成其他的，是接收父组件CaseEdit.vue 通过<CodeEdit v-model 传入的值
+		- theme 主题 默认谷歌，还可以monokai，还可以github，在上面import导入，在props-theme中使用
+		- height 编辑器默认高度300px
+		- readOnly // 代码编辑器是否为只读不可编辑
+		
+	CaseEdit.vue - 子组建<CodeEdit>  - 属性 v-model 双向绑定，可以父组件给子组件传值，也可以子组件给父组件传值
+	- emits：
+		- modelValue 内置函数，用于向父组件派发事件，实现v-model的双向绑定
+
+	- computed 指定的是计算属性，
+		- editOption 作用是给编辑器进行内置的配置，将它的对象 传递 给 编辑器子组件<v-ace-editor>
+		- dataEdit 也是计算属性
+		 get 是从props - 父组件v-model中获取
+		 set 在编辑进行编辑时,通过事件的形式，再将值传给props - 父组件v-model 也就是header params setup_script等
+	
+		自己定义子组件实现v-model方法步骤：
+			1 首先在props中指定modelValues
+			2 然后在emit中指定['update:modelValue']事件
+			export default - computed - dataEdit 
+				是在子组件 CodeEdit.vue - <v-ace-editor>中v-model:value又进行双向绑定
+				双向绑定支持某个属性v-model:value=""，也支持多个属性v-model=""
+					期望 props - theme支持双向绑定：
+					先定义 在子组件添加CodeEdit.vue - emits[] - 添加 'update:theme'事件，进行修改theme；
+					再使用 在父组件CaseEdit.vue - 子组件标签<CodeEdit> - 添加属性 v-model:theme=' '；
+					结论：没加冒号`:`v-mode默认绑定的就是props-modelValue，指定了`:theme`就是绑定的props-theme;
+
+终端编译 - 报错 - 不能resolve解析 ace-builds
+预览 - 页面卡死
+	cmd 运行 
+	ping cdn.jsdelivr.net 能正常解析但是ping不通
+
+	安装 ace-builds 
+		终端 - 根目录 - cnpm install ace-builds@1.23.4
+		谷歌搜索 npm ace-builds
+
+		https://github.com/ajaxorg/ace-builds
+	预览 
+	 - 5个请求信息 输入框有变化 
+	 - 请求头 - 输入json 点击底部 格式化json按钮 格式化成功
+
+	左侧菜单，点 接口管理，再点 接口测试，报错。老师说后面再解决
+		Uncaught NetworkError: Failed to execute 'importScripts' on 'WorkerGlobalScope': The script at 'http://localhost:8080/js/worker-json.js' failed to load.
+
+
+预览 - 接口测试 - 切换左侧菜单用例 - 右侧显示区没有实时赋值
+CaseEdit.vue
+	添加watch:{}j监听后
+		预览 - 接口测试 - 点击用例切换 - 
+			预览F12 - 网络 - 请求头、响应 都有数据；
+			F12 - Vue -  App-RouterView-Project-RouterView-InterFaceTest - 右侧editCase始终切换 - 没问题。
+				但是页面右侧组件始终没有请求不显示信息。
+		
+
+CaseEdit.vue - 数据是保存在caseInfo中的，url、method没有赋初始值，所以v-model绑定了也没有显示。
+但设置了初始值，后面编辑又不好弄了，后面再解决。
+
+
+处理样式：
+	CaseEdit.vue
+	style 添加scoped
+	
+	/* 整个项目详情 div */
+	.edit_box{
+		/* 简写属性控制元素所有四条边的内边距区域 */
+		padding: 10px;
+	}
+	
+    /* 前置脚本 模板按钮 */
+    .add_script_box {
+		/* 设置外边距。这里未看出生效 */
+        margin-top: 5px;
+        /* text-align: center; */
+    }
+	
+	预览 - 观察有啥变化
+
+CaseEdit.vue
+前置脚本tab 实现点击右侧按钮，自动填充模板脚本：
+	也就是按钮点击的时候插入脚本；
+	method 添加方法 
+		// 传值type
+		add_setup_script(type) {
+			if (type === 'gv') {
+				this.setup_script += '# 预设全局变量\ntest.save_global_variable("变量名", "变量值")\n'
+			} else if (type === 'lv') {
+				this.setup_script += '# 预设局部变量\ntest.save_env_variable("变量名", "变量值")\n'
+			} else if (type === 'dq') {
+				this.setup_script += '# 调用全局函数\n还没写，敬请期待...\n'
+			} else if (type === 'sql') {
+				this.setup_script +=
+					'# ---- 执行sql语句(需要在环境中配置数据库连接信息) ----\n# db.连接名.execute_all(sql语句) \nsql="SELECT count(*) as count From futureloan.member\nres = db.aliyun.execute_all(sql)"\n'
+			}
+		}
+
+	按钮绑定点击事件，分别绑定该函数，修改对应传参
+	预览 - 点击按钮 - 输入框  插入对应代码
+
+
+后置脚本tab ，自己实现
+
+
+请求体(Body)tab  功能实现：
+	如果是 application/json 则输入框切换到json编辑器输入框
+	如果是 x-www-form-urlencoded 也是输入框切换到json编辑器输入框，只不过是key: value形式
+	如果是 form-data 则展示3个单选输入框、删除按钮、添加按钮、右侧文件区域
+	布局
+	el-tab-pane 请求头(headers) 标签中
+		添加单选框 3个单选
+		根据选中参数的类型显示对应的内容
+	el+ - Radio 单选框 - 单选框组 - 源码 - 复制<el-radio-group>
+		<el-radio-group>需要绑定body类型 v-model="bodyType"
+		data - return - 添加 bodyType: 'json'
+
+		<el-radio-group>下方并列添加div
+		div中添加3个判断
+			1 <CodeEdit v-if="bodyType === 'json'" height="280px" v-model="jsonParams" lang="json"></CodeEdit>
+			2 <CodeEdit v-else-if="bodyType === 'form'" height="280px" v-model="dataParams" lang="json"></CodeEdit>
+			3 <div v-else class="file_box">
+				div中分成1行2列
+				左列：输入框、选项、选项、删除按钮、添加按钮
+				右列：上传文件
+			</div>
+		<CodeEdit>添加属性判断v-if="bodyType='json'" 使用属性v-model="jsonParams"和lang="json"
+		并列复制<CodeEdit>添加属性判断v-else-if="bodyType='form'" 使用属性v-model="dataParams"和lang="json"
+
+下节前端结束，拿到前端源码，用来和后端联调
+
+
+chatGPT
+	用国外手机号注册，费力不讨好
+	不如某宝买一个，几块钱
+	或者买一个apiKey
+	
+	1 下载 GPT客户端
+		谷歌搜索 chatgpt client github 
+		搜索结果 chatgpt desktop application(mac. windows and linux)
+		地址：github.com/lencx/ChatGPT
+		可以生成思维导图
+		可以上传PDF进行分析总结
+	2 使用浏览器GPT插件 Toggle ChatGPT Sidebar
+		地址：https://sider.ai/
+		安装后点右下角设置进入 分3种，推荐第三种 某宝买个apikey
+ 

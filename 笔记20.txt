@@ -1,0 +1,377 @@
+
+脚手架 Vue-cli
+后面用的 @Django也是脚手架，不需要关注项目的打包、集成，脚手架好处。
+
+安装cnpm失败的原因：nodejs版本比较低 cnpm -v 检查版本，
+	结尾显示 registry=https://registry.npmmirror.com 是安装好了。
+
+??? npm install vue
+??? npm install -g @vue/cli
+vue ui 创建项目 项目名称 py16_web
+	配置
+		初始化Git仓库可以打开
+		Bable 老版本兼容 打开
+		TypeScript 项目有用到 再打开
+		Router 动态路由  打开
+		Vuex 管理全局数据  打开
+		Linter  强制语法合规 容易引发报错 关闭
+		3.x默认
+		使用哈希模式  不打开
+		创建项目
+
+项目依赖包 
+	不要使用 vue ui - web安装，
+		它安装的 element plus、axios不能指定版本安装。只能安装最新版本，但不稳定。
+		装插件会把自己写的代码覆盖，装依赖没问题
+		新代码直接安装
+		旧代码 先提交git，避免覆盖
+	依赖 尽量手动安装
+	插件： vue 官方提供 开发提效的工具 router、vuex
+
+
+安装依赖：手动指定版本
+	package.json - 有 @vue/cli的 是插件
+	进入终端命令行(Hbuildx或cmd)，进入项目根目录，执行语句
+		安装element plus 组建
+			cnpm install element-plus@2.2.12
+		安装 请求
+			cnpm install axios@0.27.2
+		图标库安装  element plus - 组件 - Icon图标 - 使用包管理器 - 
+			cnpm install @element-plus/icons-vue@2.0.6
+		安装yarn 资源调度平台
+			cnpm install yarn@1.22.19
+		
+		cmd 启动没问题 浏览器能打开
+			
+			
+	
+src/main.js  配置
+	导入element-plus
+		import ElementPlus from 'element-plus'
+		如果用花括号{} 导入的是指定资源
+		没用花括号 {} 导入的是 expect default 
+	导入element-plus 全局css样式
+		import 'element-plus/dist/index.css'
+	导入中文翻译
+		import zhCN from 'element-plus/es/locale/lang/zh-cn'
+
+
+	创建vue app对象，传入上面导入的根组建App
+		const app = createApp(App)
+		添加const代表属性不会改变
+		
+	注册element-plus插件
+		app.use(ElementPlus, {
+			locale: zhCN
+		})
+
+
+	引入element-plus的图标组建
+		import * as ElementPlusIconsVue from '@element-plus/icons-vue'
+		官网复制
+	将element-plus图标注册为全局组件
+		for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
+		  app.component(key, component)
+		}
+		官网复制
+		注册成vue的全局组件，可在任何地方使用这些图标
+		element-plus官网-组件-Icon 图标-注册所有图标-复制代码 ，重复的const app = createApp(App) 删掉
+		
+		app.component是用于注册组件的；
+
+	Vue.use方法是用于注册插件；
+		app.use(store).use(router).mount('#app')
+
+
+其他准备：
+	可以删掉 安装自带的、但无用的组件
+		components/HellowWorld.vue
+		views/AboutView.vue
+		views/HomeView.vue
+
+	根组件App.vue删掉 js和css内容
+		router/index.js 拷贝上一节的，删掉子路由，删掉home 和注册
+
+	拷贝上一节的登录组件，有交互的；
+		背景背景波纹效果放在component里面，登录组件修改导入路径
+
+	启动 如果失败  命令行用npm重新装 npm install element-plus@2.2.12  注意项目路径下安装
+
+
+创建笔记：根目录/notes.md
+	绘画存储区 浏览器关闭会清空，临时存放
+	本地存储区 浏览器关闭再打开资源仍在
+		页面点 记住账号 是放在本地存储区
+		但	token本身如果有过期机智，本地存储是控制不了的，即便存储，也是不能用的
+
+
+更换顶部图片
+	src/assets/
+		添加css文件夹
+		添加images/logo.png
+	Login.vue-template-LoginBack-div class='login_bos'- div class='title'-添加img标签
+	<img src="../assets/images/修宇测试平台.png" alt="测试平台" />
+		src 图片地址，alt图片加载不出来显示的信息
+
+
+输入框左侧添加图标，也就是在el-input标签里面添加
+	左侧添加图标
+		element-plus官网-组件-Input 输入框-插槽Slots-prefix输入框头部(左侧)内容
+	图标
+		element-plus官网-组件-Icon 图标-搜索user-点击自动复制，
+			el-icon标签内部的如<User />是图片插槽
+	修改图片大小 
+		element-plus官网-组件-Icon图标-API-Attributes-size 继承字体大小
+			<el-icon :size="24">
+	<el-input v-model="loginFrom.username" placeholder="体验账号：test">
+		<template #prefix>
+			<el-icon :size="24">
+				<User />
+			</el-icon>
+		</template>
+	</el-input>
+	
+	同理添加密码输入框左侧头部图标 <Lock />
+		<el-icon><Lock /></el-icon>
+
+
+
+
+css样式设置
+	.login_box
+		修改.login_box 宽500 高400
+		视口 (100vh - 400px高度)/2 居中
+	.title
+		删掉字体 颜色
+		添加底部区域的高度 padding_bottom: 30px;
+
+
+main.css
+设置全局样式
+	1、定义样式表 src/assets/css/main.css
+	2、导入全局样式，否则不生效。 在main.js | src 中
+		import './assets/css/main.css'
+	
+	/* 包裹输入框的容器 */
+	.login_box .el-input__wrapper {
+		/* 去除默认的背景和边框 */
+		background: none;
+		box-shadow: none;
+		
+		/* 去除边框的圆角 */
+		border-radius: 0px;
+		
+		/* 设置下边框的样式，线类型solid，宽度1px，颜色*/
+		border-bottom: solid 1px #006b9d;
+		
+		/* 设置字体大小 */
+		font-size: 20px;
+	}
+	
+	/* 输入边框里面的设置 */
+	.login_box .el-input__inner,
+	
+	/* 其他地方用的，登录页面没效果 */
+	.login_bos .el-form-item__label {
+		color: #fff;
+	}
+
+
+修改登录按钮颜色
+	查看设置颜色的属性：
+		element-plus官网-组建-Button 按钮-API-color
+	Login.vue - color="#006b9d"
+		<el-button style="width: 100%" type="danger" @click="loginRequest" color="#006b9d">登录</el-button>
+	
+
+为什么是用wrapper
+	打开https://sourcegraph.com/search -登录- context/global repo:element-plus - 点击 - 再输入 file:input.vue
+		选择 package/components/input/src/input.vue 源码
+	页面搜索 :class 
+		:class="nsInput.e('prefix')  prefix 控制输入框左侧样式 类属性，
+		:class="nsInput.e('inner')"  inner 控制插槽内部，
+	再搜索 wrapper  weaoerkl转化成('wrapper')，:class="wrapperKls" 
+	如果要修改特定element-plus样式，就这样查找源码类属性修改，一般情况下不需要改
+	
+	运行页面-F12-Element-定位元素后-看左侧Styles-展示所有样式 __wrapper、__inner信息
+
+
+创建公共请求文件：
+	痛点：
+	请求对象目前在Login.vue，每次发请求都要导入、创建请求对象，代码重复、在另一个组建中不能共享，需要重写
+	
+	解决：
+		axios请求对象设置成vue的全局属性，
+			其他组件在用的时候直接 this.$obj能直接获取请求对象，就像全局this.$router一样
+	
+	1、创建公共请求文件
+		复制Login.vue中 input axios、axios请求对象const httpDev、请求拦截器
+		创建 src/api/index.js - 粘贴
+		创建 const base_url 单独放在最上面
+			const base_url = 'http://42.192.110.51:18899'
+		设置请求实例 const httpDev
+			引入公共请求头 
+				baseURL: base_url,
+			请求头headers暂时不加，先删掉，公共请求参数不一定是json，可能是文件；
+			校验响应状态码validateStatus 
+				判断注释，
+				直接return true; 不做限制
+
+		????
+		1、请求拦截器 正常的修改了，异常的未修改
+		2、相应拦截器 注释掉了
+
+
+		请求响应拦截器 添加导出
+			expect default {
+				添加登录接口函数 (参数：调用登录接口传参)
+				loginApi(params) {
+					直接return返回 请求实例 调用.post(请求路径，传参)
+					return httpDev.post('/login', params);
+				},
+				
+				获取项目列表接口
+				
+				添加项目接口
+
+				其他接口
+			   
+			}
+			这里封装了接口，当接口路径变了，只在这里改一次就可以了，避免一百个地方用要改一百次。
+
+	export default 请求对象已经导出了
+	2、注册全局的请求对象 main.js中 
+		1 导入 在const app 下边添加
+			import api from './api/index.js'
+			导入axios中export default导出对象，包含里面所有接口，命名api
+		2 再注册vue全局属性
+			app.config.globalProperties.$api = api
+			设置的$xxx全局属性 就是index.js/export default的对象
+			因为有了全局对象 Login.vue中的axios引入、创建axios对象httpDev、httpDev请求响应拦截器就不需要了；
+	
+	3、Login.vue使用
+		Login.vue/method/async login()
+			const response = await httpDev.post('/login/', this.loginFrom);
+			替换成
+			const response = await this.$api.loginApi(this.loginFrom);
+
+
+Login.vue
+实现：更换 页面登录成功提示框样式
+element+官网-组件-Feedback 反馈组件-Message 消息提示-文字居中-查看源码
+	Message 消息提示，不带按钮的
+	Message Box 消息弹出框，就是带按钮的
+	
+	复制 import {ElMessage} 导入 Login.vue-script
+	复制 ElMessage({})对象导入Login.vue-method-login-try-if-this.token 下方
+	else也粘贴一份、catch也粘贴一份、替换alert("")
+		ElMessage({
+			// 是否可以关闭
+			showClose: true,
+			// 展示的消息
+			message: 'Centered text',
+			// 是否居中
+			center: true,
+		})
+	修改对应的message 登录成功、登录失败、报错了，alert和console删掉
+
+element+官网-组件-Feedback 反馈组件-Message 消息提示-API-Message配置项-type 样式属性
+    点类型enum右侧叹号- 展示多个可选择类型 (提示信息样式 )
+		'success' | 'warning' | 'info' | 'error'
+	给ElMessage({})对象 成功、失败、报错分别添加type属性，值对应添加
+
+查看效果：进入页面-输入账密-点登录，显示登录成功
+
+
+实现：登录成功跳转到项目列表页
+	登录成功获取token-调转项目列表页面-获取页面信息
+	
+	1、创建项目列表页
+		src/views/AllProject.vue - 添加页面提示标签
+	2、添加对应路由：才能找到页面
+		router/index.js - const routes - path、name、component
+	3、登录成功，通过编程式做跳转
+		在Login.vue -method - loginRequest - token 下面添加 路由跳转
+			this.$router.push({ name: 'allProject'})
+	
+	验证 进入浏览器 - 登录验证 - 实现跳转
+	
+	痛点1 复制链接 - 无痕浏览器 - 粘贴 依然能进入页面
+		http://localhost:8080/#/allProject
+		原因 项目列表 该页面 没有做认证 可以直接访问
+		解决 添加拦截 请求跳转某个页面前先判断是否有token，没有就不访问
+    痛点2 此时 页面不输入 点登录 也发起了请求 接口被调用，这会影响后端服务器性能，容易被压测搞垮。
+		解决 登录框添加校验规则，不输入、输入非法等 点登录不能发起请求
+
+
+实现：输入框校验
+	element-plus官网 - 组件 - Form 表单 - 表单校验-自定义校验规则
+		element-plus是vue3组合式api写法看不懂，使用element官网文档是vue2写法选项式api。
+	element官网 - 组件 - Form表单 -表单验证 -查看源码
+		ref不是element知识，是vue中的，给当前组件起一个索引名称。
+		1 复制源码 标签<el-from>属性 :model、:rules、ref 
+			粘贴在本地 <el-form>中，重新赋值 :model="ruleForm"、:rulers="loginRules"、ref="loginRef"；
+			:model="ruleForm" 绑定的是 export default-data-loginForm数组
+		2 复制源码 export default-data-return-rules:{}
+			粘贴在本地 Login.vue-data-return中，rules: {}重命名为loginRules: {}。
+			loginRules只留name索引，改名username，其他删掉；
+			loginRules: {
+				username: [{
+						required: true,  // 表示是否必须传值
+						message: '请输入活动名称',  // 为传值的提示信息
+						trigger: 'blur'  // 何时触发，blur为光标移出输入框时触发
+					},
+					{
+						min: 3,  // 最小长度
+						max: 5,  // 最大长度
+						message: '长度在 3 到 5 个字符',
+						trigger: 'blur'
+					}
+				],
+			},
+			
+		3 输入框el-form-item标签添加属性prop="username"
+			data-loginRules中的key要和prop的值保持一致
+			每个输入框的表单 单独添加属性prop
+
+		设置密码框校验，同理 data-loginRules-username，重命名password
+	
+		4 复制源码  export default-methods:{}-submitForm(formName){}
+			submitForm(formName) {
+				// 点击登录按钮表单校验+登录请求接口
+				// $refs 是vue实例提供的一个默认的全局属性，搜集所以组件中标签有设置ref的地方，统一存放在有key和value是map中
+					// 方法要校验整个表单，先获取表单的ref值，res值传入到方法$refs[]，这个表单就获取到了
+				// validate ：element官网-Form 表单-API-Form Methods-validate
+					// 是对整个表单进行校验的方法，参数为一个回调函数，(valid) => {} 箭头函数、匿名函数；
+					// 该回调函数，会在表单校验结束后被调用，第一个参数布尔值，为表单校验是否通过；
+				this.$refs[formName].validate((valid) => {
+					// 校验通过 执行内容。
+					if (valid) {
+						alert('submit!');
+						// 调用登录请求接口
+						this.loginRequest(); 
+					}
+					// 校验失败 执行内容。
+					// 可以删掉，因为校验失败已经有前段提示了。
+					else {
+						console.log('error submit!!');
+						return false;
+					}
+				});
+			},
+			// 去除校验的逻辑。有需要的时候添加，暂时不用。
+			resetForm(formName) {
+				this.$refs[formName].resetFields();
+			}
+		
+			粘贴在本地 Login.vue-export default-methods:{} 最上面
+				重命名clickLogin(){}
+				绑定<el-button 登录按钮中 @click="clickLogin('loginRef')" 
+					传参 <el-form表单 ref="loginRef"的值，给$ref[]
+				点击登录按钮，调用该函数，先进行表单校验，再触发登录请求接口，
+
+
+		将method方法 login(){}手动休改成loginRequest(){}
+	验证：启动页面 - 不输入 - 点击登录
+		鼠标点击输入框后移出鼠标会触发前段必填校验
+

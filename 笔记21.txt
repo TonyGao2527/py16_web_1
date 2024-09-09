@@ -1,0 +1,444 @@
+
+// 存储token、用户账密，
+	1 Login.vue - async loginRequest - if response.status === 200
+		- 注释掉 this.token = response.data.token;
+	2 存储在 浏览器 会话存储中：token和用户名的key,val，
+		window.sessionStorage.setItem('token', response.data.token);
+		window.sessionStorage.setItem('username', response.data.username)
+			存token是为了给其他路由页面校验用的
+			存用户名username是为了登录成功后页面展示用户信息
+		response.data.token
+		response.data.username
+			是后端接口来的
+
+	3 存储在 本地 会话存储中：用户名的key,val，
+		// 判断是否记住账号，如果状态码 = true(勾选了记住密码)；
+		if (this.loginForm.status) {
+			// 对象转换成JSON字符串
+			const strUserInfo = JSON.stringify(this.loginForm);
+			// 存储 账密 到本地会话
+			window.localStorage.setItem('userInfo', strUserInfo);
+		}
+		
+		// 登录成功之后，导航跳转到项目列表页
+		this.$router.push({
+			name: 'allProject'
+		});
+	
+		预览-勾选但没有记住账号密码，
+			是因为代码只进行了存到本地存储中，没有进行取。
+		methods:{} - 并列添加created(){}
+			// 钩子函数，会在页面渲染之前进行调用
+			created(){
+				// 取出存入本地的用户信息，使用变量接受
+				const strUserInfo = window.localStorage.getItem('userInfo')
+				// 判断 如果提取出来的对象不是空的
+				if (strUserInfo){
+					// 字符串转化成对象，再赋值给this.loginForm
+					this.loginForm = JSON.parse(strUserInfo)
+				}
+			},
+		
+	浏览器登录验证：输入用户名、密码，勾选记住密码，点登录。实现记住密码
+
+
+
+index.js | src/api - export default
+公共请求文件 添加 接口。项目列表中使用
+	// 获取项目列表接口
+	getProjects() {
+		return http.Dev.get('/projects')
+	},
+		// 要参考接口文档才知道
+		// http://42.192.110.51:18899/docs/ - projects - list - 参数可以不传
+
+
+	// 新增项目接口 .post请求
+	createProjects(params) {
+		// 传参URL，params传入普通对象就是json传参，如果是parameter就是表单传参，自动转换
+		return httpDev.post('/projects/', params)
+	},
+
+	// 更新项目 .patch请求
+	// 接口文档-Authentication-Basic 登录- peoject-update-传参两个
+	updateProjects(id, params) {
+		// 使用反引号``能自动识别里面的$美元符号，将对应参数传进来。类似Python中的f"" 表达式；
+		return httpDev.patch(`/projects/${id}`, params)
+	},
+
+	// 删除项目 delete请求
+	// 只传一个id，没有其他参数
+	deleteProjects(id) {
+		return httpDev.delete(`/projects/${id}`)
+	},
+
+
+
+AllProject.vue
+编辑项目列表页
+	顶部区域
+	列表区域 每个卡片	
+		项目图标区域
+		项目名称
+		项目负责人
+		操作按钮
+			添加、删除项目按钮
+			
+	一 获取项目数据
+		1、script - export default - data - return - 添加空列表
+			project_list: [],  // 用于存储项目列表接口放回的项目数据。
+		
+		2、script - export default - method - 添加方法
+			// 定义获取项目列表信息的 异步方法
+			async getAllproject() {
+				// 1.向后端发起请求 变量接收
+				const response = await this.$api.getProjects();
+				// 2.处理相应数据
+				if (response.status === 200) {
+					// 如果响应200，则存储响应数据
+					this.project_list = response.data;
+				} else {
+					// 判断不是200 则显示错误信息
+					// le官网-Message 消息提示-文字居中。要import引入；
+					ElMessage({
+						showClose: true,
+						message: '获取数据失败',
+						center: true,
+						type: 'warning',
+					})
+				}
+			},
+		
+		3、script - export default - created - 添加方法
+			// 添加钩子，页面渲染前执行
+			created() {
+				// 调用获取项目列表的异步方法
+				this.getAllproject();
+			}
+		
+		4、template - {{ project_list }}  // 添加展示
+			
+		验证，浏览器登录，项目页面返回 [] 空列表，
+			F12 - 请求头中状态码为401；响应信息："detail": "身份认证信息未提供。"
+			因为 没有token
+		
+		
+		index.js | src/api - 请求拦截器
+		5、非登录接口，接口请求前，请求头中要添加token
+			通过 请求拦截实现：如果请求URL不包含login，取token放在请求头中
+			httpDev.interceptors.request.use(
+				// 在向前端发起请求前先执行
+				// config 包含所有的请求信息，包含URL。及更多信息；
+				function(config) {
+					console.log('----请求拦截器----')
+					// 1 判断请求url中是否有/login/， 如不包含
+					if (config.url !== '/login/') {
+						//获取浏览器会话中token，存在data中的token
+						const token = window.sessionStorage.getItem('token')
+						// 判断token不为空，
+						if (token) {
+							// 就在当前请求header中存放token
+							config.headers['Authorization'] = 'JWT ' + token;
+							// 'JWT ' + token JWT右侧要加空格这是后端接口规范。有的公司不是JWT，可能是Bearer；
+						}
+					}
+					// 最后将 config 返回
+					return config
+				},
+				
+				// 异常处理，当失败时做什么策略
+				function(error) {
+					return Promise.reject(error)
+				}
+			);
+		
+		再次验证：进入浏览器，登录，刷新页面，显示列表信息
+
+	
+	二 页面样式
+		页面 顶部添加样式
+			AllProject.vue - template - 
+			删掉占位标签、数据标签
+			添加 div class='pros_box'
+				里面添加div class='top_box'页面顶部区域
+					添加标签文本 <span>项目列表</span>
+					添加两个按钮 element官网-Button按钮-图标按钮-复制Search按钮，type='pramary'是显示颜色
+						添加项目 按钮
+						退出登录 按钮
+							按钮颜色：修改成 type ='success'
+							按钮图标：element+官网- icon图标 - 加号➕、user人头 - 无需复制标签，只复制单词User
+								粘贴在两个按钮的属性 icon=""中
+						<el-button type="success" icon="User">添加项目</el-button>
+		
+			浏览器预览 有显示图标，
+				icon左侧不加冒号，添加冒号会把等号右侧当做对象处理，会不显示图标。
+
+		添加 项目列表样式 
+			<div class="project_list">
+			
+			1 添加项目卡片 标签
+				element官网- Card卡片- 有图片内容的卡片- 复制 <el-card>，只留闭合标签，子标签及属性都删掉；
+				添加卡片属性 <el-card class="pro"
+				页面是有多个card，所以要v-for循环，再绑定key
+					<el-card class="project" v-for="item in project_list" :key="item.id">
+				查看接口文档 http://42.192.110.51:18899/docs/
+					Authentication-basic登录 test/test123456- projecrs - list - Send Rwquest 
+					-  展示所有数据，每次迭代一个对象，id可作为唯一标识；
+
+				1.1 卡片中 添加项目图标 
+					添加 <div class="project-icon">
+					element+官网-icon图标-搜索 platform- 点击图片自动复制，粘贴在div中
+				
+				1.2 卡片中 添加项目名称
+					添加 <div class="project_name">
+						<div class="project_name">
+							<!-- 判断长度，<=8正常展示 -->
+							<span v-if="item.name.length <= 8 ">{{ item.name }}</span>
+							<!-- 长度 > 8部分省略号替代 -->
+							<!-- 要添加 鼠标悬浮，展示全文提示框 <el-tooltip -->
+							<!-- element+官网-Totip 文字提示-主题-Dark- 拷贝代码el-tooltip闭合标签 -->
+							<!-- 属性 :content 添加冒号：绑定内容 -->
+							<!-- 属性 placement是悬浮显示的方向 -->
+							<!-- 属性 effect 悬浮颜色，默认dark黑色，可改成light白色。API中可查 -->
+							<!-- 添加class="project_name_tooltip" 类属性后面布局； -->
+							<!-- e-else 应放在外层标签<el-tooltip 中 -->
+							<el-tooltip v-else class="project_name_tooltip" :content="item.name" placement="top">
+								<!-- 将>=8的span标签放在<el-tooltip>悬浮标签中显示 -->
+								<!-- .slice是截取，从0到第8个 -->
+								<span>{{ item.name.slice(0, 8) }}...</span>
+							</el-tooltip>
+						</div>
+					
+					预览，浏览器。如没有数据，需要重新登录实现最多取8个，添加省略号
+
+				1.3 卡片中 展示项目负责人
+					添加<div class="leader">
+					与 项目名称 同理
+						<div class="project_leader">
+							<span v-if="item.leader.length <= 4 ">{{ item.leader }}</span>
+							<el-tooltip v-else class="project_leader_tooltip" :content="item.leader" placement="top">
+								<span>{{ item.leader.slice(0, 4) }}...</span>
+							</el-tooltip>
+						</div>
+					
+				1.4 卡片中 展示按钮：编辑、删除
+					添加 <div class="project_buttons">
+					通过标签实现：element官网- Tag标签- 基础用法- Tag 3
+						<div class="project_buttons">
+							<!-- 使用tag替代button -->
+							<!-- type指定颜色 -->
+							<!-- style是css样式 -->
+							<!-- float: left 是左对齐 -->
+							<el-tag class="ml-2" type="info" style="float: left;" color="#efefef">
+								<!-- 添加icon图标 在文案左侧 -->
+								<el-icon><Edit /></el-icon>
+								<span>编辑</span>
+							</el-tag>
+							<el-tag class="ml-2" type="info" style="float: right;" color="#efefef">
+								<el-icon><Delete /></el-icon>
+								<span>删除</span>
+							</el-tag> 
+					
+					预览-浏览器，正常显示 编辑、删除按钮
+					
+			2 添加显示➕加号的空标签，点击后可添加项目
+				因为样式不复用，直接在标签中添加样式
+				<!-- 添加显示➕加号的空标签，点击后可添加项目 -->
+				<!-- text-align 水平对齐 -->
+				<!-- line-height 文本间距 -->
+				<!-- cursor 光标悬浮 手势 -->
+				<el-card class="project" style="text-align: center; line-height: 250px; color: #d0d0d0; cursor: pointer">
+					<!-- 添加 加好icon 设置大小 -->
+					<el-icon size="50px"><Plus /></el-icon>
+				</el-card>
+
+	三 设置CSS样式 
+		<style scoped> scoped 作用域，紧对当前组件有效
+		<style scoped>
+			/* 整个页面盒子样式 */
+			.projects_box {
+				/* 整个页面宽度。没看出效果*/
+				max-width: 1480;
+				/* 上下20px， 左右自动显示 */
+				margin: 20px auto;
+			}
+			/* 顶部 盒子 样式 */
+			.top_box {
+				/* 底部边框线，solid，宽度5px，颜色 */
+				border-bottom: solid 5px #42b983;
+				height: 40px;
+				/* bold加粗 20px大小 40px字间距 微软雅黑字体 */
+				font: bold 20px/40px 'microsoft yahei';
+				color: #42b983;    
+				/* 内边距-底部 */
+				padding-bottom: 5px;
+			}
+			/* 顶部 盒子-按钮 样式  */
+			.top_box .el-button {
+				/* float浮动，right靠右 */
+				float: right;
+				/* 外边距10px = 向左移动10px = 右边距10px; */
+				margin: 10px;
+				/* 预览 添加项目 按钮改到了右侧，如想改成左侧，需替换按钮标签上下位置*/
+			}
+			/* 列表 卡片 样是 */
+			.project {
+				width: 200px;
+				height: 250px;
+				/* 左浮动 */
+				float: left;
+				/* 内边距：一个参数控制上下左右；两个参数分别上下、左右； */
+				margin: 20px;
+			}
+			/* 列表 卡片-项目图标 央视 */
+			.project .project_icon {
+				/* 文字(icon)属性：是否加粗normal否 字号/行高 字体 */
+				font: normal 30px/60px 'microsoft yahei';
+				/* 文字(icon)颜色 */
+				color: #42b983;
+				/* 背景颜色，方形，有颜色可知道范围。 */
+				background: #d7f0e0;
+				/* 颜色区域长款 */
+				width: 60px;
+				height: 60px;
+				/* 外边框圆角：大小是width、height一半，则是圆形  */
+				border-radius: 30px;
+				/* 水平对齐方式 居中。颜色区域里面的icon */
+				text-align: center;
+				/* 外边距：上家0 ，左右自动。颜色区域有水平居中效果 */
+				margin: 0 auto;		
+			}
+			
+			/* 预览-正常 */
+			
+			/* 列表 卡片-项目名称 样式 */
+			.project .project_name {
+				/* 外边距：顶部20px */
+				margin-top: 20px;
+				/* 文字(icon)属性：是否加粗normal否 字号/行高 字体 */
+				font: normal 18px/40px 'microsoft yahe';
+				/* 框的水平对齐：居中 */
+				text-align: center;
+			}
+			
+			/* 列表 卡片-项目负责人 样式 */
+			.project .project_leader {
+				/* 文字(icon)属性：是否加粗normal否 字号/行高 字体 */
+				font: normal 14px/20px 'microsoft yahe';
+				/* 文本对齐：居中 */
+				text-align: center;
+				/* 偏浅灰色 */
+				color: #ababab;
+			}
+			
+			/* 列表 卡片-按钮 样式 */
+			.project .project_buttons {
+				/* 顶部距离 */
+				margin-top: 50px;
+			}
+			
+			/* 列表 卡片 标签按钮 */
+			.project .project_buttons .el-tag  {
+				/* 鼠标悬停 光标类型：小手 */
+				cursor: pointer;
+			}
+    
+
+	四 实现 点击右上角"添加项目" 点击显示弹窗
+		element+官网-Dialog 对话框-自定义内容-open a Form nested Dialog 按钮包含取消和确定 - 源码
+		el-dialog标签v-mode双向绑定了dialogFormVisible属性，属性为true则显示弹窗。
+			el-button按钮绑定了该属性，点击后，为true，显示弹窗。
+		复制代码 el-dialog，粘贴在 AllProject.vue/template最下边
+			添加注释：新增项目的弹窗
+			弹窗窗左上角标题title="Shipping address" 修改成title="添加项目"
+			标签属性:model=dialogFormVisible 改成:model=addDialog 绑定数据表单
+			添加弹窗宽度属性 width=40% 
+		在export default-data-return添加属性
+			// 添加 新增弹窗的属性，默认不弹
+			addDialog: false,  
+			// 添加数组 用于接收用户输入的项目信息
+			// 不用project_list: [] 因为字段太多了；每次新增也只是增加一个。
+			// 名称最好与接口保持一致
+			addForm: {
+				name: '', // 项目名称
+				leader: '' // 项目负责人
+				},
+			// 添加 编辑弹窗的属性，默认不弹
+			editDialog: false,
+			// 用于接收用户编辑的项目信息
+			editForm: {
+				name: '', // 项目名称
+				leader: '' // 项目负责人
+			}
+		修改标签
+			表单输入 绑定数据
+			el-form :model="addForm"
+				第一个el-form-item lable="项目名称"
+				el-input v-mode="addForm.name"
+				第二个el-form-item lable="负责人"
+				el-input v-mode="addForm.leader
+			删掉el-select标签，不需要这个
+			暂时删掉两个输入框的宽度 :lable-width=""
+
+			//表单按钮，#footer是个插槽，按钮区，确定、取消
+				<el-button Cancel改成 取消；Confirm改成 确定；
+			点击 取消 就是将addDialog 设置成 false 弹窗消失
+			点击 确定 就是向后端发送请求
+
+
+
+	五 点击弹窗 确认，实现新增数据 
+		AllProject.vue - el-button - template - 添加项目按钮 点击弹窗 - 确定
+			这里是添加项目，所以要绑定一个调用 新增项目接口 的方法
+			@click="clickAddPro" 先绑定
+		AllProject.vue - export default - method - 添加新增项目的异步方法
+			// 定义 新增项目的异步方法
+			async clickAddPro() {
+				// 1、向后端发起 新增项目请求，传参，变量接收响应
+				// createProjects() 是在src/api/index.js中定义
+				const responst = await this.api.createProjects(this.addForm)
+				// 判断响应状态码，201为成功是后端接口定义的；
+				if (responst.status === 201)
+					ElMessage({  //el+官网-Message 消息提示-文字居中
+						showClose: true,
+						message: '项目添加成功',
+						center: true,
+						type: 'success',
+						duration: 2000 // 提示框停留时间
+					})
+				// 2、新增项目的弹窗关闭
+				this.addDialog = false;
+				// 3、向后端发起请求，获取所有的项目信息
+				this.getAllproject();
+			},
+		AllProject.vue - el-button - template 
+			- <el-button 添加项目 按钮标签
+				修改 @click="addDialog = true" 点击后设置为true 显示弹窗;
+			- <el-card 加号➕卡片标签 添加 @click="addDialog = true" 点击后设置为true 显示弹窗；
+
+		浏览器-预览 点击两处 显弹窗，输入点确认，有新增 弹窗关闭 F12-网络-接口请求成功，有新项目生成
+
+响应拦截器注释掉
+
+排查问题
+	F12-vue-左侧AllProject-右侧addDlg 点过确定应该为false
+
+
+
+作业
+ 1 页面右上角-退出登录 自己做一下
+  退出先展示弹窗 是否确认退出
+ 用 element官网-Message Box 弹窗-确认消息
+点击确认：
+1清空
+window.sessionStorage.setItem token、username 都清空
+2 跳转登录页面
+this.$router.push({name: '登录页面'});
+
+ 2 项目负责人太长应做限制，不然下面按钮被挤掉了
+
+3 删除按钮 ，
+ 点确认也要做弹窗
+ 调用删除接口
+ 再调用刷新页面,获取所有项目信息
+    this.getAllProhect();

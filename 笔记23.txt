@@ -1,0 +1,534 @@
+
+project.vue
+实现 页面顶部tag 与 菜单选项 交互
+
+
+父组件传递数据给子组件
+	子组件设置props属性，父组件直接传值。
+
+子组件传递数据给父组件
+	通过emit指定不同事件，父组件使用事件促发，会将子组件数据传递给父组件
+
+
+vuex
+非父子关系、兄弟关系、没有关系，如何传值。
+	使用 全局状态管理工具 vuex 是vue官方提供的。
+1 安装 cnpm install -g vuex@4.0.0
+2 main.js | src  倒入、注册
+	import store from './store'
+	app.use(store)
+3 index.js | src/store 配置
+	// 1 先import从 vuex 导入
+		import { createStore } from 'vuex'
+	// 2 创建全局store对象 目的：可通过this.$store访问
+	export default createStore({
+		// state用于定义 全局数据, 可以在任意的组建中使用
+		// 数据是响应式的，当数据发生变化，组件会自动更新；
+		// 在组件中 使用state方法的数据，通常两种：
+		//     1 this.$store.state.全局数据名称
+		//     2 使用 mapState 辅助函数，将state中的全局数据映射到组件中的computed计算属性，直接使用该计算属性
+		state: {
+			tags: ['a', 'b'],
+			username: 'xiuyu',
+			age: 25
+		},
+
+		// 全局计算属性 类似vue-except default - computed 计算属性
+		getters: {},
+
+
+		// 定义修改全局属性state:{}的方法
+		// 错误 修改方式：this.$store.state.全局数据名称 = 新的数据
+		// 错误 实例：this.$store.state.age = 80
+		// 正确 调用mutations中定义的方法 两种：
+		// 1 this.$store.commit('mutations中的方法名称', 参数)
+		// 2 使用 mapMutations 辅助函数，将mutations中的方法与组件中method方法一对一映射
+		// 一般第二种 更好用
+		mutations: {
+			// 必须设置两个参数，第一个参数为state对象，第二个参数为调用该方法时传递的参数；
+			updateTags(state, newtags) {
+				state.tags = newtags;
+			},
+			updateUsername(state, newUserName) {
+				state.username = newUserName;
+			},
+			updateAge(state, newAge) {
+				state.age = newAge;
+			}
+		},
+		
+		// 定义全局的异步方法，如果有后端接口请求，放在此处定义；
+		actions: {},
+		
+		// 模块（当项目结构很大且复杂的时候，会对项目中的全局数据分模块管理）
+		modules: {}
+	})
+
+
+
+state
+使用 state 中数据 src/store/index.js
+	进入 src/components/TopTag.vue	
+	// 方式一： this.$store.state.全局数据名称。
+		在template中 不需要this. 在script中需要使用this.
+		进入 TopTage.vue - template - div class="tags" -
+		<el-tag> {{ $store.state.username }} </el-tag>
+		<el-tag> {{ $store.state.age }} </el-tag>
+		预览：project页面，显示该标签
+
+	// 方式三：store.state中数据与组件computed计算属性绑定
+	//  这种不推荐
+		1 export default {} - computed: {}
+			username1() {
+				return this.$store.state.username;
+			},
+			age1() {
+				return this.$store.state.age;
+			},
+		2 调用 template - div class="tags"
+			 <el-tag> {{ username }} </el-tag>
+			 <el-tag> {{ age }} </el-tag>
+		预览  也展示
+	
+	//方式二 ...mapState中的值必须与state中保持一致
+		// ...相当于拆开，等价于 方式三
+		1 导入 import { mapState} from 'vuex';
+		2 使用函数映射export default - computed:{} - 
+		...mapState(['username', 'age', 'tags'])
+		3 使用数据 template - div class="tags"
+		 <el-tag> {{ username }} </el-tag>
+		 <el-tag> {{ age }} </el-tag>
+		4 注释掉方式三
+		预览- 会自动映射显示
+		一般用 方式二
+
+mutation
+修改 state 中数据 src/store/index.js
+	1 创建函数
+	// 必须设置两个参数，第一个参数为state对象，第二个为调用该方法传递的参数
+		mutations: {
+			updateTags(state, newtags) {
+				state.tags = newtags;
+			},
+			updateUsername(state, newUserName) {
+				state.username = newUserName;
+			},
+			updateAge(state, newAge) {
+				state.age = newAge;
+			}
+		},
+		
+	2 调用 方式一
+		TopTags.vue - expect default - methods - 添加方法			
+			methods:{
+				// 修改 state 方式一（不推荐）： this.$store.commit('mutations中的方法名称', 参数)
+				changUsername(newName){
+					this.$store.commit('updateUsername', newName);
+				},
+				changeAge(newAge){
+					this.$store.commit('updateAge', newAge);
+				}
+			}
+
+		template - 添加按钮
+			<el-button type="primary" @click="changUsername('xiuyu002')">修改名字</el-button>
+			<el-button type="primary" @click="changeAge('18')">修改年龄</el-button>
+		
+		预览，点击按钮，显示标签被修改
+
+	修改 方式一 很复杂，使用的组建methods必须定义方法再和mutation中方法映射调用。
+
+	2 嗲用 方式二
+		导入辅助函数
+			import mapMutations form 'vuex';
+			它只是自动帮忙生成了修改 state 方式一中的方法而已
+		export default{} - methods:{} - 添加映射方法
+			...mapMutations(['updateTags','updateUsername,'updateAge']),
+		调用该方法 template - 添加按钮
+			<el-button type="primary" @click="updateTags(['apple','dogs'])">修改标签 方式二</el-button>
+			<el-button type="primary" @click="updateUsername('xiuyu003')">修改年龄 方式二</el-button>
+			<el-button type="primary" @click="updateAge('100')">修改年龄 方式二</el-button>
+		预览 - 点击修改按钮 - 修改成功
+		修改 方式二 好用 更简单
+
+
+实现 页面顶部tag 与 菜单选项 交互
+	
+	拷贝、保存TopTags.vue、store/index.js副本笔记，新建。
+	思考🤔 state中tags:[] | src/store/index.js 什么时候添加？
+		每次点击左侧菜单，顶部会增加一个tag，
+		那么当点击菜单时，将当前路由对象放在state.tag:[]数组中
+	
+	index.js | src/store
+	一、定义	
+		什么时候存进去呢？	
+		添加一个方法 在mutations:{} 中。
+		mutations: {
+			// 必须设置两个参数，第一个参数为state对象，第二个参数为调用该方法时传递的参数；
+			
+			// item是要添加到state.tags:[]中的对象
+			addTags(state, item) {
+				// state.tags.push(item) // 多次点击同一个菜单时，会导致顶部tag重复。需做判断。
+				// 如何去重 数组：判断item在tag中是否存在
+				// find 可以设置匿名函数(箭头函数) 类似Python中reduce、map 
+				//   (i) => {return i.path === item.path}
+				//   i 是每次遍历迭代会取出的一个tag，
+				//   任意相等则返回true，全不等则为false
+				//   find 返回布尔值，如果为ture代表已存在, 为false则不存在
+				// 实际就是传递了一个key然后指定了一个函数做过滤迭代的。
+				// const bResult 接收返回值
+				const bResult = state.tags.find((i) => {
+					return i.path === item.path
+				})
+				// 判断是否 当前遍历的路由的i.path = 插入的item.path
+				// 如果不存在则添加
+				if (!bResult) {
+					state.tags.push(item)
+				}
+			},
+
+	二、调用
+		应该是先有tag后有页面，所以渲染前先添加tag，也就是url导航到该路由之前先添加tag；
+		在哪里调用 
+			所以是在路由守卫中添加 index.js | src/router - router.beforeEach - ()=>{} 
+			放在上面，如果放在下面会所有路由调用，比如登录、项目列表页就不需要展示tag。
+			调用 store/index.js - mutation - addTags方法
+				router/index.js 不能使用 this.$store美元符号
+				它不是组件，只有组件能用
+				所以使用导入 import store from '../store/index.js'
+			有了对象，使用commit调用，传参 (方法名称、路由对象(也就是待访问对象 to))
+			if (to.meta.name) {
+				store.commit('addTags', to)
+			}
+		
+	三、显示
+	TopTags.vue | src/components
+		- export default - computed - ...mapState只保留['tags'] 
+		- template - 清空 - 添加 div class="tags" 
+		div class="tags"添加 Tag标签
+			添加<span>
+				el＋官网 - Tag 标签 - 可移除标签 - 源码复制 el-tag - 粘贴
+				里面的v-for和:key不需要了，放在span标签中；
+					<span v-for="tag in tags" :key="tag.name">
+					:key绑定path路径或name都可以，一般都不重复。
+				:type="tag.type" 取消：冒号绑定 改成type="success"
+				closeable 接口文档 标签是否可关闭
+		<div class="tags">
+			<!--  
+			:key绑定path路径或name都可以，一般都不重复。
+			-->
+			<span v-for="tag in tags" :key="tag.name">
+				<!--  
+				el＋官网 - Tag 标签 - 可移除标签 - 源码复制 el-tag - 粘贴
+				里面的v-for和:key不需要了，放在span标签中；				
+				:type="tag.type" 取消：冒号绑定 改成type="success"
+				closeable 接口文档 标签是否可关闭
+				需求：选中的背景颜色有加深效果
+					el＋官网 - Tag标签 - 主题/接口 - effect="dack"
+					复制<el-tag>分别添加判断
+						如果取出来的路由 和 当前访问路由一致，则添加 effect="dack" 颜色属性，
+						否则不加背景色；
+				-->
+				<el-tag v-if="tag.path===$route.path" effect="dark" type="success">
+					{{ tag.name }}
+				</el-tag>
+				<el-tag v-else closable type="success">
+					{{ tag.name }}
+				</el-tag>
+			</span>
+		</div>		
+		
+		预览-点击标签，显示增加tab标签。
+		
+		痛点 
+		1 tag 汉字名字如何显示
+		2 重新登录 如何排除不需要添加tag的路由(如登录、项目列表、项目详情页的tag)
+		
+		
+
+
+1 tag 汉字名字如何显示
+	src/index.js 菜单子路由每一个都添加元数据
+		meta: {'name': '项目首页'} ，再补充其他子路由的。
+			// 使用meta定义路由的元素信息
+			// meta的值可以定义任意的属性，用于存储路由的额外信息
+			// 使用方式： $route.meta.name
+	TopTags.vue | src/component - span - <el-tag>
+		{{ tag.name}} 换成 {{ tag.meta.name}}
+	
+	此时预览 - 报错 undefined (reading 'name')
+
+2 排除不需要添加tag的路由(如登录、项目列表、项目详情页的tag)
+	beforeEarch路由守卫添加判断：
+	如果路由mate包含name 不为空，则添加tag
+		if (to.meta.name) {
+			store.commit('addTags', to)
+		}
+
+实现 关闭Tag标签 功能
+el＋官网 - Tag标签 - API - Tag Events 事件
+	click 点击Tag事件
+	close 关闭Tag事件
+	1、index.js | src/store - mutation - 添加删除方法
+		// 删除state.tags中数据方法
+		popTags(state, item) {
+			// 遍历每个i的path != 传入的页面item的path
+			// 箭头函数满足条件为真返回true，则取出保存到新数组，否则排除掉
+			// 新数组覆盖原来的state.tags
+			state.tags = state.tags.filter((i)=>{
+				return i.path !== item.path
+			})
+		},
+	2、TopTags.vue - merhod - ...mapMutation([]) -添加 映射方法 'popTags'
+	3、<el-tag>绑定事件 @close="popTags(tag)"
+
+
+下半截
+需求支持点击tag按钮跳转对应页面
+	目前只支持点击删除标签。
+	点击通过编程式导航push到对应路由页面
+	<el-tag> 添加点击事件 
+		@click="$router.push(tag)"
+	不能使用route
+	要使用router，这里才会有push
+
+	预览-可切换，且页面右侧下边区域显示对应页面
+
+
+TopTags.vue 添加CSS样式
+	style 标签 添加 scoped 仅当前组件有效
+	<style scoped>
+		/* 外框盒子tags标签 */
+		.tags {
+			/* 高度60px */
+			height: 60px;
+			/* 行间距60px */
+			line-height: 60px;
+		}
+
+		/* 每个tag标签样式 */
+		.tags .el-tag {
+			/* 悬浮光标手势 */
+			cursor: pointer;
+			/* 每个tag的左边边距10 */
+			margin-left: 10px;
+		}
+	</style>
+
+
+Project.vue  项目页 CSS样式
+	style 添加 scoped	
+		<style scoped>
+		/* 整个页面盒子：分左右两块 */
+		.home {
+			/* 整个页面背景 */
+			background: #00aa7f;
+			height: 100vh;
+			/* 弹性盒子：默认左对齐。
+				页面分左右两块：
+					左侧 上面logo + 下边菜单
+					右侧 上面tag + 下面详情显示区*/
+			display: flex;
+		}
+
+		/* 左侧菜单区域 */
+		.left_box {
+			/* 宽度 */
+			width: 200px;
+			/* 右边框：实现、1像素、白色 */
+			border-right: solid 1px #fff;
+			height: 100vh;
+		}
+
+		/* 右侧区域 */
+		.right_box {
+			/* 弹性布局-比例分布 */
+			flex: 1;
+			/* 所有外边距属性 */
+			margin: 2px;
+		}
+
+		/* 右侧顶部标签 */
+		.top_box {
+			height: 60px;
+			/* 背景颜色 */
+			background: #fff;
+			/* 元素的下外边距 */
+			margin-bottom: 2px;
+		}
+
+		/* 右侧主体内容展示区 */
+		.main_box {
+			/* 高度：视口100% - 66px 。注意：减号左右空格不能省略*/
+			/* height: 100vh; */
+			height: calc(100vh - 66px);
+			/* 背景颜色 */
+			background: #fff;
+			/* 圆角：4个角 5px */
+			border-radius: 5px;
+		}
+		</style>
+	
+	预览 - 刷新页面 - 重新登录 - 页面正常
+
+左侧菜单顶部用户名展示
+	LeftMenu.vue - <el-dropdown - <span> - 文本用户名 {{ username }}
+	要在页面渲染前获取用户信息，
+		通过 computed 计算属性， 从windows绘画存储中取
+		computed: {
+			username() {
+				return window.sessionStorage.getItem('username')
+			}
+		},
+	预览 显示登录名字
+
+
+
+项目列表页 点 项目卡片，提取项目信息，
+	定义方法：
+		进入 项目详情页，以及菜单每个选项接口页面，
+			是跨组件，且不是父子关系。
+		项目信息放在src/store/index.js - state
+			新增初始/存储：添加属性  pro: null,
+		默认是null空 还要有修改方法 ：
+			mutations:{
+				// 保存 当前选择的项目信息
+				savePro(state, value){
+				state.pro = value
+			},
+
+	调用方法：
+		选择项目的标签位置：
+			AllProject.vue - el-card - div -  @click="$router.push"
+			点击事件修改成@click="selectPro(item)"
+		什么时候开始保存？
+			在项目列表，当点击项目卡片，然后项目信息保存到store，然后页面切换。
+		跳转逻辑较多，放在methods定义的函数里面
+			// 项目列表-选择项目
+			selectPro(pro) {
+				// 调用store- mutations- savePro存储项目信息
+				this.$store.commit('savePro', pro)
+				// 跳转到项目详情页
+				this.$router.push({ name: 'project' })
+			},
+
+	显示当前项目信息:
+	ProjectIndex.vue - script - export default 
+		// 计算属性绑定 项目信息。
+		// 记得提前import引入方法 import {mapState} from 'vuex';
+			- computed - 添加 ...mapState(['pro'])
+		// 显示 项目信息
+			- template - 添加{{ pro }}
+		预览
+			1 页面没有默认显示  项目首页
+			2 点击项目首页 没展示该页面数据。重新登录有数据
+
+
+实现进入项目默认选择 “项目首页”
+	第一种
+	index.js src/router
+	项目详情页 
+	父路由添加重定向 到项目首页 redirect:' /project/index',
+		预览 - 刷新登录 - 项目列表 - 点项目 - 展示父的项目页、项目首页、首页信息
+	父路由注释掉 component:()=> import
+		预览 - 登录 - 项目列表 - 点项目 - 只有项目主页及数据，没有父页面(左侧菜单、顶部tag标签)
+	所以不能注释父路由的component，子路由要在父路由 指定router-vue的地方展示
+
+
+通过查询数据库项目id 展示单个项目详情信息：
+	增加获取项目详细信息入口
+	index.js | src/api - export default - 添加接口
+		// 获取单个项目详细信息
+		// 接口文档提供。学习后端项目时候详细讲解。
+		// http://42.192.110.51:18899/docs/#projects-read
+		getProjectsInfo(id) {
+			return httpDev.get(`/projects/${id}`)
+		},
+	项目首页，页面渲染之前获取详细信息
+		ProjectIndex.vue - datda(){}-return{}
+			添加存储数据的容器 projectInfo: null,
+		ProjectIndex.vue - methods:{} - 定义调用接口异步方法
+			// 获取单个项目详细信息
+			async getProjectInfo() {
+				// 变量接收返回 = 传参id，从当前组件...mapState(['pro'])
+				const response = await this.$api.getProjectInfo(this.pro.id);
+				// datda(){}-return{}数据赋值
+				this.projectInfo = response.data;
+			},
+		ProjectIndex.vue - created(){}
+			// 钩子 页面渲染前执行 定义的方法
+			this.getProjectInfo();
+
+	预览
+	1 直接访问ERROR报错 id 为空，是访问路径问题；
+	2 从登录页面开始 - 选择项目进入 - 则显示数据；
+
+
+
+项目详情页 - 项目首页 - 布局
+	 添加最外层div 遍历项目详情信息数组projectInfo
+		<div v-if="projectInfo">
+	1 添加 项目名称
+		// 判断, date - return - projectInfo 不为空 则展示组件，
+		<div class="pro_name"">
+			{{ projectInfo.name }}
+		</div>
+
+	2 基本信息	
+	查看接口文档-basic登录-project-read-Interact-获取id=1的信息
+		// 2.1 标题 
+		// <b>是加粗；行高40px
+		<b style="line-height: 40px;">【基本信息】</b>
+	
+		// 2.2 内容 实际就是添加<el-card>标签
+		<el-card>
+		2.2.1 信息列表展示
+			el官网-Description 描述列表-垂直列表-Vertical list with border(垂直列表&有边框) - 复制<el-descriptions>-粘贴
+			el-descriptions标签
+				title, direction, :size 不需要，删掉
+				:column 1个描述+1个值=1列，共需要4列
+			通过项目接口返回可见需要用的数据是create_time、leader、info
+				所以el-descriptions-item 标签只保留前3个
+				前两个展示create_time、leader，
+					label 分别=负责人、创建时间
+					文本 分别
+						{{ projectInfo.leader }}
+						{{ projectInfo.create_time }}
+				第三个info 通过遍历展示，展示其他信息的 label和值
+					添加标签属性：
+					v-for="item in projectInfo.info"
+					label:冒号绑定 :label="item.name"
+					文本添加 {{ item.value }}
+
+		2.2.2 信息图形展示（仪表进度条 一行六列 ）
+			el官网- Layout 布局 - 使用<el-row>标签展示一行多列
+			查看api - 添加并绑定:gutter 栅格间隔（每一列间距）
+				添加属性 :gutter="20"
+				属性向上边距 style="margin-top: 30px;"
+			添加列
+				<el-col>一个标签就是一列，也可以一个标签布局6列
+				API查看span 是栅格，默认24，展示几列就除以几
+				el-row是一大行 el-col一个大列分成6个小列
+			<el-row :gutter="20" style="margin-top: 30px;">
+				<el-col :span="4">1</el-col>
+			</el-row>
+
+Progress 进度条 - 仪表盘形进度条
+
+作业： 
+完成到老师讲的这里
+包含选择项目跳转
+左侧菜单栏、右侧标签、中间内容展示完成
+
+
+</el-card>
+3 bug统计
+  信息列表展示
+  信息图形展示
+4 执行记录
+  信息图形展示
+  信息列表展示
+ 
+  
+
+否则 不展示，或 展示空
