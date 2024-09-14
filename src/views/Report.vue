@@ -64,15 +64,29 @@
 					</el-card>
 
 					<!-- 未通过场景 -->
-					<el-card></el-card>
+					<el-card>
+						<b style="line-height: 30px;">未通过场景</b>
+					</el-card>
 
 					<!-- 通过场景 -->
-					<el-card></el-card>
+					<el-card>
+						<b style="line-height: 30px;">通过场景</b>
+
+					</el-card>
 				</el-scrollbar>
 			</el-col>
 
 			<!-- 测试场景执行详情 -->
-			<el-col :span="12"></el-col>
+			<el-col :span="12">
+				<div>
+					<div>
+						<el-button size="small" plan type="primary" @click="showScentDates= {}">所有场景</el-button>
+						<el-button size="small" plan type="success" @click="showScentDates= {}">成功场景</el-button>
+						<el-button size="small" plan type="warning" @click="showScentDates= {}">失败场景</el-button>
+						<el-button size="small" plan type="danger" @click="showScentDates= {}">错误场景</el-button>
+					</div>
+				</div>
+			</el-col>
 		</el-row>
 	</div>
 </template>
@@ -190,8 +204,8 @@ export default {
 	updated() {
 		// 简写形式 去掉了{}
 		// 如果 this.$refs.chart1 存在，则调用 this.chart1()
-		if (this.$refs.chart1) this.chart1();  // 条形图
-		if (this.$refs.chart2) this.chart2();  // 饼图
+		if (this.$refs.chart1) this.chart1();  // 横向条形图
+		if (this.$refs.chart2) this.chart2();  // 环形饼图
 	},
 
 };

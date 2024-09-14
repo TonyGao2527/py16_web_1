@@ -622,26 +622,50 @@ Report.vue
 该页面进入后调用接口：测试报告、测试记录
 
 data return ：有三个属性
+	data() {
+		return {
+			// 运行测试记录信息
+			record: null,
+			// 测试报告信息
+			report: null,
+			// 显示的测试场景数据
+			showScentDatas: null,
+		}
+	},
 
 async created(){} 钩子 页面渲染时调用
- 路径参数获取id 页面地址上的id router/index.js - path: '/repory/:id/'
- 调用 获取报告 方法 getReportInfo(id)
- 调用 获取测试记录 方法   getRecordInfo(id)
+  路径参数获取id 页面地址上的id 
+    router/index.js - path: '/repory/:id/'
+  调用 获取报告 方法 getReportInfo(id)
+  调用 获取测试记录 方法   getRecordInfo(id)
 
-method 
-//  获取报告 方法
-async getReportInfo(id){}
-调后端接口 传参id
-取出报告对象
-....report.results拆包 赋值黑this.测试场景数据
- 接口响应中有执行记录历史日志log_data
-// 获取测试记录 方法   
-async getRecordInfo(id)
-接口响应中没有执行记录历史日志
+methods
+  // 获取报告 方法
+  async getReportInfo(id){}
+    调后端接口 传参id
+    取出报告对象
+    ...report.results拆包 赋值黑this.测试场景数据
+    接口响应中有执行记录历史日志log_data
+
+  // 获取测试记录
+  async getRecordInfo(id) {
+    const response = await this.$api.getRecordInfo(id);
+    if (response.status === 200) {
+      // 赋值 运行测试记录信息
+      // 响应结果 不包含 执行历史记录日志信息 results.cases.log_data[]
+      this.record = response.data;
+      console.log("this.record::", this.record)
+    }
+  },
 
 updated(){}数据有更新的时候调用的钩子
- 更新this.chart1()，页面横向柱状图
- 更新this.chart2()，条形右侧环形饼图
+	updated() {
+		// 简写形式 去掉了{}
+		// 如果 this.$refs.chart1 存在，则调用 this.chart1()
+		if (this.$refs.chart1) this.chart1();  // 横向条形图
+		if (this.$refs.chart2) this.chart2();  // 环形饼图
+	},
+
 
 标签布局：
 整个div先判断是否有 record 执行记录
