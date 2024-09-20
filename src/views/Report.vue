@@ -8,8 +8,10 @@
 		<el-row v-if="report">
 			<!-- 第一列 测试报告 -->
 			<el-col :span="12">
-				<!-- el官网 - Scrollbar 滚动条 -->
-				<el-scrollbar>
+				<!-- el官网 - Scrollbar 滚动条 
+					加上 height 左右两列华东不同步了
+				-->
+				<el-scrollbar height="calc(100vh - 65px)">
 					<!-- 第一列 标题 -->
 					<div class="report_title">测试报告</div>
 					<!-- 以卡片形式展示 每一块区域 -->
@@ -22,7 +24,9 @@
 							border	是否带有边框
 						-->
 						<el-descriptions title="执行信息" direction="vertical" :column="4" border>
-							<el-descriptions-item label="执行时间">{{ $date.rTime(record.create_time) }}</el-descriptions-item>
+							<el-descriptions-item label="执行时间">
+								{{ $date.rTime(record.create_time) }}
+							</el-descriptions-item>
 							<el-descriptions-item label="执行任务">{{ record.plan_name }}</el-descriptions-item>
 							<el-descriptions-item label="测试环境">{{ record.env_name }}</el-descriptions-item>
 							<el-descriptions-item label="通过率">{{ record.pass_rate + '%' }}</el-descriptions-item>
@@ -40,11 +44,11 @@
 						<el-row :gutter="5">
 							<el-col :span="14">
 								<!--  -->
-								<!-- 横向 条形图 -->
+								<!-- 横向 条形图 用例信息 -->
 								<div class="chartBox" ref="chart1"></div>
 							</el-col>
 							<el-col :span="10">
-								<!-- 饼图 -->
+								<!-- 饼图 通过率 -->
 								<div class="chartBox" ref="chart2"></div>
 							</el-col>
 						</el-row>
@@ -66,12 +70,20 @@
 					<!-- 未通过场景 -->
 					<el-card>
 						<b style="line-height: 30px;">未通过场景</b>
+						<div>
+							<el-button></el-button>
+							<el-button size="small" plan type="danger" @click="showScentDatas = [su]"
+								v-for="su in errorscent">{{ su.name }}</el-button>
+							<el-button size="small" plan type="danger" @click="showScentDatas = [su]"
+								v-for="su in failscent">{{ su.name }}</el-button>
+						</div>
 					</el-card>
 
 					<!-- 通过场景 -->
 					<el-card>
 						<b style="line-height: 30px;">通过场景</b>
-
+						<el-button size="small" plan type="danger" @click="showScentDatas = [su]"
+								v-for="su in successscent">{{ su.name }}</el-button>
 					</el-card>
 				</el-scrollbar>
 			</el-col>
@@ -80,10 +92,10 @@
 			<el-col :span="12">
 				<div>
 					<div>
-						<el-button size="small" plan type="primary" @click="showScentDates= {}">所有场景</el-button>
-						<el-button size="small" plan type="success" @click="showScentDates= {}">成功场景</el-button>
-						<el-button size="small" plan type="warning" @click="showScentDates= {}">失败场景</el-button>
-						<el-button size="small" plan type="danger" @click="showScentDates= {}">错误场景</el-button>
+						<el-button size="small" plan type="primary" @click="showScentDatas = {}">所有场景</el-button>
+						<el-button size="small" plan type="success" @click="showScentDatas = {}">成功场景</el-button>
+						<el-button size="small" plan type="warning" @click="showScentDatas = {}">失败场景</el-button>
+						<el-button size="small" plan type="danger" @click="showScentDatas = {}">错误场景</el-button>
 					</div>
 				</div>
 			</el-col>
