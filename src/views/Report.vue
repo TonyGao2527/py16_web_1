@@ -9,7 +9,7 @@
 			<!-- 第一列 测试报告 -->
 			<el-col :span="12">
 				<!-- el官网 - Scrollbar 滚动条 
-					加上 height 左右两列华东不同步了
+					加上 height 左右两列滑动不同步了
 				-->
 				<el-scrollbar height="calc(100vh - 65px)">
 					<!-- 第一列 标题 -->
