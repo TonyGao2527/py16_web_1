@@ -669,42 +669,46 @@ updated(){}数据有更新的时候调用的钩子
 
 标签布局：
 整个div先判断是否有 record 执行记录
-一个大行，左右两列：
- el-row 再判断是否有report 测试报告
+  一个大行，左右两列：
+  el-row 再判断是否有 report 测试报告
 
 第一列 左列整个可浮动el-scrollbar
   1 执行信息el-card
   2 图表 el-card
-3 测试场景统计 el-card
-4 未通过场景 card
-5 通过场景 card
+  3 测试场景统计 el-card
+  4 未通过场景 card
+  5 通过场景 card
 
-1执行信息
- 执行任务 就是 计划名称
-2  图标
- chart1 横向柱状图
- chart2 饼图
-updated(){} 中判断不为空，则调用
-methods:{} 
-定义chart1 
-定义chart2 datas数据是嵌套的数组
-3 card 测试场景统计信息
-场景总数 results中一个对象代表一个场景；
- 成功 失败 错误 场景 都是在computed:{}计算属性 中定义的方法，通过filter进行过滤，
-4 card 未通过场景
-添加两个el-button按钮，
- 一个v-for循环error场景
- 一个v-for循环fail场景
-分别绑定@click="showScentDatas= [su]"为了点击后页面右侧展示该场景的每个用例，相当于过滤，同右侧上面的场景tab类似，该方法后面讲
-5 card 通过场景
-同 4 未通过场景同理
+  1 执行信息
+    执行任务(计划名称)，时间，环境，通过率
+  2 图标
+    chart1 横向柱状图
+    chart2 饼图
+    updated(){} 中判断不为空，则调用
+    methods:{} 
+    定义chart1 
+    定义chart2 datas数据是嵌套的数组
+  3 card 测试场景统计信息
+    场景总数 results中一个对象代表一个场景；
+    成功 失败 错误 场景 
+      都是在computed:{}计算属性 中定义的方法，
+      通过filter进行过滤，
+  4 card 未通过场景
+    嵌套 b 标签 标题
+    嵌套div 
+      添加两个el-button按钮，
+      一个v-for循环error场景
+      一个v-for循环fail场景
+  分别绑定@click="showScentDatas= [su]"为了点击后页面右侧展示该场景的每个用例，相当于过滤，同右侧上面的场景tab类似，该方法后面讲
+  5 card 通过场景
+    同 4 未通过场景同理
 
 第二列 右侧
 <div> - <div> - <el-button>4个按钮
- 点击@click方法showScentData   
-所有场景 {...report.results}拆包复制给
-展示场景数据   
-<div> - <div> - <el-scrollbar>可滚动区域标签
+  点击@click方法showScentData   
+    所有场景 {...report.results}拆包赋值给
+    展示场景数据   
+<div> - <el-scrollbar>可滚动区域标签
  <el-card> v-for 循环 showScentData
   里面3个div分别v-if判断 scent.state分别是 success, fail, 错误，拼接场景name + 是否通过，标签颜色区分
 

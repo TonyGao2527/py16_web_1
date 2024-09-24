@@ -71,7 +71,6 @@
 					<el-card>
 						<b style="line-height: 30px;">未通过场景</b>
 						<div>
-							<el-button></el-button>
 							<el-button size="small" plan type="danger" @click="showScentDatas = [su]"
 								v-for="su in errorscent">{{ su.name }}</el-button>
 							<el-button size="small" plan type="danger" @click="showScentDatas = [su]"
@@ -82,21 +81,37 @@
 					<!-- 通过场景 -->
 					<el-card>
 						<b style="line-height: 30px;">通过场景</b>
-						<el-button size="small" plan type="danger" @click="showScentDatas = [su]"
+						<div>
+							<el-button size="small" plan type="danger" @click="showScentDatas = [su]"
 								v-for="su in successscent">{{ su.name }}</el-button>
+						</div>
+
 					</el-card>
 				</el-scrollbar>
 			</el-col>
 
-			<!-- 测试场景执行详情 -->
+			<!-- 页面右侧：测试场景执行详情 -->
 			<el-col :span="12">
 				<div>
-					<div>
-						<el-button size="small" plan type="primary" @click="showScentDatas = {}">所有场景</el-button>
-						<el-button size="small" plan type="success" @click="showScentDatas = {}">成功场景</el-button>
-						<el-button size="small" plan type="warning" @click="showScentDatas = {}">失败场景</el-button>
-						<el-button size="small" plan type="danger" @click="showScentDatas = {}">错误场景</el-button>
+					<!-- 4个type按钮 
+						margin 外边距 
+					-->
+					<div style="margin: 5px;">
+						<el-button size="small" plan type="primary"
+							@click="showScentDatas = { ...report.results }">所有场景</el-button>
+						<el-button size="small" plan type="success"
+							@click="showScentDatas = successscent">成功场景</el-button>
+						<el-button size="small" plan type="warning" @click="showScentDatas = failscent">失败场景</el-button>
+						<el-button size="small" plan type="danger" @click="showScentDatas = errorscent">错误场景</el-button>
 					</div>
+					<!-- 4个type按钮 对应展示的内容 -->
+					<el-scrollbar height="calc(100vh - 117px)">
+						<div class="">
+							<el-card>
+								
+							</el-card>
+						</div>
+					</el-scrollbar>
 				</div>
 			</el-col>
 		</el-row>
@@ -203,7 +218,7 @@ export default {
 	async created() {
 		// 路径参数方式获取id (当前页面的？)
 		// const id = this.$route.params.id;
-		const id = 59;
+		const id = 366;
 		// 路径参数获取id 页面地址上的id router/index.js - path: '/repory/:id/'
 		console.log("this.$route.params.id::", this.$route.params.id)
 
