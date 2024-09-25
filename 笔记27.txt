@@ -703,14 +703,21 @@ updated(){}数据有更新的时候调用的钩子
   5 card 通过场景
     同 4 未通过场景同理
 
-第二列 右侧
+第二列 右侧 
+4个按钮标签：
 <div> - <div> - <el-button>4个按钮
-  点击@click方法showScentData   
-    所有场景 {...report.results}拆包赋值给
-    展示场景数据   
+  每个分别添加事件@click方法showScentData
+    @click="showScentDatas = { ...report.results }"
+    @click="showScentDatas = successscent"
+    @click="showScentDatas = failscent"
+    @click="showScentDatas = errorscent">
+
+4个按钮标签对应展示的内容：  
 <div> - <el-scrollbar>可滚动区域标签
- <el-card> v-for 循环 showScentData
-  里面3个div分别v-if判断 scent.state分别是 success, fail, 错误，拼接场景name + 是否通过，标签颜色区分
+  <el-card> v-for 循环 showScentData
+    里面3个div分别v-if判断 
+      scent.state分别是 success, fail, 错误，
+      拼接场景name + 是否通过，标签颜色区分
 
 判断的<div>下方 展示每个场景信息
 <el-table> 绑定场景用例信息

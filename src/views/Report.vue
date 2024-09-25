@@ -105,10 +105,16 @@
 						<el-button size="small" plan type="danger" @click="showScentDatas = errorscent">错误场景</el-button>
 					</div>
 					<!-- 4个type按钮 对应展示的内容 -->
-					<el-scrollbar height="calc(100vh - 117px)">
-						<div class="">
-							<el-card>
-								
+					<!-- <el-scrollbar height="calc(100vh - 117px)"> -->
+					<el-scrollbar>
+						<div class="right_box">
+							<!-- 卡片展示顶部按钮对应内容 -->
+							<el-card v-for="(scent, index) in showScentDatas" :key="index">
+								<div class="title">
+									<!-- i 不知道在哪里定义的 -->
+									<i class="el-icon-upload"></i>
+									{{ '测试场景 : ' + scent.name + '【通过】' }}
+								</div>
 							</el-card>
 						</div>
 					</el-scrollbar>
@@ -250,5 +256,20 @@ export default {
 .chartBox {
 	height: 200px;
 	background: rgba(198, 198, 202, 0.1);
+}
+
+/* 右侧盒子 标签展示内容中的标题样式 
+具有类 right_box 的元素内的所有具有类 title 的子元素。
+bold: 字体的粗细（weight），这里设置为粗体。
+19px: 字体大小（font-size），设置为 19 像素。
+20px: 行高（line-height），设置为 20 像素。
+'microsoft yahei': 字体族（font-family）
+text-indent 设置段落首行的缩进
+color 设置文本的颜色
+*/
+.right_box .title {
+	font: bold 19px/20px 'microsoft yahei';
+	text-indent: 10px;
+	color: #55aa7f
 }
 </style>
