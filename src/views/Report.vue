@@ -110,10 +110,18 @@
 						<div class="right_box">
 							<!-- 卡片展示顶部按钮对应内容 -->
 							<el-card v-for="(scent, index) in showScentDatas" :key="index">
-								<div class="title">
-									<!-- i 不知道在哪里定义的 -->
+								<div class="title" v-if="scent.state == 'success'">
+									<!-- i对的class 不知道在哪里定义的 貌似没用-->
 									<i class="el-icon-upload"></i>
 									{{ '测试场景 : ' + scent.name + '【通过】' }}
+								</div>
+								<div class="title" v-else-if="scent.state == 'fail'" style="color: coral;">
+									<i class="el-icon-upload"></i>
+									{{ '测试场景 : ' + scent.name + '【失败】' }}
+								</div>
+								<div class="title" v-else style="color: red;">
+									<i class="el-icon-upload"></i>
+									{{ '测试场景 : ' + scent.name + '【错误】' }}
 								</div>
 							</el-card>
 						</div>
