@@ -83,7 +83,7 @@
             <template #label>
                 <span style="color: #00aa7f;" v-if="result.state === '成功'">{{ 'Assert : ' + result.state }}</span>
                 <span style="color: #d18d17;" v-else-if="result.state === '失败'">{{ 'Assert : ' + result.state }}</span>
-                <span style="color: #ff0000;" v-else>{{ result.state }}</span>
+                <span style="color: #ff0000;" v-else>{{ 'Assert : ' + result.state }}</span>
             </template>
         </el-tab-pane>
 
@@ -91,8 +91,8 @@
         <el-tab-pane disabled>
             <!-- #label 就是插槽显示tab的标题 -->
             <template #label>
-                <span style="color: #00AA7F;" v-if="result.status_cede <= 300">{{ 'Assert : ' + result.status_cede }}</span>
-                <span style="color: #ff5500;" v-else>{{ 'Assert : ' + result.status_cede }}</span>
+                <span style="color: #00AA7F;" v-if="result.status_cede <= 300">{{ 'Status : ' + result.status_cede }}</span>
+                <span style="color: #ff5500;" v-else>{{ 'Status : ' + result.status_cede }}</span>
             </template>
         </el-tab-pane>
 
