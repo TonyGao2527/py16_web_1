@@ -104,12 +104,13 @@
 						<el-button size="small" plan type="warning" @click="showScentDatas = failscent">失败场景</el-button>
 						<el-button size="small" plan type="danger" @click="showScentDatas = errorscent">错误场景</el-button>
 					</div>
-					<!-- 4个type按钮 对应展示的内容 -->
+					<!-- 4个type按钮 对应展示的 场景内容 -->
 					<!-- <el-scrollbar height="calc(100vh - 117px)"> -->
 					<el-scrollbar>
 						<div class="right_box">
 							<!-- 卡片展示顶部按钮对应内容 -->
 							<el-card v-for="(scent, index) in showScentDatas" :key="index">
+								<!-- 场景内容 标题 -->
 								<div class="title" v-if="scent.state == 'success'">
 									<!-- i对的class 不知道在哪里定义的 貌似没用-->
 									<i class="el-icon-upload"></i>
@@ -123,6 +124,11 @@
 									<i class="el-icon-upload"></i>
 									{{ '测试场景 : ' + scent.name + '【错误】' }}
 								</div>
+
+								<!-- 场景内容 -->
+								<el-table :data="scent.cases" style="width: 100%">
+
+								</el-table>
 							</el-card>
 						</div>
 					</el-scrollbar>
