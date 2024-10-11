@@ -71,9 +71,9 @@
 					<el-card>
 						<b style="line-height: 30px;">未通过场景</b>
 						<div>
-							<el-button size="small" plan type="danger" @click="showScentDatas = [su]"
+							<el-button size="small" plain type="danger" @click="showScentDatas = [su]"
 								v-for="su in errorscent">{{ su.name }}</el-button>
-							<el-button size="small" plan type="danger" @click="showScentDatas = [su]"
+							<el-button size="small" plain type="danger" @click="showScentDatas = [su]"
 								v-for="su in failscent">{{ su.name }}</el-button>
 						</div>
 					</el-card>
@@ -82,7 +82,7 @@
 					<el-card>
 						<b style="line-height: 30px;">通过场景</b>
 						<div>
-							<el-button size="small" plan type="danger" @click="showScentDatas = [su]"
+							<el-button size="small" plain type="danger" @click="showScentDatas = [su]"
 								v-for="su in successscent">{{ su.name }}</el-button>
 						</div>
 
@@ -97,12 +97,14 @@
 						margin 外边距 
 					-->
 					<div style="margin: 5px;">
-						<el-button size="small" plan type="primary"
-							@click="showScentDatas = { ...report.results }">所有场景</el-button>
-						<el-button size="small" plan type="success"
-							@click="showScentDatas = successscent">成功场景</el-button>
-						<el-button size="small" plan type="warning" @click="showScentDatas = failscent">失败场景</el-button>
-						<el-button size="small" plan type="danger" @click="showScentDatas = errorscent">错误场景</el-button>
+						<el-button size="small" plain type="primary" @click="showScentDatas = { ...report.results }">
+							所有场景</el-button>
+						<el-button size="small" plain type="success" @click="showScentDatas = successscent">
+							成功场景</el-button>
+						<el-button size="small" plain type="warning" @click="showScentDatas = failscent">
+							失败场景</el-button>
+						<el-button size="small" plain type="danger" @click="showScentDatas = errorscent">
+							错误场景</el-button>
 					</div>
 					<!-- 4个type按钮 对应展示的 场景内容 -->
 					<!-- <el-scrollbar height="calc(100vh - 117px)"> -->
@@ -125,9 +127,20 @@
 									{{ '测试场景 : ' + scent.name + '【错误】' }}
 								</div>
 
-								<!-- 场景内容 -->
+								<!-- 场景内容 
+									el - Table 表格 - 展开行 
+								-->
 								<el-table :data="scent.cases" style="width: 100%">
-
+									<!-- 通过设置 type="expand" 和 slot 可以开启展开行功能 -->
+									<el-table-column type="expand">
+										<template #default="scope">
+											<caseRes :result="scope.row"></caseRes>
+										</template>
+									</el-table-column>
+									<el-table-column label="用例名称" prop="name"/>
+									<el-table-column label="请求方法" prop="method"/>
+									<el-table-column label="状态码" prop="status_cede" />
+									<el-table-column label="断言结果" prop="state" />
 								</el-table>
 							</el-card>
 						</div>
@@ -139,10 +152,11 @@
 </template>
 
 <script>
+import caseRes from '../components/CaseResult.vue';
 export default {
 	// 组件 注册子组件
 	components: {
-
+		caseRes
 	},
 	// 数据
 	data() {
@@ -238,7 +252,7 @@ export default {
 	async created() {
 		// 路径参数方式获取id (当前页面的？)
 		// const id = this.$route.params.id;
-		const id = 366;
+		const id = 367;
 		// 路径参数获取id 页面地址上的id router/index.js - path: '/repory/:id/'
 		console.log("this.$route.params.id::", this.$route.params.id)
 
