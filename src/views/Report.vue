@@ -129,18 +129,28 @@
 
 								<!-- 场景内容 
 									el - Table 表格 - 展开行 
+									:show-header="false" 是否显示表头
 								-->
-								<el-table :data="scent.cases" style="width: 100%">
-									<!-- 通过设置 type="expand" 和 slot 可以开启展开行功能 -->
+								<el-table :data="scent.cases" style="width: 100%" :show-header="false">
+									<!-- 通过设置 type="expand" 和 slot 可以开启展开行功能 
+									 	show-overflow-tooltip 当内容太长时，它会分成多行。将其保留在一行中。
+											多余的内容会在 hover 时以 tooltip 的形式显示出来
+									-->
 									<el-table-column type="expand">
 										<template #default="scope">
 											<caseRes :result="scope.row"></caseRes>
 										</template>
 									</el-table-column>
-									<el-table-column label="用例名称" prop="name"/>
-									<el-table-column label="请求方法" prop="method"/>
-									<el-table-column label="状态码" prop="status_cede" />
-									<el-table-column label="断言结果" prop="state" />
+									<el-table-column label="用例名称" prop="name" min-width="100px" :show-overflow-tooltip="true"/>
+									<el-table-column label="请求方法" prop="method" min-width="40px"/>
+									<el-table-column label="状态码" prop="status_cede" min-width="40px"/>
+									<el-table-column label="断言结果" prop="state" min-width="40px">
+										<template #default="scope">
+											<span style="color: #00AA7F;" v-if="scope.row.state =='成功'">成功</span>
+											<span style="color: #ffaa00;" v-else-if="scope.row.state =='失败'">失败</span>
+											<span style="color: #F56C6C;" v-else>错误</span>
+										</template>
+									</el-table-column>
 								</el-table>
 							</el-card>
 						</div>
