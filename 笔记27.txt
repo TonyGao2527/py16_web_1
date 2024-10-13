@@ -721,25 +721,32 @@ updated(){}数据有更新的时候调用的钩子
 
 判断的<div>下方 展示每个场景信息
 <el-table> 绑定场景用例信息
- <el-table-column> 展示每一列的数据
- 第一列 type="expand"左侧显示，添加折叠效果，再添加插槽<template> 嵌套<caseRes>显示测试结果
- 其他列分别显示 用例名称，请求方法，状态码，断言结果
- 断言结果添加插槽<template> - 嵌套3个<span> 判断 成功、失败、错误，颜色不同
+  <el-table-column> 展示每一列的数据
+    第一列 type="expand"左侧显示折叠效果，
+      再添加插槽<template> 
+        嵌套<caseRes>显示测试结果
+  其他列分别显示 用例名称，请求方法，状态码，断言结果
+  `断言结果`添加插槽<template> - 
+    嵌套3个<span> 判断 成功、失败、错误，颜色不同
 
-showScentData: null 属性默认为空，右侧就不显示
 
-右侧：所有 成功 失败 错误场景
-已进入页面有默认场景
+
+showScentData: null 
+  属性默认为空，右侧就不显示
+
+右侧：所有、成功、失败、错误场景
+  一进入页面有默认场景 created 添加了 getReportInfo 方法
 method - async getReportInfo(id)
-该方法内部有赋值 this.showScentDatas = { ...this.report.results}
+  该方法内部有赋值 
+    this.showScentDatas = { ...this.report.results}
 
 
 
 
-
-左侧菜单测试报告
+报表
+左侧菜单测试
 Record.vue
-所有测试报告的列表，不是具体某个爆改
+所有测试报告的列表，不是具体某个报表
 查看F12 - 网络
 调接口/record/?project=682 这是报告列表信息，不是报告信息，可以复制响应信息对象中的一个
 

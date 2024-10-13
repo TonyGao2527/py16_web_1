@@ -23,7 +23,7 @@
 							column	一行 Descriptions Item 的数量
 							border	是否带有边框
 						-->
-						<el-descriptions title="执行信息" direction="vertical" :column="4" border>
+						<el-descriptions title="执行信息" direction="vertical" :column="5" border>
 							<el-descriptions-item label="执行时间">
 								{{ $date.rTime(record.create_time) }}
 							</el-descriptions-item>
@@ -71,9 +71,9 @@
 					<el-card>
 						<b style="line-height: 30px;">未通过场景</b>
 						<div>
-							<el-button size="small" plain type="danger" @click="showScentDatas = [su]"
+							<el-button size="small" plain @click="showScentDatas = [su]" type="danger"
 								v-for="su in errorscent">{{ su.name }}</el-button>
-							<el-button size="small" plain type="danger" @click="showScentDatas = [su]"
+							<el-button size="small" plain @click="showScentDatas = [su]" type="warning"
 								v-for="su in failscent">{{ su.name }}</el-button>
 						</div>
 					</el-card>
@@ -82,7 +82,7 @@
 					<el-card>
 						<b style="line-height: 30px;">通过场景</b>
 						<div>
-							<el-button size="small" plain type="danger" @click="showScentDatas = [su]"
+							<el-button size="small" plain @click="showScentDatas = [su]" type="success"
 								v-for="su in successscent">{{ su.name }}</el-button>
 						</div>
 
@@ -107,8 +107,8 @@
 							错误场景</el-button>
 					</div>
 					<!-- 4个type按钮 对应展示的 场景内容 -->
-					<!-- <el-scrollbar height="calc(100vh - 117px)"> -->
-					<el-scrollbar>
+					<el-scrollbar height="calc(100vh - 117px)">
+						<!-- <el-scrollbar> -->
 						<div class="right_box">
 							<!-- 卡片展示顶部按钮对应内容 -->
 							<el-card v-for="(scent, index) in showScentDatas" :key="index">
@@ -141,13 +141,14 @@
 											<caseRes :result="scope.row"></caseRes>
 										</template>
 									</el-table-column>
-									<el-table-column label="用例名称" prop="name" min-width="100px" :show-overflow-tooltip="true"/>
-									<el-table-column label="请求方法" prop="method" min-width="40px"/>
-									<el-table-column label="状态码" prop="status_cede" min-width="40px"/>
+									<el-table-column label="用例名称" prop="name" min-width="100px"
+										:show-overflow-tooltip="true" />
+									<el-table-column label="请求方法" prop="method" min-width="40px" />
+									<el-table-column label="状态码" prop="status_cede" min-width="40px" />
 									<el-table-column label="断言结果" prop="state" min-width="40px">
 										<template #default="scope">
-											<span style="color: #00AA7F;" v-if="scope.row.state =='成功'">成功</span>
-											<span style="color: #ffaa00;" v-else-if="scope.row.state =='失败'">失败</span>
+											<span style="color: #00AA7F;" v-if="scope.row.state == '成功'">成功</span>
+											<span style="color: #ffaa00;" v-else-if="scope.row.state == '失败'">失败</span>
 											<span style="color: #F56C6C;" v-else>错误</span>
 										</template>
 									</el-table-column>
@@ -261,9 +262,9 @@ export default {
 	// 钩子  页面渲染时调用
 	async created() {
 		// 路径参数方式获取id (当前页面的？)
-		// const id = this.$route.params.id;
-		const id = 367;
 		// 路径参数获取id 页面地址上的id router/index.js - path: '/repory/:id/'
+		const id = this.$route.params.id;
+		// const id = 367; // 如果写死 router/index.js中对应path也要修改；LeftMenu.vue中也要添加对应的菜单；
 		console.log("this.$route.params.id::", this.$route.params.id)
 
 		this.getReportInfo(id);  // 调用 获取报告 方法
@@ -282,19 +283,8 @@ export default {
 };
 </script>
 
-<style>
-/* 测试报告 标题 */
-.report_title {
-	font: bold 20px/50px 'microsoft yahei';
-	text-align: center;
-	color: #00aa7f;
-}
+<style scoped>
 
-/* 条形图、饼图 样式 */
-.chartBox {
-	height: 200px;
-	background: rgba(198, 198, 202, 0.1);
-}
 
 /* 右侧盒子 标签展示内容中的标题样式 
 具有类 right_box 的元素内的所有具有类 title 的子元素。
@@ -306,8 +296,34 @@ text-indent 设置段落首行的缩进
 color 设置文本的颜色
 */
 .right_box .title {
-	font: bold 19px/20px 'microsoft yahei';
+	font: bold 18px/20px 'microsoft yahei';
 	text-indent: 10px;
 	color: #55aa7f
 }
+
+
+/* 卡片标签 - 外边距 */
+.el-card {
+	margin: 5px;
+}
+
+/* 测试报告 标题 */
+.report_title {
+	font: bold 24px/50px 'microsoft yahei';
+	text-align: center;
+	color: #00aa7f;
+}
+
+/* 条形图、饼图 样式 */
+.chartBox {
+	height: 200px;
+	background: rgba(198, 198, 202, 0.1);
+}
+
+/* style如果不加scoped，唯一发现的变化是 TopTags.vue顶部标签间距变宽了 */
+.el-tag {
+	margin: 5px;
+	cursor: pointer;
+}
+
 </style>

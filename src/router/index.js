@@ -143,8 +143,8 @@ const routes = [
                 meta: {
                     'name': '测试报告'
                 },
-                // path: '/project/report/:id',
-                path: '/project/report',
+                path: '/project/report/:id',
+                // path: '/project/report', // 页面调试报告页面id写死时用的
                 name: 'report',
                 component: () => import('../views/Report.vue'),
             },

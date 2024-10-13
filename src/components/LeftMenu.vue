@@ -109,12 +109,12 @@
 			<span>测试报表</span>
 		</el-menu-item>
 		<!-- 测试报告 -->
-		<el-menu-item index="/project/report">
+		<!-- <el-menu-item index="/project/report">
 			<el-icon>
 				<Histogram />
 			</el-icon>
 			<span>测试报告</span>
-		</el-menu-item>
+		</el-menu-item> -->
 	</el-menu>
 </template>
 
