@@ -743,27 +743,39 @@ method - async getReportInfo(id)
 
 
 
-报表
-左侧菜单测试
+
 Record.vue
-所有测试报告的列表，不是具体某个报表
-查看F12 - 网络
-调接口/record/?project=682 这是报告列表信息，不是报告信息，可以复制响应信息对象中的一个
+左侧菜单---测试报表，所有测试报告的列表，不是具体某一个测试报告
+  查看F12 - 网络
+    调接口/record/?project=682 这是报告列表信息，不是报告信息，
+    可以复制响应信息对象中的一个，查看对比，进行后续编辑代码；
 
 页面标签结果：
-曲线图表<div ref="chart1">
-表格<el-table>
-分页<el-pagination> 后端接口没做分页，这里的分页是假的
+  顶部曲线图表 <div ref="chart1">
+  底部表格<el-table>
+  分页<el-pagination> 后端接口没做分页，这里的分页是假的
+
 data(){} - return{}
- recordList:[], 执行记录数据数组的列表
- count:900, 最多900页
-page:1, 第1页
-size:10, 每一页10条数据
-在后端学dif框架的时候会学到如何进行分页操作；
+	data() {
+		return {
+			// 执行记录数据数组的列表
+			recordList: [],
+			// 最多900页
+			count: 900,
+			// 第 1 页
+			page: 1,
+			// 每一页10条数据
+			size: 10
+		};
+	},
 
-created 页面刷新时调用的钩子
- 一进入页面就获取项目信息；
 
+	// 页面刷新时调用的钩子
+	// 一进入页面就获取项目信息；
+	created() {
+		this.getProjectrecords();
+	},
+  
 method
 获取当前项目下所有record执行记录信息
 async getProjectrecords()
