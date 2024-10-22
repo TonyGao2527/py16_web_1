@@ -3,6 +3,8 @@
 </template>
 
 <script>
+import Project from './Project.vue';
+
 export default {
 	data() {
 		return {
@@ -16,6 +18,23 @@ export default {
 			size: 10
 		};
 	},
+
+	// 
+	methods: {
+		// 获取当前项目下所有record执行记录信息
+		async getProjectrecords(){
+			const response = await this.$api.getProjectrecords(
+				{
+					Project: this.$store.state.pro.id,
+				}
+			);
+			if (response.status === 200){
+				// 赋值 执行记录数据数组的列表 
+				this.recordList = response.data;
+			}
+		},
+	},
+
 	// 页面刷新时调用的钩子
 	// 一进入页面就获取项目信息；
 	created() {
