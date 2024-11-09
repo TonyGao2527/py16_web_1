@@ -776,15 +776,35 @@ data(){} - return{}
 		this.getProjectrecords();
 	},
   
-method
-获取当前项目下所有record执行记录信息
-async getProjectrecords()
-// 获取项目ID，没有用映射，直接$store也是可以的，this.$store.state.pro.id ；
-赋值给this.recirdList 就不为空了，测试记录数据就是这里的每一个对象；
-mounted(){
- this.showChart();
-}  
-挂载结束后，会显示图标，这块不理解？？
+method:{}
+		// 获取当前项目下所有record执行记录信息
+		async getProjectrecords(){
+			const response = await this.$api.getProjectrecords({
+				// 获取项目ID，没有用映射，
+				// 直接$store也是可以的，this.$store.state.pro.id；
+				Project: this.$store.state.pro.id,
+			});
+			if (response.status === 200){
+				// 赋值 执行记录数据数组的列表 
+				// this.recirdList 就不为空了，测试记录数据就是这里的每一个对象；
+				this.recordList = response.data;
+			}
+		},
+
+mounted() {
+  this.showChart();
+}
+	// created() 
+	// 调用时机：会在 Vue 实例被创建后立即调用，但在 DOM 被渲染和挂载之前
+	// 用途：通常用于初始化数据，设置计算属性，或者执行一些与 DOM 无关的逻辑
+	// 如果将 this.showChart() 放在 created() 中，this.$refs.chart1 可能是 undefined
+	// 因为 DOM 元素还没有渲染到页面上，所以无法通过 this.$refs.chart1 获取到图表的容器元素，也无法渲染图表。
+	// mounted() 
+	// 调用时机：会在 Vue 实例和其模板挂载到 DOM 后被调用。
+	// 用途：通常用于涉及到 DOM 操作的逻辑，比如使用第三方库渲染图表、获取 DOM 元素尺寸、设置事件监听等。
+	// 在 mounted() 中，this.$refs.chart1 已经指向真实的 DOM 元素，
+	//     因此你可以安全地调用图表渲染方法，例如 this.$chart.chart3()。
+
 
 watch:{} 监听 recordList(value)有数据了就显示图标
 

@@ -20,7 +20,9 @@ import {
 
 
 // 创建公共请求url
-const base_url = 'http://42.192.110.51:18899'
+// const base_url = 'http://42.192.110.51:18899'
+const base_url = 'http://117.72.85.244:18899/api'
+// const base_url = 'https://ck.lemonban.com/api'
 
 // 创建axios请求实例对象：开发环境
 const httpDev = axios.create({
