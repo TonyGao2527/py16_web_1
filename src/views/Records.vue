@@ -2,6 +2,7 @@
 	<!-- 测试报告页面 -->
 	<div ref="chart1"></div>
 
+
 	<el-table :data="recordList">
 		<!-- prop 属性来对应对象中的键名即可填入数据 -->
 		<el-table-column label="执行时间" prop="">
@@ -16,6 +17,35 @@
 		<el-table-column label="查看报告" prop=""></el-table-column>
 	</el-table>
 
+	<!-- 分液器使用的延时 -->
+	<!-- <el-pagination :page-size="20" :pager-count="11" layout="total, sizes, prev, pager, next, jumper" :total="1000" /> -->
+	<!-- 
+	
+		v-model:currentPage="page"
+		v-model:page-size="size"  	每页显示条目个数
+		:page-sizes="[10, 20, 50, 100]"  每页显示个数选择器的选项设置
+		layout="total, sizes, prev, pager, next, jumper"组件布局，子组件名用逗号分隔
+			total 显示总条目数 ；
+			sizes 显示每页显示条数的选择器 ；
+			prev 显示上一页按 例如：上一页； 
+			pager 显示分页按钮 例如：1 2 3 4 5 ... 90； 
+			next 显示下一页按钮 例如：下一页 ；
+			jumper 显示跳转输入框。例如：跳转到第 [输入框] 页。
+		:total="count"  
+			总页数， total 和 page-count 设置任意一个就可以达到显示页码的功能；
+			如果要支持 page-sizes 的更改，则需要使用 total 属性	
+		@size-change="updateData"  page-size 改变时触发
+		@current-change="updateData"  current-page 改变时触发
+	-->
+	<el-pagination 
+		v-model:currentPage="page"
+		v-model:page-size="size"
+		:page-sizes="[10,20,50,100]"
+		layout="total, sizes, prev, pager, next, jumper"
+		:total="count"
+		@size-change="updateDate"
+		@current-change="updateDate"
+		/>
 
 </template>
 
@@ -38,6 +68,14 @@ export default {
 
 	// 
 	methods: {
+		async updateDate(){
+			// 当页面或者每页显示的数量发生变化时，执行该方法发生请求，刷新页面数据
+			const params = {
+				page:this.page,  //
+				size:this.size,   //
+			}
+		},
+
 		// 获取当前项目下所有record执行记录信息
 		async getProjectrecords() {
 			const response = await this.$api.getTestRecord({
@@ -49,7 +87,7 @@ export default {
 				// 赋值 执行记录数据数组的列表 
 				// this.recirdList 就不为空了，测试记录数据就是这里的每一个对象；
 				this.recordList = response.data;
-				console.log("this.recordList::",this.recordList)
+				console.log("this.recordList::", this.recordList)
 			}
 		},
 		// 这个方法用于显示图表
@@ -60,18 +98,26 @@ export default {
 			this.$chart.chart3(ele, this.chartData.value, this.chartData.label)
 		}
 	},
-	// 计算
+	// 计算属性
+	// 会缓存计算结果，值改变时改变时才重新计算。
+	//    避免了不必要的重复计算，节省了性能开销。
+	// methods 每次调用时都会重新执行，不会缓存结果。
+	// computed 直接在模板中以 {{ chartData }} 的形式使用，
+	//    而 methods 需要通过函数调用 this.getChartData()，显得不够简洁。
 	computed: {
+		// chartData 是一个计算属性（computed）。
+		//    其作用是根据 recordList 中的数据动态生成图表所需要的 label 和 value 数组。
 		chartData() {
-			let lable = [];
-			let value = [];
+			let lable = []; // 存放时间的数组
+			let value = []; // 存放通过率的数组
+			// 从this.recordList中for循环取出lable创建事件和value通过率
 			this.recordList.forEach(item => {
-				lable.push(this.$date.rTime(item.create_time));
-				value.push(item.pass_rate);
+				lable.push(this.$date.rTime(item.create_time)); // 将每个记录的时间格式化后放入 lable 数组
+				value.push(item.pass_rate); // 将每个记录的通过率放入 value 数组
 			});
-			return{
-				lable: lable,
-				value: value
+			return {
+				lable: lable,  // 标签；创建时间
+				value: value,  // 值：通过率
 			};
 		}
 	},
@@ -95,8 +141,8 @@ export default {
 	mounted() {
 		this.showChart();
 	},
+	
 	// 监听器，用于监听组件中数据的变化。
-
 	watch: {
 		// 当 recordList 数据发生变化时，
 		// watch 中定义的函数会自动触发并执行相应的操作。

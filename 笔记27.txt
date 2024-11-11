@@ -807,16 +807,60 @@ mounted() {
 
 
 watch:{} 监听 recordList(value)有数据了就显示图标
+  watch: {
+    // 当 recordList 数据发生变化时，
+    // watch 中定义的函数会自动触发并执行相应的操作。
+    recordList(value) {
+      // 当 recordList 的数据长度大于 1 时，执行 this.showChart()。
+      if (value.length > 1) {
+        this.showChart();
+      }
+    }
+  }
 
-method 添加方法showChart(){调用chart1 和chart2}
+method 添加方法showChart()
+
+  // 这个方法用于显示图表
+  showChart() {
+    const ele = this.$refs.chart1
+    // chart3折线图（通过率趋势图）src/assets/js/chart.js
+    // 参数：元素、数据、x轴刻度
+    this.$chart.chart3(ele, this.chartData.value, this.chartData.label)
+  }
 
 computed计算属性定义chartData()从this.recordList中for循环取出lable创建事件和value通过率
+  // 计算属性
+    // 会缓存计算结果，值改变时改变时才重新计算。
+    //    避免了不必要的重复计算，节省了性能开销。
+    // methods 每次调用时都会重新执行，不会缓存结果。
+    // computed 直接在模板中以 {{ chartData }} 的形式使用，
+    //    而 methods 需要通过函数调用 this.getChartData()，显得不够简洁。
+    computed: {
+      // chartData 是一个计算属性（computed）。
+      //    其作用是根据 recordList 中的数据动态生成图表所需要的 label 和 value 数组。
+      chartData() {
+        let lable = []; // 存放时间的数组
+        let value = []; // 存放通过率的数组
+        // 从this.recordList中for循环取出lable创建事件和value通过率
+        this.recordList.forEach(item => {
+          lable.push(this.$date.rTime(item.create_time)); // 将每个记录的时间格式化后放入 lable 数组
+          value.push(item.pass_rate); // 将每个记录的通过率放入 value 数组
+        });
+        return {
+          lable: lable,  // 标签；创建时间
+          value: value,  // 值：通过率
+        };
+      }
+    },
 
 <el-table>绑定 :data="recordList"
 
 以后做测试平台在Github上拿来直接用，框架丰富，效果好看，自己搭建费时费力海一时半会儿做不到。
 
 <el-table>最后一列是<el-button>跳转到name:report页面，params:{}传参id；
+
+
+
 
 项目页左侧菜单：测试环境
 TestEnv.vue
