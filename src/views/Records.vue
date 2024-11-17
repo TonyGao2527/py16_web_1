@@ -1,20 +1,27 @@
 <template>
 	<!-- 测试报告页面 -->
-	<div ref="chart1"></div>
+	<div class="chart_box" ref="chart1"></div>
 
-
-	<el-table :data="recordList">
+	<el-table :data="recordList" style="width: 100%" height="calc(100vh - 350px)">
 		<!-- prop 属性来对应对象中的键名即可填入数据 -->
-		<el-table-column label="执行时间" prop="">
-			<!-- {{ $date.rTime(scope.row.create_time) }} -->
-			{{ 时间 }}
+		<el-table-column label="执行时间" min-width="100px">
+			<template #default="scope">
+				{{ $date.rTime(scope.row.create_time) }}
+			</template>
 		</el-table-column>
-		<el-table-column label="测试计划" prop="">plan_name</el-table-column>
-		<el-table-column label="执行环境" prop="env_name"></el-table-column>
-		<el-table-column label="通过" prop="success"></el-table-column>
-		<el-table-column label="失败" prop="fail"></el-table-column>
-		<el-table-column label="通过率" prop=""></el-table-column>
-		<el-table-column label="查看报告" prop=""></el-table-column>
+		<el-table-column label="测试计划" prop="plan_name" />
+		<el-table-column label="执行环境" prop="env_name" />
+		<el-table-column label="通过" prop="success" />
+		<el-table-column label="失败" prop="fail" />
+		<el-table-column label="通过率" prop="pass_rate" />
+		<el-table-column label="查看报告" prop="" width="100">
+			<template #default="scope">
+				<el-button size="small" type="success" plain
+					@click="$router.push({ name: 'report', params: { id: scope.rou.id } })">
+					测试报告
+				</el-button>
+			</template>
+		</el-table-column>
 	</el-table>
 
 	<!-- 分液器使用的延时 -->
@@ -37,21 +44,13 @@
 		@size-change="updateData"  page-size 改变时触发
 		@current-change="updateData"  current-page 改变时触发
 	-->
-	<el-pagination 
-		v-model:currentPage="page"
-		v-model:page-size="size"
-		:page-sizes="[10,20,50,100]"
-		layout="total, sizes, prev, pager, next, jumper"
-		:total="count"
-		@size-change="updateDate"
-		@current-change="updateDate"
-		/>
+	<el-pagination v-model:currentPage="page" v-model:page-size="size" :page-sizes="[10, 20, 50, 100]"
+		layout="total, sizes, prev, pager, next, jumper" :total="count" @size-change="updateDate"
+		@current-change="updateDate" />
 
 </template>
 
 <script>
-import Project from './Project.vue';
-
 export default {
 	data() {
 		return {
@@ -68,11 +67,32 @@ export default {
 
 	// 
 	methods: {
-		async updateDate(){
+		async updateDate() {
 			// 当页面或者每页显示的数量发生变化时，执行该方法发生请求，刷新页面数据
 			const params = {
-				page:this.page,  //
-				size:this.size,   //
+				page: this.page,  // 当前页码
+				size: this.size,   // 每页显示的记录数
+			}
+			// 发生请求，获取数据
+			// 获取完数据之后，将数据更新到页面上
+			// 要显示的数据列表，赋值给 recordList
+			// 数据总数：赋值给 count
+			
+			// try 里面是gpt写的
+			try{
+				// 发起请求获取分页数据
+				const response = await this.$api.getTestRecord(params);
+
+				if (response.status === 200) {
+					// 更新记录列表
+					this.recordList = response.data.records // 假设 API 返回的数据在 data.records 中
+					// 更新总数
+					this.count = response.data.total;  // 假设 API 返回的总记录数
+				} else {
+					console.error("和获取数据失败",response)
+				}
+			} catch (error){
+				console.error("请求发生错误:", error)
 			}
 		},
 
@@ -81,7 +101,7 @@ export default {
 			const response = await this.$api.getTestRecord({
 				// 获取项目ID，没有用映射，
 				// 直接$store也是可以的，this.$store.state.pro.id；
-				Project: this.$store.state.pro.id,
+				project: this.$store.state.pro.id,
 			});
 			if (response.status === 200) {
 				// 赋值 执行记录数据数组的列表 
@@ -141,7 +161,7 @@ export default {
 	mounted() {
 		this.showChart();
 	},
-	
+
 	// 监听器，用于监听组件中数据的变化。
 	watch: {
 		// 当 recordList 数据发生变化时，
@@ -153,10 +173,10 @@ export default {
 			}
 		}
 	}
-}
+};
 </script>
 
-<style>
+<style scoped>
 /* div.chart_box 元素 */
 .chart_box {
 	height: 250px;
