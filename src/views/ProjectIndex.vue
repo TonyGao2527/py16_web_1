@@ -137,6 +137,7 @@
             <!-- 执行记录 -->
             <!-- 标题 -->
             <b style="line-height: 40px;">【执行记录】</b>
+            <Record></Record>
         </div>
 
     </el-scrollbar>
@@ -145,13 +146,18 @@
 <script>
 
 import { mapMutations, mapState } from 'vuex';
-
+import Record from './Records.vue'
 export default {
     data() {
         return {
             projectInfo: null,
         }
     },
+    // 注册子组建
+    components:{
+        Record
+    },
+
     // 计算属性
     computed: {
         // mapState映射store-state数组，通过项目列表存储的项目信息
