@@ -1,5 +1,5 @@
 <template>
-	<!-- 测试报告页面 -->
+	<!-- 测试报表页面 -->
 	<div class="chart_box" ref="chart1"></div>
 
 	<el-table :data="recordList" style="width: 100%" height="calc(100vh - 350px)">
@@ -14,7 +14,7 @@
 		<el-table-column label="通过" prop="success" />
 		<el-table-column label="失败" prop="fail" />
 		<el-table-column label="通过率" prop="pass_rate" />
-		<el-table-column label="查看报告" prop="" width="100">
+		<el-table-column label="查看报告" width="100">
 			<template #default="scope">
 				<el-button size="small" type="success" plain
 					@click="$router.push({ name: 'report', params: { id: scope.rou.id } })">
@@ -24,10 +24,8 @@
 		</el-table-column>
 	</el-table>
 
-	<!-- 分液器使用的延时 -->
-	<!-- <el-pagination :page-size="20" :pager-count="11" layout="total, sizes, prev, pager, next, jumper" :total="1000" /> -->
-	<!-- 
-	
+	<!-- 分液器使用的演示 -->
+	<!-- 	
 		v-model:currentPage="page"
 		v-model:page-size="size"  	每页显示条目个数
 		:page-sizes="[10, 20, 50, 100]"  每页显示个数选择器的选项设置
@@ -45,8 +43,8 @@
 		@current-change="updateData"  current-page 改变时触发
 	-->
 	<el-pagination v-model:currentPage="page" v-model:page-size="size" :page-sizes="[10, 20, 50, 100]"
-		layout="total, sizes, prev, pager, next, jumper" :total="count" @size-change="updateDate"
-		@current-change="updateDate" />
+		layout="total, sizes, prev, pager, next, jumper" :total="count" @size-change="updateData"
+		@current-change="updateData" />
 
 </template>
 
@@ -67,7 +65,7 @@ export default {
 
 	// 
 	methods: {
-		async updateDate() {
+		async updateData() {
 			// 当页面或者每页显示的数量发生变化时，执行该方法发生请求，刷新页面数据
 			const params = {
 				page: this.page,  // 当前页码
