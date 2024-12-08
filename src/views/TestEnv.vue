@@ -17,19 +17,16 @@
 					<!-- 环境菜单列表 -->
 					<!-- default-active 页面加载时默认激活菜单的 index -->
 					<!-- active-text-color 活动菜单项的文本颜色 -->
+					<!-- background: none; 去除了元素的背景色、背景图片或背景图案。 -->
+					<!-- border: none; 去除了元素的边框。 -->
 					<el-menu :default-active="active" class="el-menu-vertical-demo" active-text-color="#00aa7f"
 						text-color="#000000" style="background: none; border:none;">
-						<el-menu-item>
+						<el-menu-item @click="selectEnv(item)" :index="item.id.toString()" v-for="item in testEnvs"
+							style="height: 35px; line-height: 35px;">
 							<el-icon>
 								<Coin />
 							</el-icon>
-							<span>{{ }} 666</span>
-						</el-menu-item>
-						<el-menu-item>
-							<el-icon>
-								<Coin />
-							</el-icon>
-							<span>{{ }} 777</span>
+							<span>{{ item.name }}</span>
 						</el-menu-item>
 					</el-menu>
 				</el-scrollbal>
@@ -37,6 +34,7 @@
 		</el-col>
 
 		<!-- 中间区域 信息、配置、变量 -->
+		<!-- <el-col :span="8" v-if="EnvInfo"> -->
 		<el-col :span="8">
 			<el-scrollbar height="calc(100vh - 70px)">
 
@@ -100,7 +98,9 @@
 </template>
 
 <script>
+import { mapState, mapActions } from 'vuex';
 import Editor from '../components/CodeEdit.vue';
+import { ElMessage, ElMessageBox } from 'element-plus';
 export default {
 	components: {
 		Editor
@@ -110,6 +110,27 @@ export default {
 			active: '1',
 			EnvInfo: null,
 		};
+	},
+	computed: {
+		...mapState(['pro', 'testEnvs']),
+	},
+	methods: {
+		...mapActions(['getAllEnvs']),
+		// 创建环境
+		async addEnv() {
+			const params = {}
+		},
+		// 删除环境
+
+	},
+	created() {
+		this.getAllEnvs();
+	},
+	mounted() {
+		if (this.testEnvs.length > 0) {
+			// 设置默认选中的环境
+			this.selectEnv(this.testEnvs[0])
+		}
 	},
 }
 </script>
