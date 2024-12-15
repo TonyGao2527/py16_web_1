@@ -6,7 +6,7 @@
 		<!-- 左侧区域：环境列表 -->
 		<el-col :span="4">
 			<div class="list_box">
-				<el-scrollbal height="calc(100vh - 144px);">
+				<el-scrollbar height="calc(100vh - 144px)">
 					<!-- 标题 -->
 					<div class="top-title">测试环境</div>
 					<!-- 添加按钮 -->
@@ -29,27 +29,27 @@
 							<span>{{ item.name }}</span>
 						</el-menu-item>
 					</el-menu>
-				</el-scrollbal>
+				</el-scrollbar>
 			</div>
 		</el-col>
 
 		<!-- 中间区域 信息、配置、变量 -->
-		<!-- <el-col :span="8" v-if="EnvInfo"> -->
-		<el-col :span="8">
+		<el-col :span="8" v-if="EnvInfo">
+			<!-- <el-col :span="8"> -->
 			<el-scrollbar height="calc(100vh - 70px)">
 
 				<!-- 基本信息 -->
 				<div class="title">基本信息</div>
-				<!-- <el-input v-model="EnvInfo.name" palaceholder="环境名称"> -->
-				<el-input palaceholder="环境名称">
+				<!-- <el-input v-model="EnvInfo.name" placeholder="环境名称"> -->
+				<el-input v-model="EnvInfo.name" placeholder="环境名称">
 					<!-- #prepend左侧显示 #append右侧显示 -->
 					<template #prepend>
 						环境名
 					</template>
 				</el-input>
 
-				<!-- <el-input v-model="EnvInfo.host" palaceholder="hots地址" style="margin-top: 5px;"> -->
-				<el-input palaceholder="hots地址" style="margin-top: 5px;">
+				<el-input v-model="EnvInfo.host" placeholder="hots地址" style="margin-top: 5px;">
+					<!-- <el-input placeholder="hots地址" style="margin-top: 5px;"> -->
 					<template #prepend>
 						服务器域名
 					</template>
@@ -60,10 +60,10 @@
 				<!-- 将 type 设置为 border-card。是带有边框的卡片-->
 				<el-tabs type="border-card">
 					<el-tab-pane label="全局请求头">
-						<Editor height="250px"></Editor>
+						<Editor v-model="EnvInfo.headers" height="250px"></Editor>
 					</el-tab-pane>
 					<el-tab-pane label="数据库配置">
-						<Editor height="250px"></Editor>
+						<Editor v-model="EnvInfo.db" height="250px"></Editor>
 					</el-tab-pane>
 				</el-tabs>
 
@@ -71,28 +71,27 @@
 				<div class="title">全局变量</div>
 				<el-tabs type="border-card">
 					<el-tab-pane label="全局变量">
-						<Editor height="250px"></Editor>
+						<Editor v-model="EnvInfo.global_variable" height="250px"></Editor>
 					</el-tab-pane>
 					<el-tab-pane label="调试运行变量">
-						<Editor height="250px"></Editor>
+						<Editor v-model="EnvInfo.debug_global_variable" height="250px"></Editor>
 					</el-tab-pane>
 				</el-tabs>
 
 				<!-- 底部固定的3个按钮 -->
-				<!-- <el-affix position="bottom" :offset="20" style="text-align:center;" v-if="EnvInfo"> -->
-				<el-affix position="bottom" :offset="20" style="text-align:center;">
+				<el-affix position="bottom" :offset="20" style="text-align:center;" v-if="EnvInfo">
+					<!-- <el-affix position="bottom" :offset="20" style="text-align:center;"> -->
 					<el-button plain @click="saveEnv" type="success" icon="CircleCheck">保存编辑</el-button>
-					<el-button plain @click="saveEnv" type="success" icon="CircleCheck">复制环境</el-button>
+					<el-button plain @click="copyEnv" type="success" icon="CircleCheck">复制环境</el-button>
 					<el-button plain @click="delEnv" type="danger" icon="Delete">删除环境</el-button>
 				</el-affix>
 			</el-scrollbar>
-
 		</el-col>
 
 		<!-- 右侧区域 全局工具函数 -->
-		<el-col :span="12">
-			<!-- <Editor v-model="EnvInfo.global_func" height="calc(100vh - 65px)" lang="python" theme="monokai"></Editor> -->
-			<Editor height="calc(100vh - 65px)" lang="python" theme="monokai"></Editor>
+		<el-col :span="12" v-if="EnvInfo">
+			<Editor v-model="EnvInfo.global_func" height="calc(100vh - 65px)" lang="python" theme="monokai"></Editor>
+			<!-- <Editor height="calc(100vh - 65px)" lang="python" theme="monokai"></Editor> -->
 		</el-col>
 	</el-row>
 </template>
@@ -101,13 +100,17 @@
 import { mapState, mapActions } from 'vuex';
 import Editor from '../components/CodeEdit.vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
+import { Plus, Coin } from '@element-plus/icons-vue';
 export default {
+	// 注册子组建
 	components: {
 		Editor
 	},
 	data() {
 		return {
+			// 
 			active: '1',
+			// 环境信息详情,展示环境详情信息
 			EnvInfo: null,
 		};
 	},
@@ -115,12 +118,93 @@ export default {
 		...mapState(['pro', 'testEnvs']),
 	},
 	methods: {
+		// 获取所有测试环境
 		...mapActions(['getAllEnvs']),
 		// 创建环境
 		async addEnv() {
-			const params = {}
+			const params = { project: this.pro.id, name: "New Env" };
+			const response = await this.$api.createTestEnvs(params);
+			if (response.status === 201) {
+				this.$message({
+					type: 'sucess',
+					message: '添加成功',
+					duration: 1000,
+				});
+				this.getAllEnvs() // 刷新测试环境列表
+			}
 		},
+
 		// 删除环境
+		async delEnv() {
+			ElMessageBox.confirm('确认要删除吗？', '提示', {
+				confirmButtonText: '确定',
+				cancelButtonText: '取消',
+				type: 'warning'
+			})
+				.then(async () => {
+					const response = await this.$api.delTestEnvs(this.EnvInfo.id);
+					if (response.status === 204) {
+						ElMessage({
+							tyep: 'success',
+							message: '删除成功',
+							message: 1000,
+						});
+						this.getAllEnvs(); // 刷新测试环境列表
+						// 重新选中环境
+						if (this.testEnvs.length > 0) {
+							// 设置默认显示激活的测试场景
+							this.active = this.testEnvs[0].id.toString(); // 默认选中第一个环境
+							// 选中环境
+							this.selectEnv(this.testEnvs[0]);
+						}
+					}
+				})
+				.catch(() => {
+					ElMessage({
+						tyep: 'info',
+						message: '取消删除',
+						duration: 1000,
+					});
+				});
+		},
+
+		// 保存修改
+		async saveEnv() {
+			// 拷贝 环境信息详情
+			let params = { ...this.EnvInfo }
+			// 反序列化 将 JSON 字符串 转换回 JavaScript 对象。
+			//   转换为可以在 JavaScript 中操作的对象
+			params.headers = JSON.parse(this.EnvInfo.headers);
+			params.db = JSON.parse(this.EnvInfo.db);
+			params.debug_global_variable = JSON.parse(this.EnvInfo.debug_global_variable);
+			params.global_variable = JSON.parse(this.EnvInfo.global_variable);
+			const response = await this.$api.updateTestEnvs(params.id, params)
+			if (response.status === 200) {
+				this.$message({
+					tyep: 'success',
+					message: '保存成功',
+					duration: 1000,
+				});
+				this.getAllEnvs(); // 刷新测试环境列表
+			}
+		},
+
+		// 复制环境
+		async copyEnv() { },
+
+		// 选中环境
+		selectEnv(env) {
+			this.active = env.id.toString()
+			// 相当于浅拷贝，修改不应该直接影响到 env，避免对原始数据的污染
+			this.EnvInfo = { ...env }
+			// 序列化 JSON.stringify 将 JavaScript 对象 转换为 JSON 字符串
+			//   可以将其存储在文件、数据库，或通过网络发送
+			this.EnvInfo.headers = JSON.stringify(this.EnvInfo.headers, null, 4);
+			this.EnvInfo.db = JSON.stringify(this.EnvInfo.db, null, 4);
+			this.EnvInfo.debug_global_variable = JSON.stringify(this.EnvInfo.debug_global_variable, null, 4);
+			this.EnvInfo.global_variable = JSON.stringify(this.EnvInfo.global_variable, null, 4);
+
+		},
 
 	},
 	created() {
@@ -154,6 +238,6 @@ export default {
 /* 页面中间区域 信息、配置、变量 标题*/
 /* border-bottom底部的边框样式: solid 是实线宽, 宽度4像素 */
 .title {
-	font: bold 14px/28x 'microsoft yahei';
+	font: bold 14px/28px 'microsoft yahei';
 }
 </style>

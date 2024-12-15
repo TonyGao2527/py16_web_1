@@ -303,6 +303,20 @@ export default {
 		return httpDev.get(`/testenvs/${id}/`)
 	},
 
+	// 删除测试环境
+	delTestEnvs(id){
+		return httpDev.delete(`/testenvs/${id}/`)
+	},
+
+	// 添加测试环境
+	createTestEnvs(params){
+		return httpDev.post(`/testenvs/`, params)
+	},
+
+	// 修改测试环境
+
+
+
 
 	// ===============定时任务接口==========================================================
 
