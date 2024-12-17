@@ -272,7 +272,7 @@ export default {
 
 	// 删除测试计划
 	// http://42.192.110.51:18899/docs/#testplan-delete
-	delTestPlan(id){
+	delTestPlan(id) {
 		return httpDev.delete(`/testplan/${id}/`)
 	},
 
@@ -282,7 +282,7 @@ export default {
 	//   name      计划名
 	//   project   项目id
 	//   scent     包含的测试场景
-	updateTestPlan(id, params){
+	updateTestPlan(id, params) {
 		return httpDev.patch(`/testplan/${id}/`, params)
 	},
 
@@ -304,17 +304,19 @@ export default {
 	},
 
 	// 删除测试环境
-	delTestEnvs(id){
+	delTestEnvs(id) {
 		return httpDev.delete(`/testenvs/${id}/`)
 	},
 
 	// 添加测试环境
-	createTestEnvs(params){
+	createTestEnvs(params) {
 		return httpDev.post(`/testenvs/`, params)
 	},
 
 	// 修改测试环境
-
+	updateTestEnvs(id, params) {
+		return httpDev.patch(`/testenvs/${id}/`, params)
+	},
 
 
 
@@ -333,13 +335,13 @@ export default {
 
 	// 获取测试记录
 	// http://42.192.110.51:18899/docs/#record-read
-	getRecordInfo(id){
+	getRecordInfo(id) {
 		return httpDev.get(`/record/${id}/`)
 	},
 
 	// 获取测试报告信息
 	// http://42.192.110.51:18899/docs/#report-read
-	getTestReport(id){
+	getTestReport(id) {
 		return httpDev.get(`/report/${id}/`)
 	},
 
