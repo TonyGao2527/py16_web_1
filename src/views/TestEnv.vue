@@ -9,18 +9,19 @@
 				<el-scrollbar height="calc(100vh - 144px)">
 					<!-- 标题 -->
 					<div class="top-title">测试环境</div>
-					<!-- 添加按钮 -->
+					<!-- 添加按钮，用于创建新的测试环境 -->
 					<!-- <el-button @click="addEnv" type="success" plain size="small" style="width: 100%"> -->
 					<el-button @click="addEnv" type="success" plain size="small" style="width: 100%;" icon="Plus">
 						创建测试环境
 					</el-button>
-					<!-- 环境菜单列表 -->
+					<!-- 环境菜单列表，用于显示测试环境列表 -->
 					<!-- default-active 页面加载时默认激活菜单的 index -->
 					<!-- active-text-color 活动菜单项的文本颜色 -->
 					<!-- background: none; 去除了元素的背景色、背景图片或背景图案。 -->
 					<!-- border: none; 去除了元素的边框。 -->
 					<el-menu :default-active="active" class="el-menu-vertical-demo" active-text-color="#00aa7f"
 						text-color="#000000" style="background: none; border:none;">
+						<!-- 循环显示每个测试环境 -->
 						<el-menu-item @click="selectEnv(item)" :index="item.id.toString()" v-for="item in testEnvs"
 							style="height: 35px; line-height: 35px;">
 							<el-icon>
@@ -33,14 +34,13 @@
 			</div>
 		</el-col>
 
-		<!-- 中间区域 信息、配置、变量 -->
+		<!-- 中间区域 信息、配置、变量。宽度占比8 -->
 		<el-col :span="8" v-if="EnvInfo">
-			<!-- <el-col :span="8"> -->
+			<!-- 滚动条容器，高度计算为视口高度减去70px -->
 			<el-scrollbar height="calc(100vh - 70px)">
 
 				<!-- 基本信息 -->
 				<div class="title">基本信息</div>
-				<!-- <el-input v-model="EnvInfo.name" placeholder="环境名称"> -->
 				<el-input v-model="EnvInfo.name" placeholder="环境名称">
 					<!-- #prepend左侧显示 #append右侧显示 -->
 					<template #prepend>
@@ -57,6 +57,7 @@
 
 				<!-- 基本配置 -->
 				<div class="title">基本配置</div>
+				<!-- 标签页，用于切换全局请求头和数据库配置 -->
 				<!-- 将 type 设置为 border-card。是带有边框的卡片-->
 				<el-tabs type="border-card">
 					<el-tab-pane label="全局请求头">
@@ -69,6 +70,7 @@
 
 				<!-- 全局变量 -->
 				<div class="title">全局变量</div>
+				<!-- 标签页，用于切换全局变量和调试运行变量 -->
 				<el-tabs type="border-card">
 					<el-tab-pane label="全局变量">
 						<Editor v-model="EnvInfo.global_variable" height="250px"></Editor>
@@ -78,7 +80,7 @@
 					</el-tab-pane>
 				</el-tabs>
 
-				<!-- 底部固定的3个按钮 -->
+				<!-- 固定在底部的操作按钮，用于保存、复制和删除环境 -->
 				<el-affix position="bottom" :offset="20" style="text-align:center;" v-if="EnvInfo">
 					<!-- <el-affix position="bottom" :offset="20" style="text-align:center;"> -->
 					<el-button plain @click="saveEnv" type="success" icon="CircleCheck">保存编辑</el-button>
@@ -88,7 +90,7 @@
 			</el-scrollbar>
 		</el-col>
 
-		<!-- 右侧区域 全局工具函数 -->
+		<!-- 右侧区域 全局工具函数 ，宽度占比12-->
 		<el-col :span="12" v-if="EnvInfo">
 			<Editor v-model="EnvInfo.global_func" height="calc(100vh - 65px)" lang="python" theme="monokai"></Editor>
 			<!-- <Editor height="calc(100vh - 65px)" lang="python" theme="monokai"></Editor> -->
@@ -108,14 +110,12 @@ export default {
 	},
 	data() {
 		return {
-			// 
-			active: '1',
-			// 环境信息详情,展示环境详情信息
-			EnvInfo: null,
+			active: '1',  // 当前选中的测试环境ID
+			EnvInfo: null,  // 当前选中的测试环境信息，展示环境详情信息
 		};
 	},
 	computed: {
-		...mapState(['pro', 'testEnvs']),
+		...mapState(['pro', 'testEnvs']),  // 从vuex获取项目信息和测试环境列表
 	},
 	methods: {
 		// 获取所有测试环境
@@ -126,17 +126,17 @@ export default {
 			const response = await this.$api.createTestEnvs(params);
 			if (response.status === 201) {
 				this.$message({
-					type: 'sucess',
+					type: 'success',
 					message: '添加成功',
 					duration: 1000,
 				});
-				this.getAllEnvs() // 刷新测试环境列表
+				this.getAllEnvs(); // 刷新测试环境列表
 			}
 		},
 
 		// 删除环境
 		async delEnv() {
-			ElMessageBox.confirm('确认要删除吗？', '提示', {
+			ElMessageBox.confirm('确定要删除吗？', '提示', {
 				confirmButtonText: '确定',
 				cancelButtonText: '取消',
 				type: 'warning'
@@ -147,7 +147,7 @@ export default {
 						ElMessage({
 							tyep: 'success',
 							message: '删除成功',
-							message: 1000,
+							duration: 1000,
 						});
 						this.getAllEnvs(); // 刷新测试环境列表
 						// 重新选中环境
@@ -161,7 +161,7 @@ export default {
 				})
 				.catch(() => {
 					ElMessage({
-						tyep: 'info',
+						type: 'info',
 						message: '取消删除',
 						duration: 1000,
 					});
@@ -190,7 +190,26 @@ export default {
 		},
 
 		// 复制环境
-		async copyEnv() { },
+		async copyEnv() {
+			let params = { ...this.EnvInfo }
+			params.name = params.name + '_COPY';   // 添加后缀标识复制的环境
+			// 反序列化 将 JSON 字符串 转换回 JavaScript 对象。
+			//   转换为可以在 JavaScript 中操作的对象
+			params.headers = JSON.parse(this.EnvInfo.headers);
+			params.db = JSON.parse(this.EnvInfo.db);
+			params.debug_global_variable = JSON.parse(this.EnvInfo.debug_global_variable);
+			params.global_variable = JSON.parse(this.EnvInfo.global_variable);
+			// 调用创建环境
+			const response = await this.$api.createTestEnvs(params);
+			if (response.status === 201) {
+				this.$message({
+					type: "success",
+					message: "复制成功",
+					duration: 1000
+				});
+				this.getAllEnvs(); // 刷新测试环境列表
+			}
+		},
 
 		// 选中环境
 		selectEnv(env) {
@@ -207,13 +226,15 @@ export default {
 		},
 
 	},
+
+	// 页面加载时
 	created() {
-		this.getAllEnvs();
+		this.getAllEnvs(); // 页面加载时获取所有测试环境
 	},
 	mounted() {
 		if (this.testEnvs.length > 0) {
 			// 设置默认选中的环境
-			this.selectEnv(this.testEnvs[0])
+			this.selectEnv(this.testEnvs[0]); // 默认选中第一个测试环境
 		}
 	},
 }
