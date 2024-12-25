@@ -59,7 +59,7 @@
 				<div class="title">基本配置</div>
 				<!-- 标签页，用于切换全局请求头和数据库配置 -->
 				<!-- 将 type 设置为 border-card。是带有边框的卡片-->
-				<el-tabs type="border-card">
+				<el-tabs type="border-card" class="demo-tabs">
 					<el-tab-pane label="全局请求头">
 						<Editor v-model="EnvInfo.headers" height="250px"></Editor>
 					</el-tab-pane>
@@ -145,7 +145,7 @@ export default {
 					const response = await this.$api.delTestEnvs(this.EnvInfo.id);
 					if (response.status === 204) {
 						ElMessage({
-							tyep: 'success',
+							type: 'success',
 							message: '删除成功',
 							duration: 1000,
 						});
@@ -181,7 +181,7 @@ export default {
 			const response = await this.$api.updateTestEnvs(params.id, params)
 			if (response.status === 200) {
 				this.$message({
-					tyep: 'success',
+					type: 'success',
 					message: '保存成功',
 					duration: 1000,
 				});
