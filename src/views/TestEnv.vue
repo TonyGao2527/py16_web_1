@@ -231,7 +231,11 @@ export default {
 	created() {
 		this.getAllEnvs(); // 页面加载时获取所有测试环境
 	},
+
+	// 会在 Vue 实例被挂载到 DOM 后调用，即模板已被渲染并且相关的 DOM 元素已经生成
+	// 如果放在created()中，this.getAllEnvs是异步的，this.testEnvs 可能还没有被正确赋值
 	mounted() {
+		// 当组件挂载完成后，检查 testEnvs 是否为空。
 		if (this.testEnvs.length > 0) {
 			// 设置默认选中的环境
 			this.selectEnv(this.testEnvs[0]); // 默认选中第一个测试环境
