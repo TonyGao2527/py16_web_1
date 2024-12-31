@@ -25,7 +25,7 @@ export default createStore({
 		// 用这个会报错
 		// tags: ['a', 'b'],
 		tags: [],
-		// 项目详情页-信息存储
+		// 当前选择的项目 项目详情页-信息存储
 		pro: null,
 		// 项目详情-接口管理 数据
 		interfaces: [],
@@ -41,6 +41,8 @@ export default createStore({
 		testEnvs: [],
 		// 项目中所有的测试场景
 		testScents: [],
+		// 项目中所有的测试计划
+		testPlans:[],
 	},
 
 	// 全局计算属性 类似vue-except default - computed 计算属性
@@ -127,7 +129,12 @@ export default createStore({
 		// 测试场景属性赋值
 		updateTestScents(state, value) {
 			state.testScents = value
-		}
+		},
+
+		// 项目中所有测试计划
+		updateTestPlans(state, value){
+			state.testPlans = value
+		},
 
 	},
 
@@ -183,6 +190,14 @@ export default createStore({
 				context.commit('updateTestScents', response.data)
 			}
 		},
+
+		// 获取所有测试计划
+		async getAllPlan(context){
+			const response = await api.getTestPlan(context.state.pro.id)
+			if (response.status === 200){
+				context.commit('updateTestPlans', response.data)
+			}
+		}, 
 	},
 
 	// 模块（当项目结构很大且复杂的时候，会对项目中的全局数据分模块管理）
