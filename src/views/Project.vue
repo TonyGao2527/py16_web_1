@@ -50,13 +50,14 @@ export default {
 		TopTags,
 	},
 	methods:{
-		...mapActions(['getAllEnvs','getAllInterFaces', 'getAllScent'])
+		...mapActions(['getAllEnvs','getAllInterFaces', 'getAllScent', 'getAllPlan'])
 	},
 	// 进入当前页面时调用
 	created(){		
 		this.getAllEnvs()  // 获取当前项目 所有测试环境
 		this.getAllInterFaces()  // 获取当前项目 所有测试接口
 		this.getAllScent()  // 获取当前项目 所有测试场景
+		this.getAllPlan()  //获取当前项目 获取所有测试计划
 		
 	}
 }
