@@ -322,6 +322,19 @@ export default {
 
 	// ===============定时任务接口==========================================================
 
+	// 获取所有定时任务
+	getCrons(project_id){
+		return httpDev.get(`/cron/`,{
+			params:{
+				project:project_id
+			}
+		})
+	},
+
+	// 修改定时任务
+	updateCron(id, params) {
+		return httpDev.patch(`/cron/${id}/`, params)
+	},
 
 	// ===============测试记录=============================================================
 	// 获取所有的测试记录	
