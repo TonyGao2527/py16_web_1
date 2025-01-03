@@ -244,7 +244,7 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
 /* 页面左侧区域 */
 /* 水平偏移量, 垂直偏移量, 模糊半径, 阴影的颜色 */
 .list_box {
