@@ -7,14 +7,14 @@
 
 	<!-- 定时任务列表 -->
 	<el-table :data="cronList" style="width: 100%" size="small">
-	<!-- <el-table style="width: 100%" size="small"> -->
+		<!-- <el-table style="width: 100%" size="small"> -->
 		<el-table-column label="创建时间" min-width="180">
 			<template #default="scope">
 				<!-- 时间 -->
 				{{ $date.rTime(scope.row.create_time) }}
 			</template>
 		</el-table-column>
-		<el-table-column label="名称" prop="name" min-width="140"></el-table-column>
+		<el-table-column label="名  称" prop="name" min-width="140"></el-table-column>
 		<el-table-column label="执行任务" prop="plan_name" min-width="140"></el-table-column>
 		<el-table-column label="执行环境" prop="env_name" min-width="140"></el-table-column>
 		<el-table-column label="执行规则" prop="rule" min-width="140"></el-table-column>
@@ -24,12 +24,17 @@
 					@change switch 状态发生变化时才触发回调函数
 					@click 事件每次点击都会触发，并不一定意味着开关状态改变
 				 -->
-				<el-switch @change="switchCronStatus(scope.row)" v-model="scope.row.status">
-
-				</el-switch>
+				<el-switch @change="switchCronStatus(scope.row)" v-model="scope.row.status" active-color="#13ce66"
+					inactive-color="#000000" />
+				<!-- <el-switch @change="switchCronStatus(scope.row)" v-model="scope.row.status"/> -->
 			</template>
 		</el-table-column>
-		<el-table-column label="操作" prop="name" min-width="100"></el-table-column>
+		<el-table-column label="操  作" min-width="100">
+			<template #default="scope">
+				
+
+			</template>
+		</el-table-column>
 	</el-table>
 
 	<!-- 创建or修改 定时任务的弹窗 -->
@@ -64,19 +69,19 @@
 </template>
 
 <script>
-import {mapState, mapActions} from 'vuex';
+import { mapState, mapActions } from 'vuex';
 
 export default {
 	data() {
 		return {
-			cronList: null,
+			cronList: null,  //定时任务列表
 			dialogCron: false,  // 添加or修改定时任务的弹窗 开关
 			updateBtn: true,  // 添加or修改定时任务的弹窗中的 “提交修改”按钮 开关
+			// 添加定时任务
 			cronTabData: {
 				name: "冒烟测试定期执行",
 				rule: "* * * * *",
 				status: true,
-				plan: null,
 				plan: null,
 				env: null,
 			},
@@ -84,7 +89,7 @@ export default {
 	},
 
 	// 计算属性
-	computed:{
+	computed: {
 		// 项目详情信息，当前项目所有环境，当前项目所有测试计划
 		...mapState(['pro', 'testEnvs', 'testPlans'])
 	},
@@ -102,7 +107,7 @@ export default {
 
 		// 任务开启和关闭  定时任务开关(列表)
 		async switchCronStatus(cron) {
-			const response = await this.$api.updateCron(croon.id, cron)
+			const response = await this.$api.updateCron(cron.id, cron)
 			if (response.status === 200) {
 				if (cron.status == true) {
 					this.$message({
@@ -113,7 +118,7 @@ export default {
 				} else {
 					this.$message({
 						type: 'warning',
-						message: '定时运行已开启',
+						message: '定时运行已关闭',
 						duration: 1000,
 					})
 				}
@@ -144,4 +149,10 @@ export default {
 
 </script>
 
-<style></style>
+<style scoped>
+/* 修改开启和关闭状态的颜色 */
+/* .el-switch__core { */
+/* --el-switch-on-color: #42b983;  开启状态的绿色 */
+/* --el-switch-off-color: #000000;    关闭状态的灰色 */
+/* } */
+</style>
