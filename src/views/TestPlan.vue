@@ -570,7 +570,7 @@ export default {
 
 </script>
 
-<style>
+<style scoped>
 /* 左侧菜单样式 
 box-shadow: 阴影效果
     水平偏移量  垂直偏移量 模糊半径 扩展半径 颜色
