@@ -23,16 +23,30 @@
 				<!-- 
 					@change switch 状态发生变化时才触发回调函数
 					@click 事件每次点击都会触发，并不一定意味着开关状态改变
+					inline-prompt 属性来控制文本是否显示在点内
 				 -->
-				<el-switch @change="switchCronStatus(scope.row)" v-model="scope.row.status" active-color="#13ce66"
-					inactive-color="#000000" />
-				<!-- <el-switch @change="switchCronStatus(scope.row)" v-model="scope.row.status"/> -->
+				<!-- 添加颜色：方式一(弃用)：active-color inactive-color-->
+				<!-- <el-switch @change="switchCronStatus(scope.row)" v-model="scope.row.status" active-color="#13ce66"
+					inactive-color="#000000" /> -->
+				<!-- 添加颜色：方式二：--el-switch-on-color --el-switch-off-color -->
+				<!-- <el-switch @change="switchCronStatus(scope.row)" v-model="scope.row.status"
+					style="--el-switch-on-color: #13ce66; --el-switch-off-color: #ff4949" /> -->
+				<!-- 通过 --el-switch-on-color --el-switch-off-color 未生效 -->
+				<!-- 添加颜色：方式三：通过类名 -->
+				<el-switch class="el_switch" @change="switchCronStatus(scope.row)" v-model="scope.row.status"
+					inline-prompt active-text="开" inactive-text="关" />
+				<!-- 添加颜色：方式四：通过标签名 -->
 			</template>
 		</el-table-column>
 		<el-table-column label="操  作" min-width="100">
 			<template #default="scope">
-				
-
+				<!-- el - Tooltip 文字提示 -->
+				<el-tooltip class="box-item" effect="dark" content="编辑" placement="top">
+					<el-button size="small" icon="Edit" type="success" @click="showUpdateCronDlg(scope.row)" />
+				</el-tooltip>
+				<el-tooltip class="box-item" effect="dark" content="删除" placement="top">
+					<el-button size="small" icon="Edit" type="danger" @click="delCron(scope.row.id)" />
+				</el-tooltip>
 			</template>
 		</el-table-column>
 	</el-table>
@@ -77,7 +91,7 @@ export default {
 			cronList: null,  //定时任务列表
 			dialogCron: false,  // 添加or修改定时任务的弹窗 开关
 			updateBtn: true,  // 添加or修改定时任务的弹窗中的 “提交修改”按钮 开关
-			// 添加定时任务
+			// 添加/修改弹窗 的 定时任务表单数据
 			cronTabData: {
 				name: "冒烟测试定期执行",
 				rule: "* * * * *",
@@ -134,7 +148,9 @@ export default {
 
 		// 显示修改定时任务的窗口
 		showUpdateCronDlg(cron) {
-			this.cronTabData = { ...cron }
+			// 从定时任务列表cronList取出当前定时任务数据
+			//     赋值给 添加/修改弹窗 的 定时任务表单数据
+			this.cronTabData = { ...cron }  
 			this.dialogCron = true  // 添加or修改定时任务的弹窗 开关
 			// 显示修改按钮
 			this.updateBtn = true    // 添加or修改定时任务的弹窗中的 “提交修改”按钮 开关
@@ -150,9 +166,19 @@ export default {
 </script>
 
 <style scoped>
-/* 修改开启和关闭状态的颜色 */
-/* .el-switch__core { */
-/* --el-switch-on-color: #42b983;  开启状态的绿色 */
-/* --el-switch-off-color: #000000;    关闭状态的灰色 */
-/* } */
+、
+/* 通过设置el-switch组件类名class="el_switch" 设置样式 
+	--el-switch-on-color: #42b983;  开启状态的颜色
+	--el-switch-off-color: #bcf600;  关闭状态的颜色
+*/
+/* .el_switch {
+	--el-switch-on-color: #42b983;  
+	--el-switch-off-color: #bcf600;
+} */
+
+/* 通过标签名修改样式 */
+::v-deep .el-switch__core {
+	--el-switch-on-color: #42b983 !important;
+	--el-switch-off-color: #bcf600 !important;
+}
 </style>
