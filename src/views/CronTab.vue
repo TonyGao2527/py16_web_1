@@ -30,12 +30,15 @@
 					inactive-color="#000000" /> -->
 				<!-- 添加颜色：方式二：--el-switch-on-color --el-switch-off-color -->
 				<!-- <el-switch @change="switchCronStatus(scope.row)" v-model="scope.row.status"
-					style="--el-switch-on-color: #13ce66; --el-switch-off-color: #ff4949" /> -->
-				<!-- 通过 --el-switch-on-color --el-switch-off-color 未生效 -->
+					style="--el-switch-on-color: #13ce66; --el-switch-off-color: #000000" inline-prompt active-text="开"
+					inactive-text="关" /> -->
 				<!-- 添加颜色：方式三：通过类名 -->
 				<el-switch class="el_switch" @change="switchCronStatus(scope.row)" v-model="scope.row.status"
 					inline-prompt active-text="开" inactive-text="关" />
+				<!-- <el-switch class="el_switch" @change="switchCronStatus(scope.row)" v-model="scope.row.status" /> -->
 				<!-- 添加颜色：方式四：通过标签名 -->
+				<!-- <el-switch @change="switchCronStatus(scope.row)" v-model="scope.row.status" /> -->
+
 			</template>
 		</el-table-column>
 		<el-table-column label="操  作" min-width="100">
@@ -45,7 +48,7 @@
 					<el-button size="small" icon="Edit" type="success" @click="showUpdateCronDlg(scope.row)" />
 				</el-tooltip>
 				<el-tooltip class="box-item" effect="dark" content="删除" placement="top">
-					<el-button size="small" icon="Edit" type="danger" @click="delCron(scope.row.id)" />
+					<el-button size="small" icon="Delete" type="danger" @click="delCron(scope.row.id)" />
 				</el-tooltip>
 			</template>
 		</el-table-column>
@@ -118,6 +121,38 @@ export default {
 			}
 		},
 
+		// 删除列表中的某个定时任务
+		delCron(id) {
+			// this.$confirm 是 ElMessageBox.confirm 的简化调用方式
+			this.$confirm(
+				'此操作将永久删除该定时任务，是否继续？',
+				'提示',
+				{
+					confirmButtonText: '确定',
+					cancelButtonText: '取消',
+					type: 'warning'
+				})
+				.then(async () => {
+					// 删除定时任务
+					const response = await this.$api.delCron(id)
+					if (response.status) {
+						this.$message({
+							type: 'success',
+							message: '删除成功！',
+							duration: 1000,
+						});
+						// 刷新页面 所有定时任务
+						this.getAllCron()
+					}
+				})
+				.catch(() => {
+					this.$message({
+						type: 'info',
+						message: '已取消删除',
+						duration: 1000,
+					});
+				});
+		},
 
 		// 任务开启和关闭  定时任务开关(列表)
 		async switchCronStatus(cron) {
@@ -150,10 +185,10 @@ export default {
 		showUpdateCronDlg(cron) {
 			// 从定时任务列表cronList取出当前定时任务数据
 			//     赋值给 添加/修改弹窗 的 定时任务表单数据
-			this.cronTabData = { ...cron }  
-			this.dialogCron = true  // 添加or修改定时任务的弹窗 开关
+			this.cronTabData = { ...cron }
+			this.dialogCron = true  // 添加or修改定时任务的弹窗 开关，打开
 			// 显示修改按钮
-			this.updateBtn = true    // 添加or修改定时任务的弹窗中的 “提交修改”按钮 开关
+			this.updateBtn = true    // 添加or修改定时任务的弹窗中的 “提交修改”按钮 开关，显示
 		},
 	},
 
@@ -166,19 +201,18 @@ export default {
 </script>
 
 <style scoped>
-、
 /* 通过设置el-switch组件类名class="el_switch" 设置样式 
 	--el-switch-on-color: #42b983;  开启状态的颜色
 	--el-switch-off-color: #bcf600;  关闭状态的颜色
 */
-/* .el_switch {
-	--el-switch-on-color: #42b983;  
+.el_switch {
+	--el-switch-on-color: #42b983;
 	--el-switch-off-color: #bcf600;
-} */
+}
 
 /* 通过标签名修改样式 */
-::v-deep .el-switch__core {
+/* ::v-deep .el-switch__core {
 	--el-switch-on-color: #42b983 !important;
 	--el-switch-off-color: #bcf600 !important;
-}
+} */
 </style>

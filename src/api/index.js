@@ -87,7 +87,7 @@ httpDev.interceptors.request.use(
 // );
 
 
-// 导出疯转的所有后端api请求
+// 导出封装的所有后端api请求
 export default {
 
 	// 接口文档 http://42.192.110.51:18899/docs/
@@ -329,6 +329,11 @@ export default {
 				project:project_id
 			}
 		})
+	},
+
+	// 删除定时任务
+	delCron(id){
+		return httpDev.delete(`/cron/${id}/`)
 	},
 
 	// 修改定时任务
