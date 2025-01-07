@@ -61,20 +61,38 @@
 			<span style="font-size: 18px; font-weight: bold;" v-if="updateBtn">修改定时执行任务</span>
 			<span style="font-size: 18px; font-weight: bold;" v-else>修改定时执行任务</span>
 		</div>
-		<el-form label-width="80px">
+		<el-form :model="cronTabData" label-width="80px">
 			<el-form-item label="名称">
 				<el-input v-model="cronTabData.name"></el-input>
 			</el-form-item>
 			<el-form-item label="测试环境">
-				<el-select>
-					<el-option>666</el-option>
+				<el-select v-mode="cronTabData.env" placeholder="请选择环境" style="width: 100%">
+					<el-option v-for="item in testEnvs" :key="item.id" :label="item.name" :value="item.id"></el-option>
 				</el-select>
 			</el-form-item>
 			<el-form-item label="执行计划">
+				<el-select v-mode="cronTabData.plan" placeholder="请选择计划" style="width: 100%">
+					<el-option v-for="item in testEnvs" :key="item.id" :label="item.name" :value="item.id"></el-option>
+				</el-select>
 			</el-form-item>
 			<el-form-item label="是否开启">
+				<el-switch v-model="cronTabData.status" class="el_switch" inline-prompt active-text="开"
+					inactive-text="关" />
+
 			</el-form-item>
 			<el-form-item label="定时规则">
+				<el-input v-model="cronTabData.rule" placeholder="* * * * *" />
+				<el-row :gutter="20">
+					<el-col :span="14">
+						<h5>规则说明:</h5>
+						<div>
+
+						</div>
+					</el-col>
+					<el-col :span="10">
+						<h5>配置案例：</h5>
+					</el-col>
+				</el-row>
 			</el-form-item>
 			<div>
 				<el-button size="small" type="info" @click="dialogCron = false">取 消</el-button>
