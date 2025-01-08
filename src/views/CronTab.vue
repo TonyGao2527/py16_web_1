@@ -22,21 +22,21 @@
 			<template #default="scope">
 				<!-- 
 					@change switch 状态发生变化时才触发回调函数
-					@click 事件每次点击都会触发，并不一定意味着开关状态改变
+					@click 事件每次点击都会触发, 并不一定意味着开关状态改变
 					inline-prompt 属性来控制文本是否显示在点内
 				 -->
-				<!-- 添加颜色：方式一(弃用)：active-color inactive-color-->
+				<!-- 添加颜色: 方式一(弃用): active-color inactive-color-->
 				<!-- <el-switch @change="switchCronStatus(scope.row)" v-model="scope.row.status" active-color="#13ce66"
 					inactive-color="#000000" /> -->
-				<!-- 添加颜色：方式二：--el-switch-on-color --el-switch-off-color -->
+				<!-- 添加颜色: 方式二: --el-switch-on-color --el-switch-off-color -->
 				<!-- <el-switch @change="switchCronStatus(scope.row)" v-model="scope.row.status"
 					style="--el-switch-on-color: #13ce66; --el-switch-off-color: #000000" inline-prompt active-text="开"
 					inactive-text="关" /> -->
-				<!-- 添加颜色：方式三：通过类名 -->
+				<!-- 添加颜色: 方式三: 通过类名 -->
 				<el-switch class="el_switch" @change="switchCronStatus(scope.row)" v-model="scope.row.status"
 					inline-prompt active-text="开" inactive-text="关" />
 				<!-- <el-switch class="el_switch" @change="switchCronStatus(scope.row)" v-model="scope.row.status" /> -->
-				<!-- 添加颜色：方式四：通过标签名 -->
+				<!-- 添加颜色: 方式四: 通过标签名 -->
 				<!-- <el-switch @change="switchCronStatus(scope.row)" v-model="scope.row.status" /> -->
 
 			</template>
@@ -56,8 +56,9 @@
 
 	<!-- 创建or修改 定时任务的弹窗 -->
 	<el-dialog v-model="dialogCron" width="45%">
-		<div>
-			<!-- 弹窗标题，根据updateBtn是否是修改操作显示不同内容 -->
+		<!-- el - Dialog 对话框 - Slots - header -->
+		<div style="text-align: center;" slot="header">
+			<!-- 弹窗标题, 根据updateBtn是否是修改操作显示不同内容 -->
 			<span style="font-size: 18px; font-weight: bold;" v-if="updateBtn">修改定时执行任务</span>
 			<span style="font-size: 18px; font-weight: bold;" v-else>修改定时执行任务</span>
 		</div>
@@ -81,21 +82,54 @@
 
 			</el-form-item>
 			<el-form-item label="定时规则">
-				<el-input v-model="cronTabData.rule" placeholder="* * * * *" />
+				<el-input v-model="cronTabData.rule" placeholder="* * * * * " />
 				<el-row :gutter="20">
 					<el-col :span="14">
 						<h5>规则说明:</h5>
-						<div>
-
+						<div class="explain_box">* * * * * :
+							<span>分别表示 minute hour week day month</span>
 						</div>
+						<div class="explain_box">minute :
+							<span>表示分钟, 可以是从0到59之间的任何整数。</span>
+						</div>
+						<div class="explain_box">hour :
+							<span>表示小时, 可以是从0到23之间的任何整数。</span>
+						</div>
+						<div class="explain_box">week :
+							<span>表示星期几, 可以是从0到7之间的任何整数, 这里的0或7代表星期日。</span>
+						</div>
+						<div class="explain_box">day :
+							<span>表示日期, 可以是从1到31之间的任何整数。</span>
+						</div>
+						<div class="explain_box">month :
+							<span>表示月份, 可以是从1到12之间的任何整数。</span>
+						</div>
+
 					</el-col>
 					<el-col :span="10">
-						<h5>配置案例：</h5>
+						<h5>配置案例: </h5>
+						<div class="explain_box">5 * * * * :
+							<span>每小时的第5分钟执行一次任务</span>
+						</div>
+						<div class="explain_box">30 9 * * * :
+							<span>每天上午的 9:30 执行一次任务</span>
+						</div>
+						<div class="explain_box">30 9 * 8 * :
+							<span>每月8号上午的9:30执行一次任务</span>
+						</div>
+						<div class="explain_box">30 9 * 5 3 : 
+							<span>每年的3月5日9:30执行一次任务</span>
+						</div>
+						<div class="explain_box">30 9 0 * * : 
+							<span>每星期日的上午9:30执行一次任务</span>
+						</div>
 					</el-col>
 				</el-row>
 			</el-form-item>
-			<div>
-				<el-button size="small" type="info" @click="dialogCron = false">取 消</el-button>
+			
+			<!-- el - Dialog 对话框 - Slots - footer -->
+			<div style="text-align: center;" slot="footer" >
+				<el-button size="small" @click="dialogCron = false">取 消</el-button>
 				<el-button size="small" type="success" @click="UpdateCron()" v-if="updateBtn">提交修改</el-button>
 				<el-button size="small" type="success" @click="createCron()" v-else>创 建</el-button>
 			</div>
@@ -125,7 +159,7 @@ export default {
 
 	// 计算属性
 	computed: {
-		// 项目详情信息，当前项目所有环境，当前项目所有测试计划
+		// 项目详情信息, 当前项目所有环境, 当前项目所有测试计划
 		...mapState(['pro', 'testEnvs', 'testPlans'])
 	},
 
@@ -143,7 +177,7 @@ export default {
 		delCron(id) {
 			// this.$confirm 是 ElMessageBox.confirm 的简化调用方式
 			this.$confirm(
-				'此操作将永久删除该定时任务，是否继续？',
+				'此操作将永久删除该定时任务, 是否继续？',
 				'提示',
 				{
 					confirmButtonText: '确定',
@@ -204,9 +238,9 @@ export default {
 			// 从定时任务列表cronList取出当前定时任务数据
 			//     赋值给 添加/修改弹窗 的 定时任务表单数据
 			this.cronTabData = { ...cron }
-			this.dialogCron = true  // 添加or修改定时任务的弹窗 开关，打开
+			this.dialogCron = true  // 添加or修改定时任务的弹窗 开关, 打开
 			// 显示修改按钮
-			this.updateBtn = true    // 添加or修改定时任务的弹窗中的 “提交修改”按钮 开关，显示
+			this.updateBtn = true    // 添加or修改定时任务的弹窗中的 “提交修改”按钮 开关, 显示
 		},
 	},
 
@@ -233,4 +267,17 @@ export default {
 	--el-switch-on-color: #42b983 !important;
 	--el-switch-off-color: #bcf600 !important;
 } */
+
+/* 弹窗说明 字段 */
+.explain_box {
+	font-size: 12px;
+	line-height: 16px;
+	color: #3d03b8
+}
+
+/* 弹窗说明 值 */
+.explain_box span {
+	color: #909399
+		/* color:#0e56e6 */
+}
 </style>
