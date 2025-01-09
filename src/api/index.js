@@ -323,19 +323,24 @@ export default {
 	// ===============定时任务接口==========================================================
 
 	// 获取所有定时任务
-	getCrons(project_id){
-		return httpDev.get(`/cron/`,{
-			params:{
-				project:project_id
+	getCrons(project_id) {
+		return httpDev.get(`/cron/`, {
+			params: {
+				project: project_id
 			}
 		})
 	},
 
 	// 删除定时任务
-	delCron(id){
+	delCron(id) {
 		return httpDev.delete(`/cron/${id}/`)
 	},
 
+	// 添加定时任务
+	createCron(params) {
+		return httpDev.post(`/cron/`, params)
+	},
+	
 	// 修改定时任务
 	updateCron(id, params) {
 		return httpDev.patch(`/cron/${id}/`, params)

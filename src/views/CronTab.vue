@@ -62,8 +62,9 @@
 			<span style="font-size: 18px; font-weight: bold;" v-if="updateBtn">修改定时执行任务</span>
 			<span style="font-size: 18px; font-weight: bold;" v-else>修改定时执行任务</span>
 		</div>
-		<el-form :model="cronTabData" label-width="80px">
-			<el-form-item label="名称">
+		<!-- status-icon属性为输入框添加了表示校验结果的反馈图标 -->
+		<el-form :model="cronTabData" ref="cronTabData" label-width="80px" :rules="rules">
+			<el-form-item label="任务名称">
 				<el-input v-model="cronTabData.name"></el-input>
 			</el-form-item>
 			<el-form-item label="测试环境">
@@ -117,18 +118,18 @@
 						<div class="explain_box">30 9 * 8 * :
 							<span>每月8号上午的9:30执行一次任务</span>
 						</div>
-						<div class="explain_box">30 9 * 5 3 : 
+						<div class="explain_box">30 9 * 5 3 :
 							<span>每年的3月5日9:30执行一次任务</span>
 						</div>
-						<div class="explain_box">30 9 0 * * : 
+						<div class="explain_box">30 9 0 * * :
 							<span>每星期日的上午9:30执行一次任务</span>
 						</div>
 					</el-col>
 				</el-row>
 			</el-form-item>
-			
+
 			<!-- el - Dialog 对话框 - Slots - footer -->
-			<div style="text-align: center;" slot="footer" >
+			<div style="text-align: center;" slot="footer">
 				<el-button size="small" @click="dialogCron = false">取 消</el-button>
 				<el-button size="small" type="success" @click="UpdateCron()" v-if="updateBtn">提交修改</el-button>
 				<el-button size="small" type="success" @click="createCron()" v-else>创 建</el-button>
@@ -153,6 +154,22 @@ export default {
 				status: true,
 				plan: null,
 				env: null,
+			},
+
+			// 校验规则
+			rules: {
+				name: [
+					{ required: true, message: '请输入任务名称', trigger: 'blur' }
+				],
+				env: [
+					{ required: true, message: '请选择测试环境', trigger: 'change' }
+				],
+				plan: [
+					{ required: true, message: '请选择执行计划', trigger: 'change' }
+				],
+				rule: [
+					{ required: true, message: '请输入定时规则', trigger: 'blur' }
+				]
 			},
 		}
 	},
@@ -229,6 +246,24 @@ export default {
 					message: '修改状态失败',
 					duration: 1000,
 				})
+			}
+		},
+
+		// 添加定时任务
+		async createCron() {
+			const params = {
+				project: this.pro.id,
+				...this.cronTabData
+			}
+			const response = await this.$api.createCron(params)
+			if (response.status === 201) {
+				this.$message({
+					type: 'success',
+					message: '定时任务添加成功',
+					duration: 1000
+				})
+				this.dialogCron = false  // 添加or修改定时任务的弹窗 开关，关闭
+				this.getAllCron()  // 刷新页面 所有定时任务
 			}
 		},
 
