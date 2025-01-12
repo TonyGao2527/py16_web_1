@@ -57,7 +57,7 @@
 	<!-- 创建or修改 定时任务的弹窗 -->
 	<el-dialog v-model="dialogCron" width="45%">
 		<!-- el - Dialog 对话框 - Slots - header -->
-		<div style="text-align: center;" slot="header">
+		<div slot="header" style="text-align: center;">
 			<!-- 弹窗标题, 根据updateBtn是否是修改操作显示不同内容 -->
 			<span style="font-size: 18px; font-weight: bold;" v-if="updateBtn">修改定时执行任务</span>
 			<span style="font-size: 18px; font-weight: bold;" v-else>修改定时执行任务</span>
@@ -65,7 +65,7 @@
 		<!-- status-icon属性为输入框添加了表示校验结果的反馈图标 -->
 		<el-form :model="cronTabData" ref="cronTabData" label-width="80px" :rules="rules">
 			<el-form-item label="任务名称">
-				<el-input v-model="cronTabData.name"></el-input>
+				<el-input v-model="cronTabData.name" placeholder="请输入任务名称"></el-input>
 			</el-form-item>
 			<el-form-item label="测试环境">
 				<el-select v-mode="cronTabData.env" placeholder="请选择环境" style="width: 100%">
@@ -129,7 +129,7 @@
 			</el-form-item>
 
 			<!-- el - Dialog 对话框 - Slots - footer -->
-			<div style="text-align: center;" slot="footer">
+			<div slot="footer" style="text-align: center;">
 				<el-button size="small" @click="dialogCron = false">取 消</el-button>
 				<el-button size="small" type="success" @click="UpdateCron()" v-if="updateBtn">提交修改</el-button>
 				<el-button size="small" type="success" @click="createCron()" v-else>创 建</el-button>
@@ -251,22 +251,34 @@ export default {
 
 		// 添加定时任务
 		async createCron() {
-			const params = {
-				project: this.pro.id,
-				...this.cronTabData
-			}
-			const response = await this.$api.createCron(params)
-			if (response.status === 201) {
-				this.$message({
-					type: 'success',
-					message: '定时任务添加成功',
-					duration: 1000
-				})
-				this.dialogCron = false  // 添加or修改定时任务的弹窗 开关，关闭
-				this.getAllCron()  // 刷新页面 所有定时任务
-			}
-		},
+			this.$refs.cronTabData.validate(valid => {
+				if (valid) {
 
+					const params = {
+						project: this.pro.id,
+						...this.cronTabData
+					}
+					const response = await this.$api.createCron(params)
+					if (response.status === 201) {
+						this.$message({
+							type: 'success',
+							message: '定时任务添加成功',
+							duration: 1000
+						})
+						this.dialogCron = false  // 添加or修改定时任务的弹窗 开关，关闭
+						this.getAllCron()  // 刷新页面 所有定时任务
+					}
+				} else {
+					// 如果表单验证失败，提示用户填写必填项
+					this.$message({
+						type: 'error',
+						message: '表单验证未通过，请填写必填项',
+						duration: 1000,
+					});
+					return false;
+				}
+			});
+		},
 
 		// 显示修改定时任务的窗口
 		showUpdateCronDlg(cron) {
