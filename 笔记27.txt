@@ -922,30 +922,45 @@ CronTab.vue
   定时任务规则 和Linux中cron是一样的，跟jmeter也是一样的
 
 标签布局
-<el-button>
-<el-table>
-<el-dialog>
+<el-button> 添加 按钮
+<el-table> 展示定时任务的列表
+<el-dialog> 添加修改的弹窗
 
-data() 定时任务列表，语法规则状态
-computed 映射属性 当前项目、当前项目的测试环境、当前项目的测试计划，在页面添加定时任务弹窗选项中需要用到
-created 页面渲染调用方法，获取所有定时任务列表
-method：
-// 获取所有定时任务列表
-async getAllCron 传项目id调后端接口，判断响应，data属性复赋值；
+data() {}
+  定时任务列表，语法规则状态
+computed:{}
+  映射属性 当前项目、当前项目的测试环境、当前项目的测试计划，
+  在页面添加定时任务弹窗选项中需要用到
+created(){} 
+  页面渲染调用方法，获取所有定时任务列表
+method:{}
+  // 获取所有定时任务列表
+  async getAllCron 传项目id调后端接口，判断响应，data属性复赋值；
 
-<el-button>点击事件绑定dialogCrom控制展示对话框，设置更新属性updateBtn默认false就是默认是添加不是编辑，
-<el-dialog> - 标题<span> 判断是否有updateBtn，有就显示 修改定时任务，不是创建，修改创建共用弹窗
-表单<el-form> 双向绑定cronTabData添加定时任务信息的对象；
-表单子选项v-model分别绑定 
-名称 .name
-环境 .env，v-for循环出testEnvs所有测试环境做下拉选项，绑定name ， value值向后端传id不用传整个对象；
-测试计划 .plan 循环testPlans
-是否开启 .rule
-定时规则 .rule  五个* 规则就是Jenkins和Linux那一套，嵌套5个<div>分别对5个*解释；
-配置案例 5个<div>分别是5个*的示例说明
-<div>按钮区：取消、提交修改、创建，调用不同接口，不同方法；
+<el-button>点击事件绑定 dialogCron 控制展示对话框，
+  设置更新属性 updateBtn 默认false就是默认是添加不是编辑，
+<el-dialog> - 
+  标题<span> 
+    判断是否有updateBtn，有就显示 修改定时任务，
+    不是创建、修改创建共用弹窗
+  表单<el-form> 
+    双向绑定cronTabData添加定时任务信息的对象；
+    表单子选项v-model分别绑定 
+      名称 cronTabData.name
+      环境 cronTabData.env，
+        v-for循环出testEnvs所有测试环境做下拉选项，
+          绑定name ， value值向后端传id不用传整个对象；
+      测试计划 cronTabData.plan 循环testPlans
+      是否开启 cronTabData.rule
+      定时规则 cronTabData.rule  
+        五个* 规则就是Jenkins和Linux那一套，嵌套5个<div>分别对5个*解释；
+        配置案例 5个<div>分别是5个*的示例说明
+  <div>按钮区：
+    取消、提交修改、创建，调用不同接口，不同方法；
 
 定时任务就算开启也不会执行，因为后端关闭了，后面自己搭建后端记得打开试一试；
+
+
 
 BUG菜单页
 BugManage.vue

@@ -53,9 +53,9 @@
 	</el-table>
 
 	<!-- 创建or修改定时任务的窗口 -->
-	<el-dialog v-model="dialogCron" width="45%">
+	<el-dialog v-model="dialogCron" width="45%" class="custom-dialog">
 		<!-- el - Dialog 对话框 - Slots - header -->
-		<div style="text-align: center" slot='title'>
+		<div style="text-align: center; padding-bottom: 10px;" slot='title'>
 			<!-- 弹窗标题, 根据updateBtn是否是修改操作显示不同内容 -->
 			<span v-if="updateBtn" style="font-size: 18px; font-weight: bold;">修改定时执行任务</span>
 			<span v-else style="font-size: 18px; font-weight: bold;">创建定时执行任务</span>
@@ -187,6 +187,7 @@ export default {
 
 	// 计算属性
 	computed: {
+		// 映射属性 当前项目、当前项目的测试环境、当前项目的测试计划
 		...mapState(['pro', 'testEnvs', 'testPlans'])
 	},
 
@@ -370,4 +371,15 @@ export default {
 	color: red;
 	font-size: 18px;
 }
+
+/* 
+待优化：
+1 弹窗顶部边缘和标题之间的刘白区域太高了，期望降低一点
+2 底部按钮和 弹窗底部之间的刘白太高了，期望降低一点
+3 整个弹窗在屏幕下方，还要滑动滚动条往上移动再能显示底部按钮，期望弹窗位置往上移动一些；
+4 期望下面这两队标签之间的距离减小一点
+<el-form-item label="定时规则" prop="rule"></el-form-item>
+<el-form-item> </el-form-item>
+*/
+
 </style>
