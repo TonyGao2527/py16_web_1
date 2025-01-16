@@ -13,10 +13,10 @@
 				{{ $date.rTime(scope.row.create_time) }}
 			</template>
 		</el-table-column>
-		<el-table-column prop="name" label="名称" min-width="140"></el-table-column>
-		<el-table-column prop="plan_name" label="执行任务" min-width="140"></el-table-column>
-		<el-table-column prop="env_name" label="执行环境" min-width="140"></el-table-column>
-		<el-table-column prop="rule" label="执行规则" min-width="140"></el-table-column>
+		<el-table-column label="任务名称" prop="name" min-width="140"></el-table-column>
+		<el-table-column label="执行任务" prop="plan_name" min-width="140"></el-table-column>
+		<el-table-column label="执行环境" prop="env_name" min-width="140"></el-table-column>
+		<el-table-column label="执行规则" prop="rule" min-width="140"></el-table-column>
 		<el-table-column label="是否开启" min-width="120">
 			<template #default="scope">
 				<!-- 
@@ -38,7 +38,7 @@
 					inline-prompt active-text="开" inactive-text="关" />
 			</template>
 		</el-table-column>
-		<el-table-column label="操作" min-width="100">
+		<el-table-column label="操  作" min-width="100">
 			<template #default="scope">
 				<!-- el - Tooltip 文字提示 -->
 				<el-tooltip class="item" effect="dark" content="编辑" placement="top">
@@ -89,8 +89,11 @@
 
 			<el-form-item label="定时规则" prop="rule">
 				<el-input v-model="cronTabData.rule" placeholder="请输入规则"></el-input>
+			</el-form-item>
+
+			<el-form-item>
 				<el-row :gutter="20">
-					<el-col :span="14">
+					<el-col :span="12">
 						<h5>规则说明:</h5>
 						<div class="explain_box">* * * * *
 							<span>分别表示 minute hour week day month </span>
@@ -112,7 +115,7 @@
 						</div>
 
 					</el-col>
-					<el-col :span="10">
+					<el-col :span="12">
 						<h5>配置案例：</h5>
 						<div class="explain_box">5 * * * * :
 							<span>每小时的第5分钟执行一次任务</span>
@@ -137,8 +140,6 @@
 			el - Dialog 对话框 - Slots - footer -->
 		<div slot="footer" class="dialog-footer" style="text-align: center;">
 			<el-button @click="dialogCron = false" size="small">取 消</el-button>
-			<!-- <el-button v-if="updateBtn" type="success" @click="UpdateCron()" size="small">提交修改</el-button>
-			<el-button v-else type="success" @click="createCron()" size="small">创 建</el-button> -->
 			<el-button v-if="updateBtn" type="success" @click="submitFrom('update')" size="small">提交修改</el-button>
 			<el-button v-else type="success" @click="submitFrom('create')" size="small">创 建</el-button>
 		</div>
@@ -262,8 +263,8 @@ export default {
 		// 提交表单方法
 		async submitFrom(action) {
 			// 校验表单
-				this.$refs.cronTabData.validate(async (valid) => {
-					console.log('调试输出验证结果Form validation valid:', valid);  // 调试输出验证结果
+			this.$refs.cronTabData.validate(async (valid) => {
+				console.log('调试输出验证结果Form validation valid:', valid);  // 调试输出验证结果
 				if (valid) {
 					if (action === 'create') {
 						console.log('创建Creating cron task...');  // 调试输出创建任务的日志
@@ -369,5 +370,4 @@ export default {
 	color: red;
 	font-size: 18px;
 }
-
 </style>
