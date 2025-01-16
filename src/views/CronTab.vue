@@ -133,11 +133,14 @@
 				</el-row>
 			</el-form-item>
 		</el-form>
-		<!-- el - Dialog 对话框 - Slots - footer -->
+		<!-- 对话框底部按钮
+			el - Dialog 对话框 - Slots - footer -->
 		<div slot="footer" class="dialog-footer" style="text-align: center;">
 			<el-button @click="dialogCron = false" size="small">取 消</el-button>
-			<el-button v-if="updateBtn" type="success" @click="UpdateCron()" size="small">提交修改</el-button>
-			<el-button v-else type="success" @click="createCron()" size="small">创 建</el-button>
+			<!-- <el-button v-if="updateBtn" type="success" @click="UpdateCron()" size="small">提交修改</el-button>
+			<el-button v-else type="success" @click="createCron()" size="small">创 建</el-button> -->
+			<el-button v-if="updateBtn" type="success" @click="submitFrom('update')" size="small">提交修改</el-button>
+			<el-button v-else type="success" @click="submitFrom('create')" size="small">创 建</el-button>
 		</div>
 	</el-dialog>
 
@@ -254,6 +257,29 @@ export default {
 					duration: 1000
 				})
 			}
+		},
+
+		// 提交表单方法
+		async submitFrom(action) {
+			// 校验表单
+				this.$refs.cronTabData.validate(async (valid) => {
+					console.log('调试输出验证结果Form validation valid:', valid);  // 调试输出验证结果
+				if (valid) {
+					if (action === 'create') {
+						console.log('创建Creating cron task...');  // 调试输出创建任务的日志
+						await this.createCron();
+					} else if (action === 'update') {
+						console.log('更新Updating cron task...');  // 调试输出更新任务的日志
+						await this.UpdateCron();
+					}
+				} else {
+					this.$message({
+						type: 'error',
+						message: '表单验证失败，请填写必填项',
+						duration: 1000
+					});
+				}
+			});
 		},
 
 		// 添加定时任务
