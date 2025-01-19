@@ -372,6 +372,11 @@ export default {
 
 	//================bug管理================================================================
 	// 获取所有bug
+	getBugs(params){
+		return httpDev.get('/bugs/', {
+			params:params
+		})
+	},
 
 	// 添加bug记录
 	createBugs(params) {
