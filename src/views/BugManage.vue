@@ -3,38 +3,38 @@
 	<!-- bug统计标题 -->
 	<div>
 		<span style="color: #00aa7f;"><b>bug统计</b></span>
-	</div>
-	<el-row :gutter="10">
-		<!-- 左侧图表 条形图 -->
-		<el-col :span="12">
-			<div class="chartBox" ref="chart1Box"></div>
-		</el-col>
-		<!-- 右侧图表 饼图-->
-		<el-col :span="12">
-			<div class="chartBox" ref="chart2Box"></div>
-		</el-col>
-	</el-row>
 
-	<!-- bug列表卡片 -->
-	<el-card class="bug_list">
-		<el-row>
-			<el-button @click="showBugs = bugs" type="primary" plain size="small">所有bug</el-button>
-			<!-- Badge 徽章 按钮和图标上的数字或状态标记。
+		<el-row :gutter="10">
+			<!-- 左侧图表 条形图 -->
+			<el-col :span="12">
+				<div class="chartBox" ref="chart1Box"></div>
+			</el-col>
+			<!-- 右侧图表 饼图-->
+			<el-col :span="12">
+				<div class="chartBox" ref="chart2Box"></div>
+			</el-col>
+		</el-row>
+
+		<!-- bug列表卡片 -->
+		<el-card class="bug_list">
+			<el-row>
+				<el-button @click="showBugs = bugs" type="primary" plain size="small">所有bug</el-button>
+				<!-- Badge 徽章 按钮和图标上的数字或状态标记。
 			 	hidden 是否隐藏 Badge 值boolean 默认false。
 				max 最大值，超过最大值会显示 {max}+
 				margin: 0 10px;  上下为0 左右为10px 
 			-->
-			<!-- <el-badge :value="12" :hidden="bugs1.length === 0" class="item" :max="99" style="margin: 0 10px;"> -->
-			<el-badge :value="12" class="item" :max="99" style="margin: 0 10px;">
-				<el-button @click="showBugs = bugs1" type="danger" plain size="small">未处理bug</el-button>
-			</el-badge>
-			<el-button @click="showBugs = bugs2" type="warning" plain size="small">处理中bug</el-button>
-			<el-button @click="showBugs = bugs3" type="success" plain size="small">处理完bug</el-button>
-			<el-button @click="showBugs = bugs4" type="info" plain size="small">无效bug</el-button>
+				<!-- <el-badge :value="12" :hidden="bugs1.length === 0" class="item" :max="99" style="margin: 0 10px;"> -->
+				<el-badge :value="12" class="item" :max="99" style="margin: 0 10px;">
+					<el-button @click="showBugs = bugs1" type="danger" plain size="small">未处理bug</el-button>
+				</el-badge>
+				<el-button @click="showBugs = bugs2" type="warning" plain size="small">处理中bug</el-button>
+				<el-button @click="showBugs = bugs3" type="success" plain size="small">处理完bug</el-button>
+				<el-button @click="showBugs = bugs4" type="info" plain size="small">无效bug</el-button>
 
-		</el-row>
-	</el-card>
-
+			</el-row>
+		</el-card>
+	</div>
 </template>
 
 <script>
@@ -52,12 +52,37 @@ export default {
 			// bugs1 未处理bug; bugs2 处理中bug; bugs3 处理完bug; bugs4 无效bug;
 			bugs: [] // 所有的 bug列表
 
-		}
+		};
 	},
 
 	// 计算属性
-	computed:{
+	computed: {
+		// pro项目详情页-信息存储
 		...mapState(['pro']),  // 从vuex中获取pro
+		// 未处理的bug
+		bugs1() {
+			return this.bugs.filter((item, index, array) => {
+				return item.status === '未处理';
+			});
+		},
+		// 处理中的bug
+		bugs2() {
+			return this.bugs.filter((item, index, array) => {
+				return item.status === '处理中';
+			});
+		},
+		// 处理完的bug
+		bugs3() {
+			return this.bugs.filter((item, index, array) => {
+				return item.status === '未处完';
+			});
+		},
+		// 关闭bug / 无效的bug
+		bugs4() {
+			return this.bugs.filter((item, index, array) => {
+				return item.status === '无效bug';
+			});
+		},
 	},
 
 	// 
@@ -92,7 +117,7 @@ export default {
 	},
 
 	// 生命周期钩子 data(){}数据有更新的时候会自动调用
-	updated() {		
+	updated() {
 		this.showTable();  // 调佣 渲染图标的方法
 	},
 
@@ -106,4 +131,18 @@ export default {
 
 </script>
 
-<style></style>
+<style>
+/* 图标样式 
+rgba 全称是 Red-Green-Blue-Alpha
+	代表 红色 (Red)、绿色 (Green)、蓝色 (Blue) 和 透明度 (Alpha)
+	0 表示完全透明。1 表示完全不透明。0.1 表示颜色有 10% 的透明度
+*/
+.chartBox {
+	height:200px;
+	background:rgba(198,198,202,0.1)
+}
+
+
+
+
+</style>
