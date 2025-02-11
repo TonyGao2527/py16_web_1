@@ -17,6 +17,7 @@
 
 		<!-- bug列表卡片 -->
 		<el-card class="bug_list">
+			<!-- 所有bug按钮 -->
 			<el-row>
 				<el-button @click="showBugs = bugs" type="primary" plain size="small">所有bug</el-button>
 				<!-- Badge 徽章 按钮和图标上的数字或状态标记。
@@ -31,8 +32,27 @@
 				<el-button @click="showBugs = bugs2" type="warning" plain size="small">处理中bug</el-button>
 				<el-button @click="showBugs = bugs3" type="success" plain size="small">处理完bug</el-button>
 				<el-button @click="showBugs = bugs4" type="info" plain size="small">无效bug</el-button>
-
 			</el-row>
+			
+			<!-- bug列表 -->
+			<el-table :data="showBugs" style="width: 100%;" size="small">
+				<!-- 
+				show-overflow-tooltip 当内容过长被隐藏时显示 tooltip
+				-->
+				<el-table-column label="提交时间" min-width="120" show-overflow-tooltip>
+					<template #default="scope">
+						<span>{{  $date.rTime(scope.row.create_time)}}</span>
+					</template>
+				</el-table-column>
+				<el-table-column label="bug描述" show-overflow-tooltip prop="desc" min-width="120"></el-table-column>
+				<el-table-column label="所属接口" show-overflow-tooltip prop="interface_url" min-width="00"></el-table-column>
+				<el-table-column label="bug状态" prop="status" min-width="80"></el-table-column>
+				<el-table-column label="操作" width="180">
+					<template #default="scope">
+
+					</template>
+				</el-table-column>
+			</el-table>
 		</el-card>
 	</div>
 </template>
@@ -125,6 +145,7 @@ export default {
 	async created() {
 		await this.getAllBug();  //获取所有的bug
 		this.showBugs = this.bugs;  // 当前显示的bug列表 赋值为 所有bug的列表
+		console.log('日志 this.showBugs: ', this.showBugs);
 		this.showTable();  // 调用 渲染图表的方法
 	}
 };
@@ -141,8 +162,16 @@ rgba 全称是 Red-Green-Blue-Alpha
 	height:200px;
 	background:rgba(198,198,202,0.1)
 }
-
-
+/* 
+100vh 表示视口高度的100%
+overflow-y: 垂直方向上的溢出行为。auto 表示如果内容超出元素的高度，浏览器会自动显示垂直滚动条
+margin-top: 元素的上外边距为20像素
+*/
+.bug_list {
+	height: calc(100vh - 290px);
+	overflow-y: auto;
+	margin-top: 5px;
+}
 
 
 </style>
