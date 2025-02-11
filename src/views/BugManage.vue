@@ -33,7 +33,7 @@
 				<el-button @click="showBugs = bugs3" type="success" plain size="small">处理完bug</el-button>
 				<el-button @click="showBugs = bugs4" type="info" plain size="small">无效bug</el-button>
 			</el-row>
-			
+
 			<!-- bug列表 -->
 			<el-table :data="showBugs" style="width: 100%;" size="small">
 				<!-- 
@@ -41,15 +41,30 @@
 				-->
 				<el-table-column label="提交时间" min-width="120" show-overflow-tooltip>
 					<template #default="scope">
-						<span>{{  $date.rTime(scope.row.create_time)}}</span>
+						<span>{{ $date.rTime(scope.row.create_time) }}</span>
 					</template>
 				</el-table-column>
 				<el-table-column label="bug描述" show-overflow-tooltip prop="desc" min-width="120"></el-table-column>
-				<el-table-column label="所属接口" show-overflow-tooltip prop="interface_url" min-width="00"></el-table-column>
+				<el-table-column label="所属接口" show-overflow-tooltip prop="interface_url"
+					min-width="00"></el-table-column>
 				<el-table-column label="bug状态" prop="status" min-width="80"></el-table-column>
 				<el-table-column label="操作" width="180">
 					<template #default="scope">
-
+						<div>
+							<!-- el - Tooltip 文字提示 -->
+							<el-tooltip effect="dark" placement="top" content="查看bug详情">
+								<el-button size="small" plain icon="View" type="success"
+									@click="showBugInfo(scope.row)" />
+							</el-tooltip>
+							<el-tooltip effect="dark" placement="top" content="修改bug状态">
+								<el-button size="small" plain icon="Edit" type="success"
+									@click="updateBugDlg = true; updateBugForm = scope.row;" />
+							</el-tooltip>
+							<el-tooltip effect="dark" placement="top" content="删除bug">
+								<el-button size="small" plain icon="Edit" type="success"
+									@click="delBug(scope.row.id)" />
+							</el-tooltip>
+						</div>
 					</template>
 				</el-table-column>
 			</el-table>
@@ -159,9 +174,10 @@ rgba 全称是 Red-Green-Blue-Alpha
 	0 表示完全透明。1 表示完全不透明。0.1 表示颜色有 10% 的透明度
 */
 .chartBox {
-	height:200px;
-	background:rgba(198,198,202,0.1)
+	height: 200px;
+	background: rgba(198, 198, 202, 0.1)
 }
+
 /* 
 100vh 表示视口高度的100%
 overflow-y: 垂直方向上的溢出行为。auto 表示如果内容超出元素的高度，浏览器会自动显示垂直滚动条
@@ -172,6 +188,4 @@ margin-top: 元素的上外边距为20像素
 	overflow-y: auto;
 	margin-top: 5px;
 }
-
-
 </style>
