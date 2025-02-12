@@ -340,7 +340,7 @@ export default {
 	createCron(params) {
 		return httpDev.post(`/cron/`, params)
 	},
-	
+
 	// 修改定时任务
 	updateCron(id, params) {
 		return httpDev.patch(`/cron/${id}/`, params)
@@ -372,9 +372,9 @@ export default {
 
 	//================bug管理================================================================
 	// 获取所有bug
-	getBugs(params){
+	getBugs(params) {
 		return httpDev.get('/bugs/', {
-			params:params
+			params: params
 		})
 	},
 
@@ -389,7 +389,12 @@ export default {
 
 
 	//================获取bug处理记录列表=======================================================
-
+	// 获取bug处理记录列表
+	getBugLogs(params) {
+		return httpDev.get('/blog/', {
+			params: params
+		})
+	},
 
 	// ===============用例运行=================================================================
 	// 运行接口用例

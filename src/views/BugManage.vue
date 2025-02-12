@@ -57,6 +57,7 @@
 									@click="showBugInfo(scope.row)" />
 							</el-tooltip>
 							<el-tooltip effect="dark" placement="top" content="修改bug状态">
+								<!-- click 示修改bug状态对话框；修改bug状态表单数据  -->
 								<el-button size="small" plain icon="Edit" type="success"
 									@click="updateBugDlg = true; updateBugForm = scope.row;" />
 							</el-tooltip>
@@ -132,6 +133,22 @@ export default {
 			}
 		},
 
+		// 显示bug详情
+		showBugInfo(bug) {
+			this.bugInfo = bug; // 当前显示的bug信息 赋值
+			this.getBugAllLogs(bug.id); // 获取当前bug的处理记录
+			this.showBug = true; // 是否显示bug详情抽屉 赋值
+		},
+
+		// 获取bug历史处理记录
+		async getBugAllLogs(id) {
+			const response = await this.$api.getBugLogs({ bug: id }); // 获取当前bug的处理记录
+			if (response.status === 200 && response.data.length > 0) { // 如果获取成功 并且有数据
+				this.bugLogs = response.data; // 当前bug的处理记录 赋值
+			}
+
+		},
+
 		// 渲染图标
 		showTable() {
 			const ele = this.$refs.chart1Box;
@@ -148,7 +165,36 @@ export default {
 				{ value: this.bugs1.length, name: '未处理' },
 				{ value: this.bugs4.length, name: '无效bug' },
 			]);
-		}
+		},
+
+		// 删除bug
+		delBug(id) {
+			this.$confirm('此操作将永久删除该bug, 是否继续？', '提示', {
+				confirmButtonText: '确定',
+				cancelButtonText: '取消',
+				type: 'warning'
+			})
+				.then(async () => {
+					const response = await this.$api.deleteBug(id);
+					if (response.status === 204) {
+						this.$message({
+							type: 'success',
+							message: '删除成功',
+							duration: 1000
+						});
+						await this.getAllBug();  //获取所有的bug
+						this.showBugs = this.bugs;  // 当前显示的bug列表 赋值为 所有bug的列表
+					};
+				})
+				.catch(() => {
+					this.$messge({
+						type: 'info',
+						message: '已取消删除',
+						daration: 1000,
+					});
+				});  // 捕获异常
+
+		},
 	},
 
 	// 生命周期钩子 data(){}数据有更新的时候会自动调用
