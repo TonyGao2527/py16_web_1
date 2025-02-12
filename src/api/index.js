@@ -386,6 +386,9 @@ export default {
 	// 修改bug记录
 
 	// 删除bug
+	deleteBug(id){
+		return httpDev.delete(`/bugs/${id}/`)
+	},
 
 
 	//================获取bug处理记录列表=======================================================
