@@ -71,6 +71,30 @@
 			</el-table>
 		</el-card>
 	</div>
+
+	<!-- 查看bug信息 -->
+	<!-- el Drawer 抽屉 -->
+	<el-drawer v-model="showBug" title="i an the title" :with-header="false" size="50%">
+		<!-- el Scrollbar 滚动条 -->
+		<el-scrollbar height="calc(100vh - 20px)">
+			<el-card>
+				<b>bug信息</b>
+				<!-- margin-top: 外边距上外边距 -->
+				<div style="margin-top: 10px;">
+					<!-- Descriptions 描述列表
+						direction="vertical"	排列的方向 垂直
+						border	是否带有边框	默认false
+					-->
+					<el-descriptions :column="4" direction="vertical" border>
+						<el-descriptions-item label="提交者">{{ bugInfo.user }}</el-descriptions-item>
+						<el-descriptions-item label="bug状态">{{ bugInfo.status }}</el-descriptions-item>
+						<el-descriptions-item label="所属接口">{{ bugInfo.interface_url }}</el-descriptions-item>
+						<el-descriptions-item label="提交时间">{{ $date.rTime(bugInfo.create_time) }}</el-descriptions-item>
+					</el-descriptions>
+				</div>
+			</el-card>
+		</el-scrollbar>
+	</el-drawer>
 </template>
 
 <script>
@@ -129,7 +153,7 @@ export default {
 				project: this.pro.id
 			});
 			if (response.status === 200) {
-				this.bugs = response.data;  // 所有的bug列表 赋值
+				this.bugs = response.data;  // 所有的bug列表  赋值this.bugs
 			}
 		},
 
@@ -182,12 +206,12 @@ export default {
 							message: '删除成功',
 							duration: 1000
 						});
-						await this.getAllBug();  //获取所有的bug
+						await this.getAllBug();  //获取所有的bug 赋值this.bugs
 						this.showBugs = this.bugs;  // 当前显示的bug列表 赋值为 所有bug的列表
 					};
 				})
 				.catch(() => {
-					this.$messge({
+					this.$message({
 						type: 'info',
 						message: '已取消删除',
 						daration: 1000,
@@ -204,7 +228,7 @@ export default {
 
 	// 
 	async created() {
-		await this.getAllBug();  //获取所有的bug
+		await this.getAllBug();  //获取所有的bug 赋值this.bugs
 		this.showBugs = this.bugs;  // 当前显示的bug列表 赋值为 所有bug的列表
 		console.log('日志 this.showBugs: ', this.showBugs);
 		this.showTable();  // 调用 渲染图表的方法
