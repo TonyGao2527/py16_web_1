@@ -77,6 +77,7 @@
 	<el-drawer v-model="showBug" title="i an the title" :with-header="false" size="50%">
 		<!-- el Scrollbar 滚动条 -->
 		<el-scrollbar height="calc(100vh - 20px)">
+			<!-- bug信息 -->
 			<el-card>
 				<b>bug信息</b>
 				<!-- margin-top: 外边距上外边距 -->
@@ -93,12 +94,63 @@
 					</el-descriptions>
 				</div>
 			</el-card>
+			<!-- 用例执行信息 
+				margin: 5px;：这为元素的所有边（上、右、下、左）设置了5像素的外边距
+				min-height: 400px;：这设置了元素的最小高度为400像素 
+					即使内容较少，元素的高度也不会低于400像素；但如果内容较多，元素会自动扩展以适应内容的高度。
+			-->
+			<el-card style="min-height: 400px; margin: 5px; ">
+				<b>用例执行信息</b>
+				<div style="margin-top: 10px;">
+					<Result :result="bugInfo.info" :showbtn="false" />
+				</div>
+<!-- 
+				<div style="margin-top: 10px;">
+					<Result :result="bugInfo.info" :showbtn="false"></Result>
+				</div> -->
+			</el-card>
+			<!-- bug处理记录 -->
+			<el-card style="min-height: 400px;" v-if="bugLogs">
+				<b>bug处理记录</b>
+				<div style="margin-top: 10px;">
+					<!-- el - Timeline 时间线 -->
+					<el-timeline>
+						<!-- placement	时间戳位置 -->
+						<el-timeline-item v-for="(activity, index) in bugLogs" :key="index"
+							:timestamp="$date.rDate(activity.create_time)" placement="top">
+							<el-card>
+								<h4>{{ activity.handle }}</h4>
+								<p>{{ activity.update_user }} 操作于 {{ $date.rTime(activity.create_time) }}</p>
+							</el-card>
+						</el-timeline-item>
+					</el-timeline>
+				</div>
+			</el-card>
+			<!-- el - Empty 空状态 
+			 	description	empty 组件的描述信息
+				image-size	empty 组件的图像尺寸（宽度） 
+			-->
+			<el-empty v-else description="无" :image-sie="400"></el-empty>
 		</el-scrollbar>
 	</el-drawer>
+
+	<!-- 修改bug状态对话框 -->
+	 <el-dialog title="修改bug状态" v-model="updateBugDlg" width="30%">
+		<el-form :model="updateBugForm">
+			<el-from-item label="bug状态">
+				<el-select v-model="updateBugForm.status">
+					<el-option></el-option>
+				</el-select>
+
+			</el-from-item>
+		</el-form>
+	 </el-dialog>
+
 </template>
 
 <script>
-import { mapState } from 'vuex';
+import Result from '../components/CaseResult.vue';  // 引入用例执行信息组件
+import { mapState } from 'vuex';  // 引入vuex
 
 export default {
 	data() {
@@ -144,8 +196,12 @@ export default {
 			});
 		},
 	},
+	// 组件
+	components: {
+		Result  // 用例执行信息组件
+	},
 
-	// 
+	// 方法
 	methods: {
 		// 获取所有的bug
 		async getAllBug() {

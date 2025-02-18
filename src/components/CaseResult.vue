@@ -110,7 +110,7 @@
         100% 相符父级元素100%
     -->
     <!-- <div v-if="result.state === '失败' && showbtn" style="margin-top:10px; width: 100%; text-align: center;"> -->
-    <div style="margin-top:10px; width: 100%; text-align: center;">
+    <div style="margin-top:10px; width: 100%; text-align: center;" v-if="result.state === '失败' && showbtn">
         <el-button @click="addBugDlg = true" type="success" plain size="small">提交bug</el-button>
     </div>
 
