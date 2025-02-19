@@ -384,9 +384,12 @@ export default {
 	},
 
 	// 修改bug记录
+	updateBug(id, params) {
+		return httpDev.patch(`/bugs/${id}/`, params)
+	},
 
 	// 删除bug
-	deleteBug(id){
+	deleteBug(id) {
 		return httpDev.delete(`/bugs/${id}/`)
 	},
 

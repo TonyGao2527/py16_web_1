@@ -104,7 +104,7 @@
 				<div style="margin-top: 10px;">
 					<Result :result="bugInfo.info" :showbtn="false" />
 				</div>
-<!-- 
+				<!-- 
 				<div style="margin-top: 10px;">
 					<Result :result="bugInfo.info" :showbtn="false"></Result>
 				</div> -->
@@ -134,17 +134,29 @@
 		</el-scrollbar>
 	</el-drawer>
 
-	<!-- 修改bug状态对话框 -->
-	 <el-dialog title="修改bug状态" v-model="updateBugDlg" width="30%">
+	<!-- 修改bug状态对话框 
+		footer	Dialog 按钮操作区的内容 
+	-->
+	<el-dialog title="修改bug状态" v-model="updateBugDlg" width="30%">
 		<el-form :model="updateBugForm">
 			<el-from-item label="bug状态">
-				<el-select v-model="updateBugForm.status">
-					<el-option></el-option>
+				<el-select v-model="updateBugForm.status" placeholder="请选择bug状态" style="width: 100%;">
+					<el-option label="未处理" value="未处理"></el-option>
+					<el-option label="处理中" value="处理中"></el-option>
+					<el-option label="处理完" value="处理完"></el-option>
+					<el-option label="无效bug" value="无效bug"></el-option>
 				</el-select>
-
 			</el-from-item>
 		</el-form>
-	 </el-dialog>
+		<!-- footer 2.4.3	下拉列表底部的内容 -->
+		<template #footer>
+			<div>
+				<el-button size="small" @click="updateBugDlg = false">取 消</el-button>
+				<el-button size="small" @click="updateBug" type="success">确 定</el-button>
+			</div>
+		</template>
+
+	</el-dialog>
 
 </template>
 
@@ -227,6 +239,20 @@ export default {
 				this.bugLogs = response.data; // 当前bug的处理记录 赋值
 			}
 
+		},
+
+		// 修改bug
+		async updateBug() {
+			const response = await this.$api.updateBug(this.updateBugForm.id, this.updateBugForm);
+			if (response.status === 200) {
+				this.$message({
+					type: 'success',
+					message: '修改成功',
+					duration: 1000
+				});
+				this.getBugAllLogs(this.updateBugForm.id); // 获取当前bug的处理记录
+				this.updateBugDlg = false; // 是否显示修改bug状态对话框 赋值
+			}
 		},
 
 		// 渲染图标
