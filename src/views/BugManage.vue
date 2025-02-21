@@ -26,7 +26,8 @@
 				margin: 0 10px;  上下为0 左右为10px 
 			-->
 				<!-- <el-badge :value="12" :hidden="bugs1.length === 0" class="item" :max="99" style="margin: 0 10px;"> -->
-				<el-badge :value="12" class="item" :max="99" style="margin: 0 10px;">
+				<el-badge :value="bugs1.length" :hidden="bugs1.length === 0" class="item" :max="99"
+					style="margin: 0 10px;">
 					<el-button @click="showBugs = bugs1" type="danger" plain size="small">未处理bug</el-button>
 				</el-badge>
 				<el-button @click="showBugs = bugs2" type="warning" plain size="small">处理中bug</el-button>
@@ -39,7 +40,7 @@
 				<!-- 
 				show-overflow-tooltip 当内容过长被隐藏时显示 tooltip
 				-->
-				<el-table-column label="提交时间" min-width="120" show-overflow-tooltip>
+				<el-table-column label="提交时间" show-overflow-tooltip min-width="120" >
 					<template #default="scope">
 						<span>{{ $date.rTime(scope.row.create_time) }}</span>
 					</template>
@@ -48,9 +49,9 @@
 				<el-table-column label="所属接口" show-overflow-tooltip prop="interface_url"
 					min-width="00"></el-table-column>
 				<el-table-column label="bug状态" prop="status" min-width="80"></el-table-column>
-				<el-table-column label="操作" width="180">
+				<el-table-column label="操作" width="180" >
 					<template #default="scope">
-						<div>
+						<div style="text-align: right;">
 							<!-- el - Tooltip 文字提示 -->
 							<el-tooltip effect="dark" placement="top" content="查看bug详情">
 								<el-button size="small" plain icon="View" type="success"
@@ -62,7 +63,7 @@
 									@click="updateBugDlg = true; updateBugForm = scope.row;" />
 							</el-tooltip>
 							<el-tooltip effect="dark" placement="top" content="删除bug">
-								<el-button size="small" plain icon="Edit" type="success"
+								<el-button size="small" plain icon="Delete" type="danger"
 									@click="delBug(scope.row.id)" />
 							</el-tooltip>
 						</div>
@@ -319,7 +320,7 @@ export default {
 
 </script>
 
-<style>
+<style scoped>
 /* 图标样式 
 rgba 全称是 Red-Green-Blue-Alpha
 	代表 红色 (Red)、绿色 (Green)、蓝色 (Blue) 和 透明度 (Alpha)
