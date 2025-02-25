@@ -211,13 +211,6 @@ export default {
             this.bugForm.info = this.result;
             const response = await this.$api.createBugs(this.bugForm);
             if (response.status === 201) {
-                // 这个不清楚为什么能用，都没有引入，老师写的
-                // this.$message({
-                //     type: 'success',
-                //     message: 'bug提交成功',
-                //     duration: 1000, // 停留时长
-                // });
-
                 // 通常用这个
                 ElMessage({
                     type: 'success',
@@ -230,20 +223,6 @@ export default {
             };
             console.log("日志 调用后端提交bug接口传参this.bugForm：", this.bugForm);
         },
-        // // 老师写的
-        // async saveBug() {
-        // 	this.bugForm.project = this.pro.id;
-        // 	this.bugForm.info = this.result;
-        // 	const response = await this.$api.createBugs(this.bugForm);
-        // 	if (response.status === 201) {
-        // 		this.$message({
-        // 			type: 'success',
-        // 			message: 'bug提交成功',
-        // 			duration: 1000
-        // 		});
-        // 		this.addBugDlg = false;
-        // 	}
-        // }
 
     }
 

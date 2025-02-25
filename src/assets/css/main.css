@@ -1,5 +1,5 @@
 /* /deep/ .el-input__wrapper { */
-/* 振林教的 deep是其他组件的样式可引入本组件中 */
+/* deep 是其他组件的样式可引入本组件中 */
 
 /* 登录页面输入框的样式修改 */
 .login_box .el-input__wrapper {
@@ -24,7 +24,10 @@
 
 
 /* 登录表单校验失败时的样式 */
-
+.login_box .el-form-item.is-error .el-input__wrapper {
+	box-shadow: none;
+	border-bottom: solid 1px #ff0000;
+}
 
 
 

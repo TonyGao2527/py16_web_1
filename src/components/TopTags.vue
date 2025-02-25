@@ -46,7 +46,9 @@
 				placement="bottom" 展示在下方
 				effect="dark" 提示信息背景黑色
 			-->
-			<el-tooltip v-if="env" class="box-item" content="查看环境信息" placement="bottom" effect="dark">
+			<!-- <el-tooltip v-if="env" class="box-item" content="查看环境信息" placement="bottom" effect="dark"> -->
+			<!-- 这里有问题，还要改 -->
+			<el-tooltip class="box-item" content="查看环境信息" placement="bottom" effect="dark">
 				<el-button @click="clickShowEnv" icon="View"></el-button>
 			</el-tooltip>
 		</div>
@@ -64,7 +66,7 @@
 			-->
 			<el-descriptions-item :label="key" v-for="value, key in envInfo.debug_global_variable">
 				<template #label>
-					<el-tag>debug</el-tag>
+					<el-tag type="warning">debug</el-tag>
 					{{ key }}
 				</template>
 				{{ value }}

@@ -8,27 +8,20 @@
 import axios from 'axios'
 
 
-// import {
-// 	// elt+官网-搜索Message Box消息弹出框-确认消息
-// 	ElMessageBox
-// } from 'element-plus
-
 import {
 	ElMessage,
-	ElMessageBox
+	ElMessageBox  // elt+官网-搜索Message Box消息弹出框-确认消息
 } from 'element-plus'
 
 
 // 创建公共请求url
-// const base_url = 'http://42.192.110.51:18899'
-const base_url = 'http://117.72.85.244:18899/api'
-// const base_url = 'https://ck.lemonban.com/api'
+// const base_url = 'http://117.72.85.244:18899/api'
+const base_url = 'https://ck.lemonban.com/api'
 
 // 创建axios请求实例对象：开发环境
 const httpDev = axios.create({
 	// 定义公共的base url
 	baseURL: base_url,
-
 	// 定义校验响应状态 处理
 	validateStatus: function (status) {
 		// if (status >= 200 & status < 300) {
@@ -43,6 +36,7 @@ const httpDev = axios.create({
 
 
 // 1.请求拦截
+// 通过axios的请求拦截器，处理后端接口请求的权限问题
 // use的第一个参数为匿名参数，用于处理请求拦截信息
 // use的第二个参数为匿名参数，用于请求出错时的策略
 httpDev.interceptors.request.use(
@@ -67,24 +61,60 @@ httpDev.interceptors.request.use(
 
 	// 异常处理，当失败时做什么策略
 	function (error) {
-		console.log(erroer, 'error')
+		console.log(error, 'error')
 		return Promise.reject(error)
 	}
 );
 
 // 2.响应拦截器
-// httpDev.interceptors.response.use(
-// 	// 在向后端发起请求前先执行
-// 	// 后端数据返回给浏览器的时候，浏览器显示之前，进行处理
-// 	function(response) {
-// 		console.log('----响应拦截器----')
-// 		return response
-// 	},
-// 	function(error) {
-// 		// 当相应状态码超出2xx范围，会触发此函数
-// 		return Promise.reject(error)
-// 	}
-// );
+httpDev.interceptors.response.use(
+	// 在向后端发起请求前先执行
+	// 后端数据返回给浏览器的时候，浏览器显示之前，进行处理
+	function (response) {
+
+		// // 对响应数据做点什么
+		// // 判断操作是否成功(成功直接返回response,不做任何处理)
+		// if (response.status === 200 || response.status === 201 || response.status === 204) return response;
+		// if (response.status === 401) {
+		// 	// 没有token权限(登录失败),跳转到登录页面
+		// 	window.localStorage.removeItem('token')
+		// 	router.push({
+		// 		name: "login"
+		// 	})
+		// } else if (response.status === 400) {
+		// 	// 请求参数有误，给出错误提示
+		// 	console.log(response)
+		// 	// 判断是否是登录请求
+		// 	if (response.config.url === "/login/") {
+		// 		ElMessage({
+		// 			message: response.data.non_field_errors,
+		// 			type: 'success'
+		// 		});
+		// 	} else {
+		// 		const body = response.data
+		// 		// 如果不是登录请求，那就是请求的请求参数有问题,可能会有多个字段的提示信息
+		// 		for (let i in body) {
+		// 			ElMessage({
+		// 				message: body[i],
+		// 				type: 'success'
+		// 			});
+		// 		}
+		// 	}
+		// } else {
+		// 	ElMessage({
+		// 		message: response.data.detail,
+		// 		type: 'success'
+		// 	});
+		// }
+
+		console.log('----响应拦截器----')
+		return response
+	},
+	function (error) {
+		// 当相应状态码超出2xx范围，会触发此函数
+		return Promise.reject(error)
+	}
+);
 
 
 // 导出封装的所有后端api请求
