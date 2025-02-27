@@ -104,7 +104,8 @@
 				<!-- 根据选中参数的类型显示对应的内容 -->
 				<div>
 					<CodeEdit height="280px" v-model="jsonParams" lang="json" v-if="bodyType === 'json'"></CodeEdit>
-					<CodeEdit height="280px" v-model="dataParams" lang="json" v-else-if="bodyType === 'form'"></CodeEdit>
+					<CodeEdit height="280px" v-model="dataParams" lang="json" v-else-if="bodyType === 'form'">
+					</CodeEdit>
 					<!-- 判断选择的事form-data文件 -->
 					<div v-else class="file_box">
 						<el-row>
@@ -555,7 +556,7 @@ export default {
 			if (this.bodyType === 'json') {
 				caseData.request.json = JSON.parse(this.jsonParams);
 			}
-			// 老师用'data'，个人觉的应该改成'form'应与上面标签bodyType === 'form'对应
+			// 待确认 是否用'data'，是否应改成'form'应与上面标签bodyType === 'form'对应
 			else if (this.bodyType === 'data') {
 				caseData.request.json = JSON.parse(this.dataParams);
 			} else {
@@ -703,9 +704,9 @@ export default {
 .result_test {
 	/* 不设置，测试结果选择日志tab时，测试结果框变宽，左侧菜单列变窄 */
 	/* %针对父级扣除内边距的尺寸，vm针对浏览器窗口包含滚动条 */
-	/* 用老师写的下面的响应信息 与 上面的请求信息 有边框不能对其 */
+	/* 下面的响应信息 与 上面的请求信息 有边框不能对齐 */
 	/* width: calc((100vw - 230px) * 0.83) */
-	/* 自己调整后可对其了 */
+	/* 调整后可对其了 */
 	width: calc((100vw - 230px) * 0.79)
 }
 </style>

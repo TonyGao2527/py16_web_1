@@ -57,7 +57,7 @@
 										<span> 添加用例 </span>
 									</el-menu-item>
 
-									<!-- 老师写的 文案和上面用例没有对齐 -->
+									<!-- 下面这种，文案和上面用例没有对齐 -->
 									<!-- <el-menu-item>
 										<span style="color: #ffaa00;">
 											<el-icon>
@@ -111,7 +111,7 @@
 											<span> 添加用例 </span>
 										</el-menu-item> -->
 
-									<!-- 老师写的 文案和上面用例没有对齐 -->
+									<!-- 这种写的 文案和上面用例没有对齐 -->
 									<el-menu-item>
 										<span style="color: #ffaa00;">
 											<el-icon>

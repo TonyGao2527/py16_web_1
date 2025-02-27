@@ -340,7 +340,7 @@ export default {
 			};
 			const response = await this.$api.createTestScent(params);
 			if (response.status === 201) {
-				this.$message({  // 老师写的
+				this.$message({  // 参考写的
 					type: 'success',
 					message: '添加成功',
 					duration: 1000,
@@ -440,7 +440,7 @@ export default {
 		// 获取测试场景下的所有测试步骤
 		// 传参测试场景
 		async getScentData(scent) {
-			this.scentInfo = { ...scent };  // 老师说这一步不用也行 // 当前选中的测试场景
+			this.scentInfo = { ...scent };  // 这一步不用也行 // 当前选中的测试场景
 			console.log('日志 当前选中的测试场景this.scentInfo：', this.scentInfo)
 			const response = await this.$api.getScentDatas(scent.id);
 			if (response.status === 200) {
