@@ -14,9 +14,10 @@ import {
 } from 'element-plus'
 
 
-// 创建公共请求url
+// 创建公共请求url  注意：右侧不带 / 
 // const base_url = 'http://117.72.85.244:18899/api'
-const base_url = 'https://ck.lemonban.com/api'
+// const base_url = 'https://ck.lemonban.com/api'
+const base_url = 'http://127.0.0.1:8000'
 
 // 创建axios请求实例对象：开发环境
 const httpDev = axios.create({
