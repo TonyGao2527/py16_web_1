@@ -50,22 +50,22 @@
 									</el-menu-item>
 
 									<!-- 添加用例 按钮-->
-									<el-menu-item style="color: #ffaa00;">
+									<!-- <el-menu-item @click="clickAdd(iter.id)" :index="iter.id+'a'" style="color: #ffaa00;">
 										<el-icon>
 											<CirclePlus />
 										</el-icon>
 										<span> 添加用例 </span>
-									</el-menu-item>
+									</el-menu-item> -->
 
 									<!-- 下面这种，文案和上面用例没有对齐 -->
-									<!-- <el-menu-item>
+									<el-menu-item @click="clickAdd(iter.id)" :index="iter.id+'a'">
 										<span style="color: #ffaa00;">
 											<el-icon>
 												<CirclePlus />
 											</el-icon>
 											<span> 添加用例 </span>
 										</span>
-									</el-menu-item> -->
+									</el-menu-item>
 								</el-sub-menu>
 							</el-menu>
 						</el-scrollbar>
@@ -112,7 +112,7 @@
 										</el-menu-item> -->
 
 									<!-- 这种写的 文案和上面用例没有对齐 -->
-									<el-menu-item>
+									<el-menu-item @click="clickAdd(iter.id)" :index="iter.id+'a'">
 										<span style="color: #ffaa00;">
 											<el-icon>
 												<CirclePlus />
@@ -140,6 +140,20 @@
 			</el-scrollbar>
 		</el-col>
 	</el-row>
+
+	<!-- 添加用例的弹框 -->
+	<el-dialog v-model="addDlg" title="添加用例" width="40%">
+		<el-from :model="addCaseForm">
+			<el-from-item label="用例名称"><el-input v-model="addCaseForm.title" autocomplete="off"></el-input></el-from-item>
+		</el-from>
+		<template #footer>
+			<span class="dialog-footer">
+				<el-button size="small" @click="addDlg = false">取 消</el-button>
+				<el-button size="small" @click="addCase" type="success">确 定</el-button>
+			</span>
+		</template>
+	</el-dialog>
+
 </template>
 
 <script>
@@ -160,7 +174,12 @@ export default {
 	data() {
 		return {
 			// 保存左侧点击的 当前用例信息 （只有id和title）
-			editCase: null,
+			editCase: null,  // 当前用例信息
+			name: '',  // 接口名称
+			addDlg: false, // 添加用例对话框
+			addCaseForm: {  // 添加用例表单
+				title: '',  // 用例标题
+			}
 		}
 	},
 	computed: {
@@ -176,6 +195,27 @@ export default {
 		// 将左侧点击的用例信息，复制给右侧区域
 		selectCase(onCase) {
 			this.editCase = onCase;
+		},
+
+		// 点击添加用例按钮，传入当前接口id
+		clickAdd(interId){
+			this.addDlg = true;  // 显示添加用例对话框
+			this.addCaseForm.interface = interId;  // 传入当前接口id
+			this.addCaseForm.title = '';  // 清空用例标题
+		},
+
+		//
+		async addCase(){
+			const response = await this.$api.createTeststep(this.addCaseForm);
+			if (response.status === 201){
+				this.addDlg = false; // 隐藏添加用例对话框
+				this.$message({
+					type: 'success',
+					message: '添加用例成功',
+					duration: 2000
+				});
+				this.getAllInterFaces(); // 刷新接口列表
+			}
 		},
 	},
 	// 添加钩子 页面渲染加载前执行
