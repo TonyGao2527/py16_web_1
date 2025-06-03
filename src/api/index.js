@@ -169,8 +169,8 @@ export default {
 	// 单个接口用例查询 http://42.192.110.51:18899/docs/#interface-read	
 	// 查看项目接口文档 - Interface - read - id=steps外层id
 	// 路径参数就是当前的项目id
-	getInterFaces(parameters) {
-		return httpDev.get('/interfaces/', {
+	getInterfaces(parameters) {
+		return httpDev.get('/interface/', {
 			// Axios接口文档：github.com/axios/axios - Request Config 
 			//     - params说明，实际就是查询对象，在URL后面加问号的参数
 			// `params` are the URL parameters to be sent with the request
@@ -188,8 +188,19 @@ export default {
 	},
 
 	// 删除接口
+	delInterface(id){
+		return httpDev.delete(`/interface/${id}/`)
+	},
+
 	// 添加接口
+	createInterface(params){
+		return httpDev.post(`/interface/`, params)
+	},
+
 	// 修改接口
+	updateInterface(id, params){
+		return httpDev.patch(`/interface/${id}/`, params)
+	},
 
 
 	// ---------------测试用例相关的接口---------------------------------------------------------
@@ -197,14 +208,14 @@ export default {
 	// 项目详情-接口测试-点击左侧用例
 	// http://42.192.110.51:18899/docs/#teststep-read
 	getCaseInfo(id) {
-		return httpDev.get(`/test_steps/${id}/`)
+		return httpDev.get(`/teststep/${id}/`)
 	},
 	// 删除测试用例
 	// http://42.192.110.51:18899/docs/#teststep-delete
 	// 接口文档 - teststep - delete
 	// 项目详情-接口测试-接口-用例-删除
 	delTeststep(id) {
-		return httpDev.delete(`/test_steps/${id}/`)
+		return httpDev.delete(`/teststep/${id}/`)
 	},
 	// 创建测试用例
 
@@ -213,13 +224,13 @@ export default {
 	// 接口测试 - 用例 - 保存按钮
 	// params 当前用例信息对象{用例名，请求头，请求信息，file，前置数据，后置数据等}
 	updateTeststep(id, params) {
-		return httpDev.patch(`/test_steps/${id}/`, params)
+		return httpDev.patch(`/teststep/${id}/`, params)
 	},
 	// 创建测试用例
 	// http://42.192.110.51:18899/docs/#teststep-create
 	// 接口测试 - 用例 - 复制按钮
 	createTeststep(params) {
-		return httpDev.post('/test_steps/', params)
+		return httpDev.post('/teststep/', params)
 	},
 
 

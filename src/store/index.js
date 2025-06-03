@@ -163,7 +163,7 @@ export default createStore({
 			//     Must be a plain object or a URLSearchParams object
 			// 使用变量接收 response
 			console.log("日志 项目id content.state.pro.id：", content.state.pro.id);
-			const response = await api.getInterFaces({
+			const response = await api.getInterfaces({
 				// 这里是params，必须传对象 要有花括号{}
 				// 项目接口文档 Interface-read-Interact-project输入1查询，
 				//     接口路径问号右侧显示 ?project=1，那key就是project，值就是1是项目id
