@@ -96,7 +96,7 @@
                     3个el-radio单选 请求体类型
                 -->
 				<el-radio-group v-model="bodyType">
-					<!-- <el-radio>单选后会将label的值传给父标签中的bodyType -->
+					<!-- <el-radio>单选后会将label的值传给父标签中的 bodyType -->
 					<el-radio label="json" size="large">application/json</el-radio>
 					<el-radio label="form" size="large">x-www-form-urlencode</el-radio>
 					<el-radio label="file" size="large">form-data</el-radio>
@@ -114,7 +114,7 @@
 								<!-- 左侧：第一行数据：每行多列
                                     el+ - Layout 布局 - 行提供 gutter 属性来指定列之间的间距，其默认值为0。
                                 -->
-								<el-row v-for="item in editFiles" :gutter="5">
+								<el-row :gutter="5" v-for="item in editFiles" style="margin-bottom: 10px;">
 									<!-- 第1列 输入 参数名称 -->
 									<el-col :span="7">
 										<!-- <el-input v-model="item[0]" aria-placeholder="参数名"></el-input> -->
@@ -152,7 +152,7 @@
 										<el-input v-model="item[2]" placeholder="参数值" />
 									</el-col>
 									<!-- 第4列 删除按钮 -->
-									<el-col :span="6">
+									<el-col :span="6" style="text-align: center;">
 										<!-- 
                                             editFiles.splice(index, 1)
                                                 删除editFiles中当前索引index
@@ -165,7 +165,7 @@
 								</el-row>
 
 								<!-- 左侧：第二行按钮：添加一行参数输入框 -->
-								<el-button icon="Plus" type="success" plain size="small"
+								<el-button icon="Plus" type="success" plain size="small" style="margin-top: 10px;"
 									@click="editFiles.push(['', 'test', ''])"></el-button>
 
 							</el-col>
@@ -401,7 +401,7 @@ export default {
 			this.headers = JSON.stringify(datas.headers || {}, null, 2);
 			this.params = JSON.stringify(datas.request.params || {}, null, 2);
 			console.log('点击用例-用例参数 datas.request.params：', datas.request.params);
-			console.log('点击用例-用例参数 JSON.stringify(datas.request.params || {}, null, 2)：', this.param);
+			console.log('点击用例-用例参数 JSON.stringify(datas.request.params || {}, null, 2)：', this.params);
 			this.jsonParams = JSON.stringify(datas.request.json || {}, null, 2);
 			console.log('点击用例-用例参数 datas.request.json：', datas.request.json);
 			console.log('点击用例-用例参数 JSON.stringify(datas.request.json || {}, null, 2)：', this.jsonParams);
@@ -433,7 +433,7 @@ export default {
 		// 文件上传成功之后执行的方法
 		uploadSuccess() {
 			// 获取后台所有的文件
-			this.getAllFile
+			this.getAllFile();
 			// 提示上传成功
 			ElMessage({
 				message: '文件上传成功',
@@ -529,7 +529,7 @@ export default {
 		},
 
 		// 转换数据格式
-		// 运行、复制、保存按钮 的前置条件，需调用该方法
+		// 运行、复制、保存按钮 的前置条件，需调用该方法，来转换数据的格式
 		resetEditData() {
 			// 将编辑完的数据，转换为后端所需的格式，赋值到caseInfo中
 
@@ -562,8 +562,7 @@ export default {
 			} else {
 				const files = [];
 				// this.editFiles页面当前用例form-data数组
-				this.editFiles.file.forEach(
-					item => {
+				this.editFiles.file.forEach(item => {
 						// 存入 参数名, 参数值
 						// 这里为啥没判断参数类型？？？
 						files.push([item[0], item[2]]);
@@ -669,6 +668,7 @@ export default {
 		}
 		// 获取文件列表( 测试用例 )
 		this.getAllFile();
+		console.log('tableData:', this.tableData, Array.isArray(this.tableData))
 	},
 
 

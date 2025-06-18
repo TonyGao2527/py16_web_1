@@ -157,14 +157,10 @@
 </template>
 
 <script>
-import {
-	mapActions,
-	mapGetters,
-	mapState
-} from 'vuex'
+import {mapActions,	mapGetters,	mapState} from 'vuex';
 
 // 导入右侧编辑区的子组件
-import CaseEdit from '../components/CaseEdit.vue'
+import CaseEdit from '../components/CaseEdit.vue';
 
 export default {
 	components: {
@@ -185,7 +181,7 @@ export default {
 	computed: {
 		// 引入store - getters 方法
 		...mapGetters(['inters1', 'inters2']),
-		...mapState(['interfacesForPro', 'interfacesForThird']),
+		// ...mapState(['interfacesForPro', 'interfacesForThird']),
 	},
 
 	methods: {
@@ -218,16 +214,16 @@ export default {
 			}
 		},
 	},
-	// 添加钩子 页面渲染加载前执行
-	created() {
-		// 调用store - actions 方法
-		// 获取 项目详情-接口管理-数据
-		this.getAllInterFaces();
-		// 调用this.getAllInterFaces()后interfaces就有数据了， inters1和2自动更新就有数据了
-		console.log("日志 this.inters1：", this.inters1);
-		console.log("日志 this.inters2：", this.inters2);
-		console.log("日志 this.interfacesForPro：", this.interfacesForPro);
-	},
+	// // 添加钩子 页面渲染加载前执行
+	// created() {
+	// 	// 调用store - actions 方法
+	// 	// 获取 项目详情-接口管理-数据
+	// 	this.getAllInterFaces();
+	// 	// 调用this.getAllInterFaces()后interfaces就有数据了， inters1和2自动更新就有数据了
+	// 	console.log("日志 this.inters1：", this.inters1);
+	// 	console.log("日志 this.inters2：", this.inters2);
+	// 	console.log("日志 this.interfacesForPro：", this.interfacesForPro);
+	// },
 }
 </script>
 
