@@ -472,4 +472,7 @@ export default {
 	},
 
 	// 删除文件
+	deleteFile(id){
+		return httpDev.delete(`/upload/file/${id}`)
+	}
 }
