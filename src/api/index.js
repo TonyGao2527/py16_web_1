@@ -277,7 +277,7 @@ export default {
 	getScentDatas(scentId) {
 		return httpDev.get(`/scentdata/`, {
 			params: {
-				scent: scentId
+				scene: scentId
 			}
 		})
 	},

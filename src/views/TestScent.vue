@@ -491,7 +491,7 @@ export default {
 				// step 步骤
 				// scent 场景
 				// 添加步骤到测试场景中 $api.addScentData()
-				const response = await this.$api.addScentData({ sort: order_s, step: item.id, scent: this.scentInfo.id })
+				const response = await this.$api.addScentData({ sort: order_s, step: item.id, scene: this.scentInfo.id })
 				if (response.status === 201) {
 					// Notification 通知
 					ElNotification({
