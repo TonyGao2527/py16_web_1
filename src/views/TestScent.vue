@@ -406,7 +406,7 @@ export default {
 				const params = {
 					env: this.envId,
 					// 接口同一个，运行测试场景 就传场景id
-					scent: this.scentInfo.id
+					scene: this.scentInfo.id
 				};
 				this.$message({
 					type: 'success',
