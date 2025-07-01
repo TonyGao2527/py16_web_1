@@ -462,7 +462,7 @@ export default {
 	uploadFile: {
 		url: base_url + "/upload/file/",
 		headers: {
-			Authorization: 'JWT' + window.sessionStorage.getItem('token')
+			Authorization: 'JWT ' + window.sessionStorage.getItem('token')
 		}
 	},
 
