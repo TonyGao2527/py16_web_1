@@ -269,7 +269,7 @@ export default {
 	// 修改测试场景中的执行步骤顺序
 	// http://42.192.110.51:18899/docs/#testscent-order-update
 	updateScentDataOrder(params) {
-		return httpDev.put(`/testscent/order`, params)
+		return httpDev.put(`/scentdata/order/`, params)
 	},
 
 	// 获取测试场景中的数据
