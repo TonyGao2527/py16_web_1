@@ -453,7 +453,8 @@ export default {
 		// :param plan: 测试计划id (运行测试计划)
 		// :param scent: 测试场景id (运行测试场景)
 		// :param data: 测试数据id (运行单条用例时使用) 
-		return httpDev.post('/runTest/', params)
+		return httpDev.post('/runTest/', params)  // 正常使用
+		// return httpDev.post('/teststep/run/', params)  // 运行单条用例接口，调试
 	},
 
 

@@ -621,8 +621,11 @@ export default {
 			const runData = this.resetEditData();
 			// 对用例中的url、method赋值
 			runData.interface = {
-				url: this.caseInfo.interface.url,
-				method: this.caseInfo.interface.method
+				//url: this.caseInfo.interface.url,
+				//method: this.caseInfo.interface.method
+				// 使用下面这种，页面临时修改，运行时调用的是临时修改内容
+				url: this.url,
+				method: this.method
 			};
 			// 创建请求参数对象，加入环境信息env
 			// env: this.envId 当前参数所在环境的id
