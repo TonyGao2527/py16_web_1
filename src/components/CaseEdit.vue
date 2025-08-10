@@ -449,10 +449,10 @@ export default {
 			} else if (type === 'env') {
 				this.setup_script += '# 预设局部变量\ntest.save_env_variable("变量名", "变量值")\n'
 			} else if (type === 'func') {
-				this.setup_script += '# 调用全局工具函数\nrandom_mobile随机生成一个手机号码 \nmobile = global_func.random_mobile()\n'
+				this.setup_script += '# 调用全局工具函数\n# random_mobile随机生成一个手机号码 \nmobile = global_func.random_mobile()\n'
 			} else if (type === 'sql') {
 				this.setup_script +=
-					'# ---- 执行sql语句(需要在环境中配置数据库连接信息) ----\n# db.连接名.execute_all(sql语句) \nsql="SELECT count(*) as count From futureloan.member"\n res = db.aliyun.execute_all(sql)\n'
+					'# ---- 执行sql语句(需要在环境中配置数据库连接信息) ----\n# db.连接名.execute_all(sql语句) \nsql="SELECT count(*) as count From futureloan.member"\nres = db.aliyun.execute_all(sql)\n'
 			}
 		},
 
