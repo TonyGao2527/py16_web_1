@@ -485,7 +485,7 @@ export default {
 					this.teardown_script += '\n# 断言http状态码 \n# Demo:断言http状态码是否为200 \nText.assertion("相等", 200, response.status_code)';
 					break;
 				case 'eq':
-					this.teardown_script += '\n# 断言相等 \ntest.assertion("相等","逾期结果","实际结果")';
+					this.teardown_script += '\n# 断言相等 \ntest.assertion("相等","预期结果","实际结果")';
 					break;
 				case 'contain':
 					this.teardown_script += '\n# 断言包含：预期结果中的内容在实际结果中是否存在 \ntest.assertion("包含","逾期结果","实际结果")';
