@@ -323,7 +323,7 @@ export default {
 	// params
 	//   name      计划名
 	//   project   项目id
-	//   scent     包含的测试场景
+	//   scent/scenes     包含的测试场景
 	updateTestPlan(id, params) {
 		return httpDev.patch(`/testplan/${id}/`, params)
 	},
@@ -453,8 +453,9 @@ export default {
 		// :param plan: 测试计划id (运行测试计划)
 		// :param scent: 测试场景id (运行测试场景)
 		// :param data: 测试数据id (运行单条用例时使用) 
-		return httpDev.post('/runTest/', params)  // 正常使用
+		// return httpDev.post('/runTest/', params)  // 正常使用
 		// return httpDev.post('/teststep/run/', params)  // 运行单条用例接口，调试
+		return httpDev.post('/testscent/run/', params)  // 运行单条场景接口，调试
 	},
 
 
