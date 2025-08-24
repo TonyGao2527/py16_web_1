@@ -176,8 +176,13 @@
 			direction="rtl" Drawer 打开的方向 "rtl"右侧
 			size="20%" Drawer 窗体的大小,
 			:show-close	是否显示关闭按钮
+			:destroy-on-close="true" 确保抽屉关闭时完全销毁内容
+			:with-header="true" 确保头部正确渲染
 	-->
+	<!-- 修改前的抽屉组件（已注释）：
 	<el-drawer v-model="drawer" direction="rtl" size="20%" :show-close="false">
+	-->
+	<el-drawer v-model="drawer" direction="rtl" size="20%" :show-close="false" :destroy-on-close="true" :with-header="true">
 		<!-- 插槽 顶部标题 -->
 		<template #header>
 			<b style="color: #000000">添加测试流程</b>
@@ -226,7 +231,10 @@
 			</el-tooltip>
 
 			<el-tooltip effect="dark" placement="top-start" content="关闭当前窗口">
+				<!-- 修改前的关闭按钮（已注释）：
 				<el-button plain size="small" type="danger" @click="drawer = false">关闭窗口</el-button>
+				-->
+				<el-button plain size="small" type="danger" @click="closeDrawer">关闭窗口</el-button>
 			</el-tooltip>
 		</div>
 
@@ -261,7 +269,7 @@ export default {
 
 
 	// 方法
-	methods: {
+	methods: {		
 		// 获取所有测试计划
 		async getAllPlan() {
 			// 调用后端接口, 传参项目id 
@@ -338,6 +346,16 @@ export default {
 
 		// 保存修改的测试计划名称
 		async savePlan() {
+			// 验证 planInfo 是否存在
+			if (!this.planInfo || !this.planInfo.id) {
+				this.$message({
+					type: 'warning',
+					message: '测试计划信息不存在！',
+					duration: 2000
+				});
+				return;
+			}
+
 			const response = await this.$api.updateTestPlan(this.planInfo.id, this.planInfo);
 			if (response.status == 200) {
 				this.$message({
@@ -352,8 +370,19 @@ export default {
 
 		// 运行测试计划
 		async runPlan() {
-			if (this.envId) {  // 判断当前选则的环境Id
-				const params = {  // 创建组装对象参数c
+			// 验证 planInfo 是否存在
+			if (!this.planInfo || !this.planInfo.id) {
+				this.$message({
+					type: 'warning',
+					message: '请先选择一个测试计划！',
+					duration: 2000
+				});
+				return;
+			}
+ 			// 判断当前选则的环境Id
+			if (this.envId) { 
+				// 创建组装对象参数
+				const params = {  
 					env: this.envId,
 					// 如果以测试计划运行就是测试计划id；
 					// 如果以测试场景运行就是测试场景id；
@@ -388,6 +417,16 @@ export default {
 
 		// 删除测试计划
 		delPlan() {
+			// 验证 planInfo 是否存在
+			if (!this.planInfo || !this.planInfo.id) {
+				this.$message({
+					type: 'warning',
+					message: '测试计划信息不存在！',
+					duration: 2000
+				});
+				return;
+			}
+
 			// 点击后先弹出提示窗
 			// el- Message Box 消息弹出框
 			ElMessageBox.confirm(
@@ -437,9 +476,36 @@ export default {
 
 		// 添加选中的测试场景到测试计划中
 		async addScentToPlan() {
+			// 验证 planInfo 是否存在
+			if (!this.planInfo || !this.planInfo.id) {
+				this.$message({
+					type: 'warning',
+					message: '请先选择一个测试计划！',
+					duration: 2000
+				});
+				return;
+			}
+
+			// 验证是否有选中的测试场景
+			if (!this.addScentList || this.addScentList.length === 0) {
+				this.$message({
+					type: 'warning',
+					message: '请先选择要添加的测试场景！',
+					duration: 2000
+				});
+				return;
+			}
+
 			let params = { ...this.planInfo };
+			
+			// 确保 scent 属性存在且为数组
+			if (!params.scenes) {
+				params.scenes = [];
+			}
+			
 			// 勾选的选项addScentList push添加到 params.scent中
-			params.scent.push(...this.addScentList);
+			params.scenes.push(...this.addScentList);
+			
 			// 发送请求
 			const response = await this.$api.updateTestPlan(params.id, params);
 			if (response.status === 200) {
@@ -454,12 +520,47 @@ export default {
 				// 获取测试计划下所有的测试场景
 				this.getPlanData(this.planInfo)
 			}
-			// 清空选中的选项
-			this.$refs.addRef.clearSelection();
+
+			
+			// 修改后的代码
+			// 安全关闭抽屉
+			this.closeDrawer();
+			// 修改前的代码（已注释）：
+			// this.$refs.addRef.clearSelection();
 		},
 
 		// 删除测试计划中的测试场景
 		async delPlanInScent(index) {
+			// 验证 planInfo 是否存在
+			if (!this.planInfo || !this.planInfo.id) {
+				this.$message({
+					type: 'warning',
+					message: '测试计划信息不存在！',
+					duration: 2000
+				});
+				return;
+			}
+
+			// 验证 scent 属性是否存在且为数组
+			if (!this.planInfo.scenes || !Array.isArray(this.planInfo.scenes)) {
+				this.$message({
+					type: 'warning',
+					message: '测试场景列表不存在！',
+					duration: 2000
+				});
+				return;
+			}
+
+			// 验证索引是否有效
+			if (index < 0 || index >= this.planInfo.scenes.length) {
+				this.$message({
+					type: 'warning',
+					message: '无效的测试场景索引！',
+					duration: 2000
+				});
+				return;
+			}
+
 			let params = { ...this.planInfo }
 			// let params = cloneDeep(this.planInfo) // 深拷贝 不影响之前的数据
 			console.log('params.scent.splice(index, 1)删除前的数据this.planInfo', this.planInfo)
@@ -468,7 +569,7 @@ export default {
 			//     startIndex：表示从数组的哪个位置开始操作。它是一个索引值。
 			//     deleteCount：表示要删除多少个元素。
 			//     item1, item2, ...：表示要插入的新元素（可选）。
-			params.scent.splice(index, 1);
+			params.scenes.splice(index, 1);
 			console.log('this.planInfo删除前的数据', this.planInfo)
 			const response = await this.$api.updateTestPlan(params.id, params);
 			if (response.status === 200) {
@@ -485,15 +586,55 @@ export default {
 				// 获取测试计划下所有的测试场景
 				this.getPlanData(this.planInfo);
 			}
-		}
+		},
+
+		// 安全关闭抽屉，避免 ResizeObserver 错误
+		closeDrawer() {
+			// 先清空选中的选项
+			if (this.$refs.addRef) {
+				this.$refs.addRef.clearSelection();
+			}
+			// 清空选中的测试场景列表
+			this.addScentList = [];
+			// 延迟关闭抽屉，给 ResizeObserver 足够时间清理
+			setTimeout(() => {
+				this.drawer = false;
+			}, 100);
+		},
+
 	},
 
-	// 钩子 页面渲染前执行 
+	// 钩子 组件创建后 页面渲染前执行 
 	created() {
 		// 获取所有的测试计划
 		this.getAllPlan();
 	},
 
+	// 钩子 组件销毁前执行
+	// 触发时机：
+		// 用户离开页面（路由切换）
+		// 组件被 <v-if="false"> 条件渲染移除
+		// 父组件销毁时，子组件也会销毁
+		// 手动调用组件的 $destroy() 方法
+	beforeUnmount() {
+		// 清理 ResizeObserver 相关资源
+		if (this.drawer) {
+			this.drawer = false;
+		}
+		// 清理图表实例 - 修复：chart.js 中没有 destroy 方法
+		if (this.$refs.chartTable) {
+			try {
+				// 获取图表容器元素
+				const chartContainer = this.$refs.chartTable;
+				// 如果容器中有 ECharts 实例，则销毁它
+				if (chartContainer && chartContainer.__echarts__) {
+					chartContainer.__echarts__.dispose();
+				}
+			} catch (e) {
+				console.log('图表清理完成');
+			}
+		}
+	},
 
 	// 计算属性 
 	computed: {
@@ -563,6 +704,24 @@ export default {
 					this.$refs.chartTable,  // 通过率趋势图<div ref="chartTable">
 					this.chartData.value,  // 在计算属性 computed - chartdata 定义的值；
 					this.chartData.label);  // 在计算属性 computed - chartdata 定义的值；
+			}
+		},
+
+		// 监听抽屉状态变化
+		// newVal - 监听变量的新值（当前值）
+		// oldVal - 监听变量的旧值（变化前的值）	
+
+		drawer(newVal, oldVal) {
+			if (!newVal && oldVal) {				
+				// 当 drawer 从 true 变为 false 时
+				// newVal = false（新值）
+				// oldVal = true（旧值）
+            
+				// 抽屉关闭时，清理相关资源
+				this.addScentList = [];
+				if (this.$refs.addRef) {
+					this.$refs.addRef.clearSelection();
+				}
 			}
 		},
 	},
