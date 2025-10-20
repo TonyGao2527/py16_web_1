@@ -407,7 +407,8 @@ export default {
 	// 获取测试报告信息
 	// http://42.192.110.51:18899/docs/#report-read
 	getTestReport(id) {
-		return httpDev.get(`/report/${id}/`)
+		// return httpDev.get(`/report/${id}/`)
+		return httpDev.get(`/record/${id}/report/`)
 	},
 
 
