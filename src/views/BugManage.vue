@@ -49,6 +49,7 @@
 				<el-table-column label="所属接口" show-overflow-tooltip prop="interface_url"
 					min-width="00"></el-table-column>
 				<el-table-column label="bug状态" prop="status" min-width="80"></el-table-column>
+				<el-table-column label="提交者" prop="user" min-width="80"></el-table-column>
 				<el-table-column label="操作" width="180" >
 					<template #default="scope">
 						<div style="text-align: right;">
