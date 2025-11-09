@@ -62,7 +62,7 @@
 							-->
 							<el-descriptions-item label="场景总数">{{ report.results.length }}</el-descriptions-item>
 							<el-descriptions-item label="通过场景">{{ successscent.length }}</el-descriptions-item>
-							<el-descriptions-item label="事变场景">{{ failscent.length }}</el-descriptions-item>
+							<el-descriptions-item label="失败场景">{{ failscent.length }}</el-descriptions-item>
 							<el-descriptions-item label="错误场景">{{ errorscent.length }}</el-descriptions-item>
 						</el-descriptions>
 					</el-card>
