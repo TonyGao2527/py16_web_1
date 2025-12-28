@@ -440,7 +440,7 @@ export default {
 	//================获取bug处理记录列表=======================================================
 	// 获取bug处理记录列表
 	getBugLogs(params) {
-		return httpDev.get('/blog/', {
+		return httpDev.get('/blogs/', {
 			params: params
 		})
 	},

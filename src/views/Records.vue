@@ -17,7 +17,7 @@
 		<el-table-column label="查看报告" width="100">
 			<template #default="scope">
 				<el-button size="small" type="success" plain
-					@click="$router.push({ name: 'report', params: { id: scope.rou.id } })">
+					@click="$router.push({ name: 'report', params: { id: scope.row.id } })">
 					测试报告
 				</el-button>
 			</template>
