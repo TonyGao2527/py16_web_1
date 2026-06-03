@@ -95,7 +95,9 @@
 				<el-row :gutter="20">
 					<el-col :span="12">
 						<h5>规则说明:</h5>
-						<div class="explain_box">* * * * *
+						
+						<!-- 旧的注释 -->
+						<!-- <div class="explain_box">* * * * *
 							<span>分别表示 minute hour week day month </span>
 						</div>
 						<div class="explain_box">minute：
@@ -112,12 +114,33 @@
 						</div>
 						<div class="explain_box">month：
 							<span>表示月份，可以是从1到12之间的任何整数。</span>
+						</div> -->
+
+						<!-- GPT 后写的注释 -->
+						<div class="explain_box">* * * * * ：
+							<span>分别表示 minute hour day month week </span>
+						</div>
+						<div class="explain_box">minute &nbsp;：
+							<span>表示分钟，可以是从0到59之间的任何整数。</span>
+						</div>
+						<div class="explain_box">hour &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;：
+							<span>表示小时，可以是从0到23之间的任何整数。</span>
+						</div>
+						<div class="explain_box">day &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;：
+							<span>表示日期，可以是从1到31之间的任何整数。</span>
+						</div>
+						<div class="explain_box">month &nbsp;：
+							<span>表示月份，可以是从1到12之间的任何整数。</span>
+						</div>
+						<div class="explain_box">week &nbsp;&nbsp;&nbsp;&nbsp;：
+							<span>表示星期几，可以是从0到7之间的任何整数，这里的0或7代表星期日。</span>
 						</div>
 
 					</el-col>
 					<el-col :span="12">
 						<h5>配置案例：</h5>
-						<div class="explain_box">5 * * * * :
+						<!-- 以前的笔记 -->
+						<!-- <div class="explain_box">5 * * * * :
 							<span>每小时的第5分钟执行一次任务</span>
 						</div>
 						<div class="explain_box">30 9 * * * :
@@ -131,7 +154,35 @@
 						</div>
 						<div class="explain_box">30 9 0 * * :
 							<span>每星期日的上午9:30执行一次任务</span>
+						</div> -->
+
+						<!-- GPT 后写的笔记 -->
+						<div class="explain_box">5 * * * * &nbsp;&nbsp;&nbsp;:
+							<span>每小时的第5分钟执行一次任务</span>
 						</div>
+						<div class="explain_box">30 9 * * * :
+							<span>每天上午9:30执行一次任务</span>
+						</div>
+						<div class="explain_box">30 9 8 * * :
+							<span>每月8号上午9:30执行一次任务</span>
+						</div>
+						<div class="explain_box">30 9 * 8 * :
+							<span>每年8月的每天上午9:30执行</span>
+						</div>
+						<div class="explain_box">30 9 5 3 * :
+							<span>每年的3月5日9:30执行一次任务</span>
+						</div>
+						<div class="explain_box">30 9 * 5 3 :
+							<span>每年5月的每个星期三上午9:30执行</span>
+						</div>
+						<div class="explain_box">30 9 * * 0 :
+							<span>每星期日的上午9:30执行一次任务</span>
+						</div>
+						<div class="explain_box">30 9 0 * * :
+							<span>错误的表达式 日取值范围是：1 - 31</span>
+						</div>
+
+
 					</el-col>
 				</el-row>
 			</el-form-item>
