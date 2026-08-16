@@ -141,14 +141,14 @@
 	-->
 	<el-dialog title="修改bug状态" v-model="updateBugDlg" width="30%">
 		<el-form :model="updateBugForm">
-			<el-from-item label="bug状态">
+			<el-form-item label="bug状态">
 				<el-select v-model="updateBugForm.status" placeholder="请选择bug状态" style="width: 100%;">
 					<el-option label="未处理" value="未处理"></el-option>
 					<el-option label="处理中" value="处理中"></el-option>
 					<el-option label="处理完" value="处理完"></el-option>
 					<el-option label="无效bug" value="无效bug"></el-option>
 				</el-select>
-			</el-from-item>
+			</el-form-item>
 		</el-form>
 		<!-- footer 2.4.3	下拉列表底部的内容 -->
 		<template #footer>

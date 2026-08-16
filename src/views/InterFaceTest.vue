@@ -143,9 +143,9 @@
 
 	<!-- 添加用例的弹框 -->
 	<el-dialog v-model="addDlg" title="添加用例" width="40%">
-		<el-from :model="addCaseForm">
-			<el-from-item label="用例名称"><el-input v-model="addCaseForm.title" autocomplete="off"></el-input></el-from-item>
-		</el-from>
+		<el-form :model="addCaseForm">
+			<el-form-item label="用例名称"><el-input v-model="addCaseForm.title" autocomplete="off"></el-input></el-form-item>
+		</el-form>
 		<template #footer>
 			<span class="dialog-footer">
 				<el-button size="small" @click="addDlg = false">取 消</el-button>

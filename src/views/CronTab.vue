@@ -417,7 +417,7 @@ export default {
 }
 
 /* 给必填项的label添加红色星号 */
-.el-from-item[required] .el-from-item__label::after {
+.el-form-item[required] .el-form-item__label::after {
 	content: '*';
 	color: red;
 	font-size: 18px;

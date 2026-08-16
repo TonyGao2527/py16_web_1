@@ -17,8 +17,16 @@ import {
 // 创建公共请求url  注意：右侧不带 / 
 // const base_url = 'http://117.72.85.244:18899/api'
 // const base_url = 'https://ck.lemonban.com/api'
-const base_url = 'http://127.0.0.1:8000'  // 调试的时候用
-// const base_url = 'http://django_app:8000'  // 打包部署 docker 的时候用， ip 替换成 docker 镜像名
+// const base_url = 'http://127.0.0.1:8000'  // 调试的时候用
+const base_url = 'http://localhost:6677'  // 调试的时候用 来源 docker
+// 打包部署 docker 的时候
+// ip：
+// 	1 本地调试：127.0.0.1:8000 或 localhost:8000
+// 	2 本地 Docker（宿主机端口映射）：127.0.0.1:5205（如果你映射的是 5205）
+// 	3 Docker 内部同网：http://django_app:8000 后端容器:8000
+// 	4 远程服务器：远程 IP 或域名 + 端口
+// 端口：换成 nginx 容器 映射后端的端口 -p 5204:80 -p 5205:8000
+// const base_url = 'http://127.0.0.1:5205'  
 
 // 创建axios请求实例对象：开发环境
 const httpDev = axios.create({

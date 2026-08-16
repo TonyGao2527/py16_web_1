@@ -482,7 +482,7 @@ export default {
 					this.teardown_script += '\n# ----执行sql语句(需要在环境中配置数据库连接信息)---- \n# db.连接名。execute_all(sql语句)\nsql = "SELECT count(*) as count FROM futureloan.member"\nres = db.aliyun.execute_all(sql)';
 					break;
 				case 'http':
-					this.teardown_script += '\n# 断言http状态码 \n# Demo:断言http状态码是否为200 \nText.assertion("相等", 200, response.status_code)';
+					this.teardown_script += '\n# 断言http状态码 \n# Demo:断言http状态码是否为200 \ntest.assertion("相等", 200, response.status_code)';
 					break;
 				case 'eq':
 					this.teardown_script += '\n# 断言相等 \ntest.assertion("相等","预期结果","实际结果")';
