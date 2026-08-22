@@ -3,9 +3,21 @@
  -->
 <template>
     <!-- 响应信息 选项卡 -->
-    <el-tabs model-value="rb" style="min-height: 300px; width: 100%;" type="border-card" value="rb" size="small">
-        <!-- <el-tabs model-value="rb" style="min-height: 300px;width: 100%;" type="border-card" value="rb" size="small"> -->
+    <!-- <el-tabs model-value="rb" style="min-height: 300px; width: 100%;" type="border-card" value="rb" size="small"> -->
+    <!-- <el-tabs model-value="rb" style="min-height: 300px; width: 100%;" type="border-card" size="small"> -->
+    <el-tabs model-value="rb" class="result-tabs" style="min-height: 300px; width: 100%;" :style="{
+        '--assert-color':
+            result.state === '成功'
+                ? '#00aa7f'
+                : result.state === '失败'
+                    ? '#d18d17'
+                    : '#ff0000',
 
+        '--status-color':
+            result.status_cede <= 300
+                ? '#00AA7F'
+                : '#ff5500'
+    }" type="border-card" size="small">
         <el-tab-pane label="响应体" name="rb">
             <div v-if="result.response_header">
                 <!-- 
@@ -69,40 +81,63 @@
             <el-scrollbar style="width:100%" height="350px">
                 <div v-for="(item, index) in result.log_data">
                     <el-tag style="margin-top: 3px;" v-if="item[0] === 'DEBUG'" type="info">{{ item[1] }}</el-tag>
-                    <el-tag style="margin-top: 3px;" v-else-if="item[0] === 'WARNING'" type="warning">{{ item[1] }}</el-tag>
+                    <el-tag style="margin-top: 3px;" v-else-if="item[0] === 'WARNING'" type="warning">{{ item[1]
+                    }}</el-tag>
                     <el-tag style="margin-top: 3px;" v-else-if="item[0] === 'ERROR'" type="error">{{ item[1] }}</el-tag>
-                    <el-tag style="margin-top: 3px;" v-else-if="item[0] === 'INFO'" type="success">{{ item[1] }}</el-tag>
+                    <el-tag style="margin-top: 3px;" v-else-if="item[0] === 'INFO'" type="success">{{ item[1]
+                    }}</el-tag>
                     <pre style="color: #d60000;" v-else-if="item[0] === 'EXCEPT'">{{ item[1] }}</pre>
                 </div>
             </el-scrollbar>
         </el-tab-pane>
 
-        <!-- Assert断言结果 -->
-        <el-tab-pane disabled>
-            <!-- #label 就是插槽显示tab的标题 -->
-            <template #label>
-                <span style="color: #00aa7f;" v-if="result.state === '成功'">{{ 'Assert : ' + result.state }}</span>
-                <span style="color: #d18d17;" v-else-if="result.state === '失败'">{{ 'Assert : ' + result.state }}</span>
-                <span style="color: #ff0000;" v-else>{{ 'Assert : ' + result.state }}</span>
-            </template>
+        <!-- 用该标签将下面代码注释掉 -->
+        <template v-if="false">
+
+            <!-- Assert断言结果 -->
+            <el-tab-pane disabled>
+                <!-- #label 就是插槽显示tab的标题 -->
+                <template #label>
+                    <span style="color: #00aa7f;" v-if="result.state === '成功'">{{ 'Assert : ' + result.state }}</span>
+                    <span style="color: #d18d17;" v-else-if="result.state === '失败'">{{ 'Assert : ' + result.state
+                        }}</span>
+                    <span style="color: #ff0000;" v-else>{{ 'Assert : ' + result.state }}</span>
+                </template>
+            </el-tab-pane>
+
+            <!-- status响应状态码 -->
+            <el-tab-pane disabled>
+                <!-- #label 就是插槽显示tab的标题 -->
+                <template #label>
+                    <span style="color: #00AA7F;" v-if="result.status_cede <= 300">{{ 'Status : ' + result.status_cede
+                    }}</span>
+                    <span style="color: #ff5500;" v-else>{{ 'Status : ' + result.status_cede }}</span>
+                </template>
+            </el-tab-pane>
+
+            <!-- Time 响应时间 -->
+            <el-tab-pane disabled>
+                <!-- #label 就是插槽显示tab的标题 -->
+                <template #label>
+                    {{ 'Time : ' + result.run_time }}
+                </template>
+            </el-tab-pane>
+        </template>
+
+
+        <!-- 新代码：使用普通 label，避免触发 scheduleRender -->
+        <!-- Assert 断言结果 -->
+        <el-tab-pane name="assert-result" :label="'Assert : ' + (result.state ?? '-')" disabled>
         </el-tab-pane>
 
-        <!-- status响应状态码 -->
-        <el-tab-pane disabled>
-            <!-- #label 就是插槽显示tab的标题 -->
-            <template #label>
-                <span style="color: #00AA7F;" v-if="result.status_cede <= 300">{{ 'Status : ' + result.status_cede }}</span>
-                <span style="color: #ff5500;" v-else>{{ 'Status : ' + result.status_cede }}</span>
-            </template>
+        <!-- HTTP 响应状态码 -->
+        <el-tab-pane name="status-result" :label="'Status : ' + (result.status_cede ?? '-')" disabled>
         </el-tab-pane>
 
-        <!-- Time 响应时间 -->
-        <el-tab-pane disabled>
-            <!-- #label 就是插槽显示tab的标题 -->
-            <template #label>
-                {{ 'Time : ' + result.run_time }}
-            </template>
+        <!-- 接口运行时间 -->
+        <el-tab-pane name="time-result" :label="'Time : ' + (result.run_time ?? '-')" disabled>
         </el-tab-pane>
+
     </el-tabs>
 
     <!-- 添加bug的按钮 
@@ -229,4 +264,14 @@ export default {
 }
 </script>
 
-<style></style>
+<style>
+/* Assert 标签动态颜色 */
+.result-tabs #tab-assert-result {
+    color: var(--assert-color) !important;
+}
+
+/* Status 标签动态颜色 */
+.result-tabs #tab-status-result {
+    color: var(--status-color) !important;
+}
+</style>

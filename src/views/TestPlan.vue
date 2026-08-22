@@ -276,8 +276,10 @@ export default {
 			const response = await this.$api.getTestPlan(this.pro.id)
 			if (response.status === 200) {
 				// 测试计划列表 赋值
-				// 没有放在store中 因为不是多个页面共用 所以不用放
 				this.planList = response.data;
+				// 定时任务页的“执行计划”下拉框读取的是 Vuex 中的 testPlans。
+				// 同步更新全局状态，避免新增、修改或删除计划后下拉框仍显示旧数据。
+				this.$store.commit('updateTestPlans', response.data);
 				// 设置默认激活的测试计划， 并获取数据
 				// 在 this.planInfo 还没有被初始化或设置的情况下，才会去获取并显示第一个测试计划的数据。
 				// 不加this.planInfo == null，每次调用时（比如页面刷新或其他情况），

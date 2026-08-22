@@ -17,8 +17,8 @@ import {
 // 创建公共请求url  注意：右侧不带 / 
 // const base_url = 'http://117.72.85.244:18899/api'
 // const base_url = 'https://ck.lemonban.com/api'
-// const base_url = 'http://127.0.0.1:8000'  // 调试的时候用
-const base_url = 'http://localhost:6677'  // 调试的时候用 来源 docker
+const base_url = 'http://127.0.0.1:8000'  // 调试的时候用
+// const base_url = 'http://localhost:6677'  // 调试的时候用 来源 docker
 // 打包部署 docker 的时候
 // ip：
 // 	1 本地调试：127.0.0.1:8000 或 localhost:8000

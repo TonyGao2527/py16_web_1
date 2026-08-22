@@ -1,7 +1,7 @@
 <template>
 	<!-- 添加定时任务 按钮 -->
 
-	<el-button @click='dialogCron = true; updateBtn = false' style="margin: 10px 5px;" type="success" icon="Plus"
+	<el-button @click="showCreateCronDlg" style="margin: 10px 5px;" type="success" icon="Plus"
 		size="small">
 		添加定时任务
 	</el-button>
@@ -244,6 +244,13 @@ export default {
 
 	// 方法
 	methods: {
+		// 打开创建窗口前重新获取测试计划，避免下拉框使用 Vuex 中的旧数据
+		async showCreateCronDlg() {
+			this.updateBtn = false;
+			await this.$store.dispatch('getAllPlan');
+			this.dialogCron = true;
+		},
+
 		// 获取所有定时任务
 		async getAllCron() {
 			const response = await this.$api.getCrons(this.pro.id)

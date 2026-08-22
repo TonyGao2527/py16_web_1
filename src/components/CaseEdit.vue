@@ -347,9 +347,9 @@ export default {
 			// 后台所有测试用的文件
 			fileList: [],
 			// 用例运行结果
-			// runResult: null,
+			runResult: null,
 			// 用例运行结果 - 暂时让它都显示
-			runResult: 1,
+			// runResult: 1,
 		}
 	},
 
